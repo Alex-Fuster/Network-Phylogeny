@@ -1,0 +1,422 @@
+---
+title: "Measure phylogenetic signal"
+output: html_notebook
+---
+
+```{r}
+source("../Original_code/functions/tree_functions.R")
+source("../Original_code/functions/phylo_functions.R")
+source("AF_functions_tree.R")
+library(ape)
+library(apTreeshape)
+
+library("vegan")
+```
+
+
+### Load data
+
+```{r}
+load("../Data/Positive_interactions/list_res_pos_2.Rdata")
+
+names(list_res) = c("simulation1", "simulation2")
+
+list_simulation1 <- list_res$simulation1
+
+```
+
+
+### Showing that algorythms for tree building dont reflect our phylogenetic distances
+
+
+# build phylogenetic trees for each timestep
+
+```{r}
+
+list_trees <- compute_phylog_all_timesteps(df_anc = list_simulation1$parentage_matrix, 
+                                           timesteps = nrow(list_simulation1$presence_matrix),
+                                           initial_timestep = 2)
+
+
+list_phylo.dist <- compute_phylo_dist_all_steps(df_anc = list_simulation1$parentage_matrix, 
+                             timesteps = nrow(list_simulation1$presence_matrix),
+                             initial_timestep = 2)
+```
+
+
+I check wether phylogenetic distances make sense by comparing them with the tree, and they dont:
+
+```{r}
+list_phylo.dist[[5]]
+```
+
+
+```{r}
+
+plot(unroot(list_trees[[5]]),type= "phylogram",cex=0.6,
+                         use.edge.length=FALSE,lab4ut="axial",
+                         no.margin=TRUE)
+```
+
+
+For instance, here, spp 6 has distance 1 with spp 4, but also distance 1 with spp 7.
+
+
+```{r}
+list_phylo.dist[[10]]
+```
+
+
+```{r}
+
+plot(unroot(list_trees[[10]]),type= "phylogram",cex=0.6,
+                         use.edge.length=FALSE,lab4ut="axial",
+                         no.margin=TRUE)
+```
+
+Let's try now with phylogenetic distances calculated without any clustering algorythm, just based on Mathilde's function
+
+```{r}
+list_dist.mat_phylo.dist1 <- compute_phylog_all_timesteps_nohclust(df_anc = list_simulation1$parentage_matrix, 
+                             timesteps = nrow(list_simulation1$presence_matrix),
+                             initial_timestep = 2)
+
+
+list_dist.mat_phylo.dist1[[10]]
+```
+
+
+Is the same result than with hclust...
+
+
+
+
+# Compute Phylogenetic and interaction distances
+
+
+### Phylogenetic distances
+
+```{r}
+list_phylo.dist <- compute_phylo_dist_all_steps(df_anc = list_simulation1$parentage_matrix, 
+                             timesteps = nrow(list_simulation1$presence_matrix),
+                             initial_timestep = 2)
+
+
+
+list_phylo.dist <- list_phylo.dist[-1] # TIMESTEP 1 REMOVED (Because it was NULL)
+
+names(list_phylo.dist)
+
+```
+
+
+For those timesteps without matrices, assign them the same matrix as their previous timestep
+
+```{r}
+
+```
+
+
+
+Loop to keep only the matrices with the highest number of spp at each timestep (the matrix with the last speciation event at a given timestep)
+
+```{r}
+list_phylo.dist_corr.timesteps <- list()
+
+for (i in 3:nrow(list_simulation1$presence_matrix)) {
+  
+  vec_names[i] <- paste("mat_timestep", i)
+  
+  ## Find all matrices for a given timestep
+  
+  test <- list_phylo.dist[which(names(list_phylo.dist) == paste("mat_timestep", i))]
+  
+  ## Select the last of those matrices (the one containing the last spp added in that timestep)
+
+  tail_test <- tail(test, n = 1)  
+  names(tail_test[[1]]) == paste("mat_timestep ", i)
+  
+  list_phylo.dist_corr.timesteps[i] <- tail_test[[1]]
+  
+  
+}
+
+
+list_phylo.dist[which(names(list_phylo.dist) == paste("mat_timestep", 5))]
+
+which(names(list_phylo.dist) == "mat_timestep 3")
+```
+
+
+
+
+
+
+### Interaction distances
+
+```{r}
+
+list_networks <- list_simulation1$network_list
+
+
+# Assign each species a name ("spp_n") with function set_sppNames_icolrows()
+
+list_networks.names <- lapply(list_networks[-1], set_sppNames_icolrows) # TIMESTEP 1 REMOVED
+
+
+# compute jaccard index for interacting species with function compute_jaccard()
+
+
+list_mat_jaccard <- lapply(list_networks.names, compute_jaccard)
+
+length(list_mat_jaccard)
+
+```
+First matrix of list_mat_jaccard has only 2 spp and all 0 - should be discarded
+
+
+I should start comparing phylo and jaccard matrices from ~timestep 5.
+
+
+
+
+
+# Compute correlation between phylogenetic and interaction distances (singal)
+
+
+```{r}
+
+```
+
+
+
+
+
+## Re-dimension phylogenetic distance matrix to have only those species present in the network
+
+```{r}
+# interaction matrix jaccard
+
+dist_mat_jaccard_last <- list_mat_jaccard[[193]]
+
+dim(dist_mat_jaccard_last) #43 x 43
+
+# phylogenetic distance
+
+rownames(dist_mat.time) <- rownames(dist_mat.time) <- paste("spp", colnames(dist_mat.time), sep = "_")
+colnames(dist_mat.time) <- colnames(dist_mat.time) <- paste("spp", colnames(dist_mat.time), sep = "_")
+
+
+dim(dist_mat.time) # 1000 x 1000
+
+
+## convert to dataframe
+
+df_dist_int <- as.data.frame(dist_mat_jaccard_last)
+df_dist_phylo_all <- as.data.frame(dist_mat.time)
+
+
+# Select only spp present for phylogenetic distance matrix
+
+spp_present <- colnames((df_dist_int)) # distance matrix in interactions
+df_dist_phylo <- df_dist_phylo_all[spp_present ,spp_present] # distance ematrix in phylogeny
+```
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################# 
+
+Now I have a list of networks and a list of trees.
+
+Next stes:
+
+## 1) convert them to distance matrices: networks to jaccard distances, trees to phylogenetic distances.
+
+#### Networks
+
+```{r}
+source("./My_code/Functions_AF.R")
+library("vegan")
+
+
+# Assign each species a name ("spp_n") with function set_sppNames_icolrows()
+
+list_L_spp.names <- lapply(simulation$L_list[-1], set_sppNames_icolrows)
+
+
+# compute jaccard index for interacting species with function compute_jaccard()
+
+
+list_mat_jaccard <- lapply(list_L_spp.names, compute_jaccard) # 200. It doesnt calculate anything until timestep 13
+
+```
+
+
+PROBLEM -> length of L_list is 200. Length of list_trees is 350 (because I create as many as rows in pres)
+
+
+#### Trees
+
+```{r}
+
+list_dismat_phylo <- lapply(list_trees[-1], cophenetic.phylo) # 350
+
+```
+
+
+PROBEM - CHECK - the matrices I compare MUST be the same timestep. I need to review when creating the tree that I only start from when there are more than 3 species - so there is probably a mismatch between the list of networks - this is KEY to verify and correct. Possible solution is to start generating the trees and then generate the list of networks according to the timesteps used for creating the tree list.
+
+Also jaccard matrices are not measured until timestep 13
+
+
+## Re-dimension phylogenetic distance matrix to have only those species present in the network
+
+```{r}
+# interaction matrix jaccard
+
+dist_mat_jaccard_last <- list_mat_jaccard[[193]]
+
+dim(dist_mat_jaccard_last) #43 x 43
+
+# phylogenetic distance
+
+rownames(dist_mat.time) <- rownames(dist_mat.time) <- paste("spp", colnames(dist_mat.time), sep = "_")
+colnames(dist_mat.time) <- colnames(dist_mat.time) <- paste("spp", colnames(dist_mat.time), sep = "_")
+
+
+dim(dist_mat.time) # 1000 x 1000
+
+
+## convert to dataframe
+
+df_dist_int <- as.data.frame(dist_mat_jaccard_last)
+df_dist_phylo_all <- as.data.frame(dist_mat.time)
+
+
+# Select only spp present for phylogenetic distance matrix
+
+spp_present <- colnames((df_dist_int)) # distance matrix in interactions
+df_dist_phylo <- df_dist_phylo_all[spp_present ,spp_present] # distance ematrix in phylogeny
+```
+
+
+## 2) Run Mantel test with permutations between each pair of distance object.
+
+```{r}
+
+```
+
+
+## 4) Obtain correlation value and p-value.
+
+############################################################################# 
+
+# ---------------------------- AF --------------------------
+
+dim(simulation$pres) # 350 x 1000 dim(simulation$anc) \# 1000 x 3 dim(simulation\$extinct) \# 1000 x 2
+
+## Compute jaccard similarity index between species and create dissimilarity matrices
+
+(the higher the index, the more interactions shared)
+
+```{r}
+
+# unlist(lapply(simulation$L_list, function(x) length(which(x > 0)))) # checking that matrices are not empty
+
+source("../AF_code/Functions_AF.R")
+library("vegan")
+
+
+# Assign each species a name ("spp_n")
+
+list_L_spp.names <- lapply(simulation$L_list[-1], set_sppNames_icolrows)
+
+
+# compute jaccard index for interacting species
+
+
+list_mat_jaccard <- lapply(list_L_spp.names, compute_jaccard)
+
+
+```
+
+## Compute phylogeneticdistances and create dissimilarity matrices
+
+```{r}
+phylo.tree.time <- as(my_tree, "phylo")
+dist_mat.time <- cophenetic.phylo(phylo.tree.time)
+```
+
+# Correlation interactions - tree
+
+```{r}
+
+# interaction matrix jaccard
+
+dist_mat_jaccard_last <- list_mat_jaccard[[193]]
+
+dim(dist_mat_jaccard_last) #43 x 43
+
+# phylogenetic distance
+
+rownames(dist_mat.time) <- rownames(dist_mat.time) <- paste("spp", colnames(dist_mat.time), sep = "_")
+colnames(dist_mat.time) <- colnames(dist_mat.time) <- paste("spp", colnames(dist_mat.time), sep = "_")
+
+
+dim(dist_mat.time) # 1000 x 1000
+
+
+## convert to dataframe
+
+df_dist_int <- as.data.frame(dist_mat_jaccard_last)
+df_dist_phylo_all <- as.data.frame(dist_mat.time)
+
+
+# Select only spp present for phylogenetic distance matrix
+
+spp_present <- colnames((df_dist_int)) # distance matrix in interactions
+df_dist_phylo <- df_dist_phylo_all[spp_present ,spp_present] # distance ematrix in phylogeny
+
+
+
+
+#
+
+df_dist_int
+df_dist_phylo
+
+
+```
+
+# Compute correlation
+
+already have distance matrices computed (jaccard, phylo)
+
+```{r}
+library(vegan)
+
+dist_mat_int <- as.matrix(df_dist_int)
+dist_mat_phylo <- as.matrix(df_dist_phylo)
+
+mds.int <- monoMDS(dist_mat_int, y = cmdscale(dist_mat_int))
+mds.phy <- monoMDS(dist_mat_phylo, y = cmdscale(dist_mat_phylo))
+
+plot(mds.int)
+plot(mds.phy)
+
+procrustes_r <- procrustes(mds.int,mds.phy)
+plot(procrustes_r)
+
+protest.trial<-protest(dist_mat_int,dist_mat_phylo)
+
+```
+

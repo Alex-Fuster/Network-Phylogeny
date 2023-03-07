@@ -1,0 +1,153 @@
+---
+title: "Measure phylogenetic signal in each simulation"
+output: html_notebook
+---
+
+
+
+## Check distance methods
+
+First I'm going to check the interaction distances.
+
+Jaccard distance: 1 - J(A,B) = |A∩B| / |A∪B|
+
+Muller index
+
+
+```{r}
+library(bipartite)
+```
+
+Choose an example matrix
+
+```{r}
+binary.matrix <- simulation$L_list[[150]]
+
+#View(binary.matrix)
+
+#length(which(colSums(binary.matrix) != 0)) #nspp
+
+binary.matrix.pres <- binary.matrix[which(rowSums(binary.matrix) != 0), which(colSums(binary.matrix) != 0)]
+```
+
+
+#### Compute jaccard distances
+
+```{r}
+# compute dissimilarity matrix computting jaccard index between interacting species
+
+#compute_jaccard <- function(matrix) {
+  
+# mat <- as.matrix(vegdist(matrix[-which(rowSums(matrix) == 0),], method = "jac", binary = T))
+  
+ # return(mat)
+  
+#}
+
+
+set_sppNames_icolrows <-  function(matrix) {
+  
+  mat <- matrix
+  rownames(mat) <- rownames(mat, do.NULL = FALSE, prefix = "spp_")
+  colnames(mat) <- colnames(mat, do.NULL = FALSE, prefix = "spp_")
+
+return(mat)
+
+}
+
+```
+
+```{r}
+library("vegan")
+
+# Assign each species a name ("spp_n") with function set_sppNames_icolrows()
+
+binary.matrix.pres.names <- set_sppNames_icolrows(binary.matrix.pres)
+
+
+## Compute jaccard
+
+mat_jaccard <- as.matrix(vegdist(binary.matrix.pres, method = "chisq", binary = T)) #symmetric
+
+```
+
+
+
+#### Compute Muller index
+
+
+
+```{r}
+library(bipartite)
+mat_Muller.index <- PAC(binary.matrix.pres.names)
+mat_Muller.index1 <- 1-mat_Muller.index
+```
+
+
+Compare the two distances
+
+```{r}
+mds.j <- monoMDS(as.dist(binary.matrix.pres.names), y = cmdscale(binary.matrix.pres.names))
+mds.M <- monoMDS(as.dist(mat_Muller.index1), y = cmdscale(mat_Muller.index1))
+
+par(mfrow = c(1,2))
+
+plot(mds.j, main = "Jaccard")
+plot(mds.M, main = "Muller index")
+```
+
+
+```{r}
+procrustes_r <- procrustes(mds.j,mds.M)
+plot(procrustes_r)
+```
+
+```{r}
+protest(mds.j, mds.M)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Read data (results of simulations)
+
+Now I do it only for positive interactions
+
+```{r}
+list_res_pos <- load("./Data/Positive_interactions/list_res_pos_2.Rdata")
+
+```
+
+
+Now I do it only for one simulation
+
+```{r}
+
+```
+
