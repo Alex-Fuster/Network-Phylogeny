@@ -302,6 +302,58 @@ timesteps <- 8:length(list_simulation1$list_anc_dist)
 
 df_signal_time <- data.frame(timesteps,protest_pval,protest_corr)
 
+df_signal_time$sign <- with(df_signal_time, ifelse(protest_pval < 0.051, 'sign', 'non.sign'))
+
+
+library(ggplot2)
+
+my.theme<-theme(axis.text=element_text(size=12),
+                axis.title = element_text(size = 14),
+                legend.text=element_text(size=10),
+                legend.title = element_text(size=12),
+                plot.title = element_text(face="bold",size=14,margin=margin(0,0,20,0),hjust = 0.5),
+                axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0)),
+                axis.title.x = element_text(margin = margin(t = 15, r = 0, b = 0, l = 0)))
+
+
+p <- ggplot(df_signal_time, aes(x=timesteps, y=protest_corr)) +
+       geom_line()+
+  geom_point(aes(fill = sign, color=sign), size=2, alpha = 0.7) +
+  theme_bw()+
+    my.theme+
+    scale_colour_manual(values = c("black", "red"))+
+    ggtitle("Phylogenetic signal through time")+
+xlab("timesteps")+
+  ylab("Phylogenetic signal")
+
+
+# SHOW ALSO NUMBER OF SPECIES IN THE GRAPH
+
+presence_matrix <- list_simulation1$presence_matrix[8:length(list_simulation1$list_anc_dist),] # select the timesteps we are analysing (from 8 in advance)
+
+n_spp_time <- c()
+
+for (i in 1:nrow(presence_matrix)) {
+  
+  n_spp_time[i] <- length(which(presence_matrix[i,] == 1))
+  
+}
+
+df_signal_time$nspp <- n_spp_time
+
+
+
+
+p.spp <- ggplot(df_signal_time, aes(x=timesteps, y = nspp)) +
+  geom_line(color="black", linetype="twodash") +
+  theme_bw()+
+  my.theme+
+  scale_colour_manual(values = c("black", "red"))+
+  ggtitle("Species richness through time")+
+  xlab("timesteps")+
+  ylab("N species")
+
+
 
 
 
