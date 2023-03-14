@@ -259,7 +259,15 @@ ToPhylo<-function(data){
 
 
 
+## Order alhpabetically rows and columns of dataframe
 
+order_col.row_names <- function(df) {
+  
+  df_ordered <- df[order(names(df)) , order(names(df))]
+  
+  return(df_ordered)
+  
+}
 
 
 
