@@ -134,7 +134,7 @@ seed_list <- NULL # Set an object to record seed that will be used to launch sim
   		if(success >= 20){
 				#print("the simulation has more than 19 species at the time step 150")
     		seed_record[successful_sim] <- seed # Record seed which alows us to have "good" simulation
-    		res_sim <- list(simulation_number = paste0("simulation", successful_sim), seed = seed, parameters = pars, presence_matrix = simulation$pres, traits_df = simulation$traits, parentage_matrix = simulation$anc, extinxction_matrix = simulation$extinct, network_list = simulation$L_list) # Record results from the simulation
+    		res_sim <- list(simulation_number = paste0("simulation", successful_sim), seed = seed, parameters = pars, presence_matrix = simulation$pres, traits_df = simulation$traits, parentage_matrix = simulation$anc, extinxction_matrix = simulation$extinct, network_list = simulation$L_list, anc_dist_table = simulation$dist_anc, list_anc_dist = simulation$list_dist_anc) # Record results from the simulation
     		list_res <- list_append(list_res, res_sim)
 
     		print(paste("simulation ", successful_sim, "sur", nsim))

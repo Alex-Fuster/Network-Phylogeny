@@ -112,9 +112,9 @@ sim_model_bif = function(seed, pars, nsteps) {
 	extinct = matrix(NA,nr = Smax, nc = 2)
 	
 	#  [TABLE DIST_ANC] Set the distance ancestry matrix -----------------------------------
-	# (new_spp, ancestor, E/A, distance)
+	# (new_spp, ancestor, tip, distance)
 	dist_anc = as.data.frame(matrix(NA, nr = Smax, nc = 4))
-	colnames(dist_anc) = c("spp", "ancestor", "E/A", "distance")
+	colnames(dist_anc) = c("spp", "ancestor", "A/E", "distance")
 	dist_anc[1,] <- c(1, 0, "A", 0)
 	dist_anc$distance <- as.numeric(dist_anc$distance)
 	dist_anc$distance[is.na(dist_anc$distance)] <- 0
@@ -156,7 +156,7 @@ sim_model_bif = function(seed, pars, nsteps) {
 			  
 			  # [TABLE DIST_ANC] Define distances of Alive spp -------------------
 			 
-			  dist_anc[esp,"E/A"] <- "A"
+			  dist_anc[esp,"A/E"] <- "A"
 			  dist_anc[esp,"distance"] <- as.numeric(dist_anc[esp,"distance"])+1
 			  
 
@@ -310,7 +310,7 @@ sim_model_bif = function(seed, pars, nsteps) {
 				
 				# [TABLE DIST_ANC] Define a new E spp -------------------
 				
-				dist_anc[i,"E/A"] <- "E"
+				dist_anc[i,"A/E"] <- "E"
 				
 			}
 		}

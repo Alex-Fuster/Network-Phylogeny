@@ -161,7 +161,7 @@ list_networks <- list_simulation1$network_list
 
 # Assign each species a name ("spp_n") with function set_sppNames_icolrows()
 
-list_networks.names <- lapply(list_networks[-1], set_sppNames_icolrows) # TIMESTEP 1 REMOVED
+list_networks.names <- lapply(list_networks[-1], set_sppNames_icolrows_spp) # TIMESTEP 1 REMOVED
 
 
 # compute jaccard index for interacting species with function compute_jaccard()
