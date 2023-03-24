@@ -214,6 +214,48 @@ compute_chisq <- function(matrix, distance) {
 }
 
 
+compute_chisq_pred <- function(matrix, distance) {
+  
+  #Eliminate those species with no interactions (none as predators & none as preys)
+  
+  if(length(which(rowSums(matrix)==0 & colSums(matrix)==0)) > 0){
+    
+    mat <- matrix[-which(rowSums(matrix)==0 & colSums(matrix) ==0),
+    -which(rowSums(matrix)==0 & colSums(matrix)==0)]
+
+#compute dista ce between spp(columns) as predators
+
+mat_dist <- as.matrix(vegdist(mat, method = distance, binary = T))
+    
+  }else{
+    mat_dist <- as.matrix(vegdist(matrix, method = distance, binary = T))
+  }
+  
+  return(mat_dist)
+}
+
+
+compute_chisq_prey <- function(matrix, distance) {
+  
+  #Eliminate those species with no interactions (none as predators & none as preys)
+  
+  if(length(which(rowSums(matrix)==0 & colSums(matrix)==0)) > 0){
+    
+    mat <- matrix[-which(rowSums(matrix)==0 & colSums(matrix) ==0),
+                  -which(rowSums(matrix)==0 & colSums(matrix)==0)]
+    
+    #compute dista ce between spp(columns) as predators
+    
+    mat_dist <- as.matrix(vegdist(t(mat), method = distance, binary = T))
+    
+  }else{
+    mat_dist <- as.matrix(vegdist(t(matrix), method = distance, binary = T))
+  }
+  
+  return(mat_dist)
+}
+
+
 
 # Obtain tree from anc_table 
 

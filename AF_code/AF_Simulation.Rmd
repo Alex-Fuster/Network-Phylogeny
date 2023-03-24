@@ -143,20 +143,20 @@ seed_list <- NULL # Set an object to record seed that will be used to launch sim
 		}
 
 		## Record the amount of simulation needed and their identity
-		#if(pars$int == 1){
-		#	reccorded_seed_pos_list <- list_append(reccorded_seed_pos_list, seed_record)
-		#	needed_sim_pos[b] <- total_nb_sim
-		#} else {
-		#	reccorded_seed_neg_list <- list_append(reccorded_seed_neg_list, seed_record)
-		#	needed_sim_neg[b] <- total_nb_sim
-		#}
+		if(pars$int == 1){
+			reccorded_seed_pos_list <- list_append(reccorded_seed_pos_list, seed_record)
+			needed_sim_pos[b] <- total_nb_sim
+		} else {
+			reccorded_seed_neg_list <- list_append(reccorded_seed_neg_list, seed_record)
+			needed_sim_neg[b] <- total_nb_sim
+		}
 
 		# Save simulations results data
 		if(pars$int == 1){
-			path <- paste0("../Data/Positive_interactions/list_res_pos_", nsim, ".Rdata")
+			path <- paste0("../AF_Data/Positive_interactions/list_res_pos_", nsim, ".Rdata")
 	  	save(list_res, file = path) #Change if interaction tyep = 0 (competition)
 		} else if(pars$int == 0){
-			path <- paste0("../Data/Negative_interactions/list_res_neg_", nsim, ".Rdata")
+			path <- paste0("../AF_Data/Negative_interactions/list_res_neg_", nsim, ".Rdata")
 	  	save(list_res, file = path) #Change if interaction tyep = 0 (competition)
 		}
 
@@ -172,8 +172,8 @@ seed_list <- NULL # Set an object to record seed that will be used to launch sim
 ### save data
 
 ```{r}
-save(reccorded_seed_pos_list, file = "Data/Positive_interactions/reccorded_seed_pos_list1.Rdata")
-save(reccorded_seed_neg_list, file = "Data/Negative_interactions/reccorded_seed_neg_list1.Rdata")
+save(reccorded_seed_pos_list, file = "AF_Data/Positive_interactions/reccorded_seed_pos_list1.Rdata")
+save(reccorded_seed_neg_list, file = "AF_Data/Negative_interactions/reccorded_seed_neg_list1.Rdata")
 save(needed_sim_pos, file = "Data/Positive_interactions/needed_sim_pos1.Rdata")
 save(needed_sim_neg, file = "Data/Negative_interactions/needed_sim_neg1.Rdata")
 
