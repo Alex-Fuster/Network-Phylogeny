@@ -11,6 +11,16 @@ library(EnvStats)
 library(foreach)
 ```
 
+
+```{r}
+
+source("../AF_code/AF_functions_M-C_bifurcation.R")
+source("../Original_code/functions/list_append_function.R")
+
+```
+
+
+
 # Simulation
 
 ### set general parameters
@@ -57,11 +67,7 @@ pars$Bext = 4 # Constant minimal number of interaction per species (extinction p
 pars$I_max = 40 # Maximal number of interactioning species
 ```
 
-```{r}
 
-source("../AF_code/AF_functions_M-C_bifurcation.R")
-source("../Original_code/functions/list_append_function.R")
-```
 
 ### set parameters simulation
 
@@ -70,8 +76,8 @@ nsteps = 350 # Set the maximum timestep per simulation
 nsim = 2 # Set the number of simulations
 
 # Vector to record number of simulation needed to reach 100 valid simulations
-#needed_sim_pos <- c(rep(NA, nsim))
-#needed_sim_neg <- c(rep(NA, nsim))
+needed_sim_pos <- c(rep(NA, nsim))
+needed_sim_neg <- c(rep(NA, nsim))
 ```
 
 ### Seeds record matrix
@@ -153,10 +159,10 @@ seed_list <- NULL # Set an object to record seed that will be used to launch sim
 
 		# Save simulations results data
 		if(pars$int == 1){
-			path <- paste0("../AF_Data/Positive_interactions/list_res_pos_", nsim, ".Rdata")
+			path <- paste0("../AF_Data/positive_interactions/list_res_pos2_", nsim, ".Rdata")
 	  	save(list_res, file = path) #Change if interaction tyep = 0 (competition)
 		} else if(pars$int == 0){
-			path <- paste0("../AF_Data/Negative_interactions/list_res_neg_", nsim, ".Rdata")
+			path <- paste0("../AF_Data/negative_interactions/list_res_neg2_", nsim, ".Rdata")
 	  	save(list_res, file = path) #Change if interaction tyep = 0 (competition)
 		}
 
@@ -172,10 +178,10 @@ seed_list <- NULL # Set an object to record seed that will be used to launch sim
 ### save data
 
 ```{r}
-save(reccorded_seed_pos_list, file = "AF_Data/Positive_interactions/reccorded_seed_pos_list1.Rdata")
-save(reccorded_seed_neg_list, file = "AF_Data/Negative_interactions/reccorded_seed_neg_list1.Rdata")
-save(needed_sim_pos, file = "Data/Positive_interactions/needed_sim_pos1.Rdata")
-save(needed_sim_neg, file = "Data/Negative_interactions/needed_sim_neg1.Rdata")
+save(reccorded_seed_pos_list, file = "../AF_Data/positive_interactions/reccorded_seed_pos_list1.Rdata")
+save(reccorded_seed_neg_list, file = "../AF_Data/negative_interactions/reccorded_seed_neg_list1.Rdata")
+save(needed_sim_pos, file = "../Data/positive_interactions/needed_sim_pos1.Rdata")
+save(needed_sim_neg, file = "../Data/negative_interactions/needed_sim_neg1.Rdata")
 
 ```
 
