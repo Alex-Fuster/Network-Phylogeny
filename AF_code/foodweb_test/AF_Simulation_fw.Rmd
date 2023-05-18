@@ -75,29 +75,7 @@ pars$I_max = 40 # Maximal number of interactioning species
 
 
 
-```{r}
 
-# e_0neg * (1 - exp(-a_eneg*out_I))
-
-e_0negf = 0.1 # Asymptotic extinction probability with infinite negative
-
-e_1negf = 1  # Extinction probability with absence of interactions
-
-a_enegf = 3 # Shape of the exponential decay of the negative extinction - interaction relationship
-
-
-# e_0pos + e_1pos*exp(-a_epos*in_I)
-
-e_0posf = 0.075 # Asymptotic extinction probability with infinite positive interactions
-
-e_1posf = 5.19 # 1 - pars$e_0pos
-
-a_eposf = 1.2  # Shape of the exponential decay of the positive extinction - interaction relationship
-
-
-
-
-```
 
 
 
