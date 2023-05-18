@@ -1,5 +1,5 @@
 ---
-title: "From simulations_script.R"
+title: "R Notebook"
 output: html_notebook
 ---
 
@@ -17,13 +17,6 @@ library(EnvStats)
 library(foreach)
 ```
 
-
-```{r}
-
-source("./AF_functions_M-C_bifurcation_fw.R")
-source("./list_append_function.R")
-
-```
 
 
 
@@ -74,38 +67,28 @@ pars$I_max = 40 # Maximal number of interactioning species
 ```
 
 
+```{r}
+pars$e_0neg = 0.1 # Asymptotic extinction probability with infinite negative interactions
+```
+
+
+
+
+
 
 ```{r}
 
-# e_0neg * (1 - exp(-a_eneg*out_I))
-
-e_0negf = 0.1 # Asymptotic extinction probability with infinite negative
-
-e_1negf = 1  # Extinction probability with absence of interactions
-
-a_enegf = 3 # Shape of the exponential decay of the negative extinction - interaction relationship
-
-
-# e_0pos + e_1pos*exp(-a_epos*in_I)
-
-e_0posf = 0.075 # Asymptotic extinction probability with infinite positive interactions
-
-e_1posf = 5.19 # 1 - pars$e_0pos
-
-a_eposf = 1.2  # Shape of the exponential decay of the positive extinction - interaction relationship
-
-
-
+source("./functions_fw_only.R")
+source("../Original_code/functions/list_append_function.R")
 
 ```
-
 
 
 ### set parameters simulation
 
 ```{r}
 nsteps = 350 # Set the maximum timestep per simulation
-nsim = 2 # Set the number of simulations
+nsim = 5 # Set the number of simulations
 
 # Vector to record number of simulation needed to reach 100 valid simulations
 needed_sim_pos <- c(rep(NA, nsim))
@@ -128,95 +111,176 @@ seed_list <- NULL # Set an object to record seed that will be used to launch sim
 ## Simulation
 
 ```{r}
+
 #for(b in 1:10){
 
-	total_nb_sim <- 0
-	b <- 1
+total_nb_sim <- 0
+b <- 1
 
-	for(int in 0:2){
-		pars$int = int # Define the interaction type: 0 = competition ; 1 = facilitation
-		successful_sim <- 1 # Set the count of simulations
-		list_res <- list() # Set the list to store the results
+successful_sim <- 1 # Set the count of simulations
+list_res <- list() # Set the list to store the results
 
-		if(pars$int == 1){
-			print("Positive interctions")
-		  
-		} else if (pars$int == 2) {
-		  print("foodweb")
-		  
-		} else {
-			print("Negative interctions")
-		}
 
-		seed_record <- c(rep(NA, nsim)) # Set the vector to record the seed that have been used
+seed_record <- c(rep(NA, nsim)) # Set the vector to record the seed that have been used
 
-		while(successful_sim < nsim+1){
 
-  		seed <- sample.int(80000, 1) # Pick a random number, this number will be the seed for one simulation
-  		print(seed)
 
-			# If a seed have already been tested, pick another one
-			if(length(which(seed_list == seed)) != 0){
-				while(seed %in% seed_list){
-    			seed <- sample.int(80000, 1)
-  			}
-			}
 
-			seed_list <- c(seed_list, seed) # Add the seed
+while(successful_sim < nsim+1){
+  
+  seed <- sample.int(80000, 1) # Pick a random number, this number will be the seed for one simulation
+  print(seed)
+  
+  # If a seed have already been tested, pick another one
+  if(length(which(seed_list == seed)) != 0){
+    while(seed %in% seed_list){
+      seed <- sample.int(80000, 1)
+    }
+  }
+  
+  seed_list <- c(seed_list, seed) # Add the seed
+  
+  # SIMULATION ; from the file code/functions/functions_M-C_bifurcation.R
+  simulation <- sim_model_bif(seed = seed, pars, nsteps = nsteps)  
+  
+  #---------------------- stored: pres, traits_mat, anc, extinct, Stotact, L, L_list
+  
+  total_nb_sim <- total_nb_sim +1 # Count the total amount of simulations
+  
+  # Test if we have enough species at the timestep 150 in the simulation
+  success <- sum(simulation$pres[150,])
+  #print(paste0("Success = ", success))
+  
+  if(success >= 1){
+    #print("the simulation has more than 19 species at the time step 150")
+    seed_record[successful_sim] <- seed # Record seed which alows us to have "good" simulation
+    res_sim <- list(simulation_number = paste0("simulation", successful_sim), 
+                    seed = seed, 
+                    parameters = pars, 
+                    presence_matrix = simulation$pres, 
+                    traits_df = simulation$traits, 
+                    parentage_matrix = simulation$anc, 
+                    extinxction_matrix = simulation$extinct, 
+                    network_list = simulation$L_list, 
+                    anc_dist_table = simulation$dist_anc, 
+                    list_anc_dist = simulation$list_dist_anc) # Record results from the simulation
+    
+    list_res <- list_append(list_res, res_sim)
+    
+    print(paste("simulation ", successful_sim, "sur", nsim))
+    successful_sim <- successful_sim + 1 # Count the amount of "good" simulations
+  }
+  
+}
 
-			# SIMULATION ; from the file code/functions/functions_M-C_bifurcation.R
-  		simulation <- sim_model_bif(seed = seed, pars, nsteps = nsteps)  
-  	
-  		#---------------------- stored: pres, traits_mat, anc, extinct, Stotact, L, L_list
 
-			total_nb_sim <- total_nb_sim +1 # Count the total amount of simulations
 
-			# Test if we have enough species at the timestep 150 in the simulation
-  		success <- sum(simulation$pres[150,])
-			#print(paste0("Success = ", success))
+  reccorded_seed_fw_list <- list_append(reccorded_seed_fw_list, seed_record)
+  needed_sim_fw[b] <- total_nb_sim
 
-  		if(success >= 20){
-				#print("the simulation has more than 19 species at the time step 150")
-    		seed_record[successful_sim] <- seed # Record seed which alows us to have "good" simulation
-    		res_sim <- list(simulation_number = paste0("simulation", successful_sim), seed = seed, parameters = pars, presence_matrix = simulation$pres, traits_df = simulation$traits, parentage_matrix = simulation$anc, extinxction_matrix = simulation$extinct, network_list = simulation$L_list, anc_dist_table = simulation$dist_anc, list_anc_dist = simulation$list_dist_anc) # Record results from the simulation
-    		list_res <- list_append(list_res, res_sim)
 
-    		print(paste("simulation ", successful_sim, "sur", nsim))
-    		successful_sim <- successful_sim + 1 # Count the amount of "good" simulations
-  		}
-		}
 
-		## Record the amount of simulation needed and their identity
-		if(pars$int == 1){
-			reccorded_seed_pos_list <- list_append(reccorded_seed_pos_list, seed_record)
-			needed_sim_pos[b] <- total_nb_sim
-		} else if (pars$int == 0){
-			reccorded_seed_neg_list <- list_append(reccorded_seed_neg_list, seed_record)
-			needed_sim_neg[b] <- total_nb_sim
-		} else if (pars$int == 2){
-			reccorded_seed_fw_list <- list_append(reccorded_seed_fw_list, seed_record)
-			needed_sim_fw[b] <- total_nb_sim
-		}
 
-		# Save simulations results data
-		if(pars$int == 1){
-			path <- paste0("./list_res_pos2_", nsim, ".Rdata")
-	  	save(list_res, file = path) #Change if interaction tyep = 0 (competition)
-		} else if(pars$int == 0){
-			path <- paste0("./list_res_neg2_", nsim, ".Rdata")
-	  	save(list_res, file = path) #Change if interaction tyep = 0 (competition)
-		} else if(pars$int == 2){
-		  path <- paste0("./list_res_fw2_", nsim, ".Rdata")
-	  	save(list_res, file = path) 
-		  
-		}
-
-	}
-
-	#print(paste("batch ", b, "sur 10"))
+#print(paste("batch ", b, "sur 10"))
 #}
-	
+  
+  
+  
 ```
+
+
+
+```{r}
+names(list_res) = c("simulation1", "simulation2", "simulation3", "simulation4", "simulation5")
+
+list_simulation1 <- list_res$simulation1
+
+list_simulation2 <- list_res$simulation2
+
+list_simulation3 <- list_res$simulation3
+
+list_simulation4 <- list_res$simulation4
+
+list_simulation5 <- list_res$simulation5
+
+
+```
+
+
+
+## Spp richness through time
+
+```{r}
+
+library(ggplot2)
+library(ggpubr)
+
+
+
+
+plot_spp_richness_time <- function(results) {
+  
+  presence_matrix <- results$presence_matrix # select the timesteps we are analysing (from 8 in advance)
+
+n_spp_time <- c()
+
+for (i in 1:nrow(presence_matrix)) {
+  
+  n_spp_time[i] <- length(which(presence_matrix[i,] == 1))
+  
+}
+
+nsteps <- 1:length(results$list_anc_dist)
+n_spp_time <- n_spp_time[nsteps]
+
+
+df <- data.frame(nsteps, n_spp_time)
+
+
+p <- ggplot(df, aes(x=nsteps, y = n_spp_time)) +
+  geom_line(color="black", linetype="twodash") +
+  theme_bw()+
+  scale_colour_manual(values = c("black", "red"))+
+  ggtitle("Species richness through time")+
+  xlab("timesteps")+
+  ylab("N species")
+
+p
+  
+}
+
+
+
+p_spp_time_sim1 <- plot_spp_richness_time(results = list_simulation1)
+
+p_spp_time_sim2 <- plot_spp_richness_time(results = list_simulation2)
+
+p_spp_time_sim3 <- plot_spp_richness_time(results = list_simulation3)
+
+p_spp_time_sim4 <- plot_spp_richness_time(results = list_simulation4)
+
+p_spp_time_sim5 <- plot_spp_richness_time(results = list_simulation5)
+
+ggarrange(p_spp_time_sim1,
+          p_spp_time_sim2,
+          p_spp_time_sim3,
+          p_spp_time_sim4,
+          p_spp_time_sim5,
+          nrow = 5,
+          ncol = 1)
+
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -26,7 +26,7 @@ rand_traits_mut = function(traits_anc, pars) {
 			traits_mut = c(n = n_m, r = r_m, o = n)
 		}
 
-		if(int == 1) {
+		if(int == 1 | int == 2) {
 			#n_m = -1
 			#while((n_m < 0) || (n_m > 1)){n_m = n + rnorm(1, mean = 0, sd = pars$sd)}
 			n_m = EnvStats::rnormTrunc(1, mean = n, sd = pars$sd, min = 0, max = 1)
@@ -91,12 +91,13 @@ get_L_vec = function(pars, traits_mat, traits_mut) {
 ########################################
 sim_model_bif = function(seed, pars, nsteps) {
 
+  
 	with(pars,{
 
 	set.seed(seed)
 
 	# Draw the first species traits
-	traits_mat = matrix(nr = Smax, nc = 3)
+	traits_mat = matrix(nr = pars$Smax, nc = 3)
 	traits_mat[1,] = rand_traits_anc(pars)
 	traits_mat = as.data.frame(traits_mat)
 	names(traits_mat) = c("n","r","o")
@@ -165,8 +166,11 @@ sim_model_bif = function(seed, pars, nsteps) {
 
 				# Test if there is speciation
 				test_number = runif(1, 0, 1)
-				speciation_prob = u_max/(1 + exp(d * (ActualS - I_max)))
-				if(test_number < speciation_prob) {
+				speciation_prob = u_max/(1 + exp(d * (ActualS - I_max))) # ------------------ Speciation probability
+			
+				#print(test_number < speciation_prob)
+				
+					if(test_number < speciation_prob) {
 
 					# Ancestor traits
 					traits_anc <- traits_mat[esp,]
@@ -249,7 +253,13 @@ sim_model_bif = function(seed, pars, nsteps) {
 					  estab_prob = u_0neg + u_1neg*exp(-a_uneg * sum_I)
 					}
 					
-					else if(int == 1 | int == 2){
+					else if(int == 1){
+					  estab_prob = (u_0 + u_1*exp(-a_u*sum_I))#/(1 + exp(pars$d * (sum_I - pars$I_max)))
+					  ##print(paste("estab prob =",spec_prob, " sum of interactions =", sum_I))
+					  
+					}
+					
+					else if(int == 2){
 					  estab_prob = (u_0 + u_1*exp(-a_u*sum_I))#/(1 + exp(pars$d * (sum_I - pars$I_max)))
 					  ##print(paste("estab prob =",spec_prob, " sum of interactions =", sum_I))
 					}
@@ -296,13 +306,14 @@ sim_model_bif = function(seed, pars, nsteps) {
 			##print(paste("extinction probability =", ext_prob[1]))
 	 	}
 		
-		if (int == 2) {
+		if(int == 2) {
 		  
-		  in_I = colSums(L)
+		  in_I = colSums(L) + Bext*pres_vec
 		  out_I = rowSums(L) 	
-		  ext_prob = e_0neg + e_1neg*exp(-a_eneg*out_I) + e_0pos + e_1pos*exp(-a_epos*in_I)
+		  ext_prob = e_0neg * (1 - exp(-a_eneg*out_I)) + e_0pos + e_1pos*exp(-a_epos*in_I)
 		  
 		}
+		
 
 		# Perform extinctions
 		#test_extprob = runif(S,0,1)

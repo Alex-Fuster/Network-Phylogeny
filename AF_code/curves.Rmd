@@ -29,7 +29,17 @@ curve(1 + -1 * exp(-0.45 * x),
 
 
 curve(0.075 + 5.19 * exp(-10 * x), 
-      xlab = "n shared predators",
+      xlab = "In I",
+      ylab = "p(extinction)")
+
+
+curve(0.075 + 5.19 * exp(-10 * x), 
+      xlab = "In I",
+      ylab = "p(extinction)")
+
+
+curve(0.1 * (1 - exp(-5*x)), 
+      xlab = "Out I",
       ylab = "p(extinction)")
 ```
 
