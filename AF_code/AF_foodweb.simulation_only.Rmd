@@ -88,7 +88,7 @@ source("../Original_code/functions/list_append_function.R")
 
 ```{r}
 nsteps = 350 # Set the maximum timestep per simulation
-nsim = 5 # Set the number of simulations
+nsim = 1 # Set the number of simulations
 
 # Vector to record number of simulation needed to reach 100 valid simulations
 needed_sim_pos <- c(rep(NA, nsim))
@@ -184,14 +184,16 @@ while(successful_sim < nsim+1){
 #print(paste("batch ", b, "sur 10"))
 #}
   
-  
+  path <- paste0("../AF_Data/foodweb/list_res_fw2_", nsim, ".Rdata")
+	  	save(list_res, file = path) 
   
 ```
 
 
 
 ```{r}
-names(list_res) = c("simulation1", "simulation2", "simulation3", "simulation4", "simulation5")
+names(list_res) <- "simulation1"
+#names(list_res) = c("simulation1", "simulation2", "simulation3", "simulation4", "simulation5")
 
 list_simulation1 <- list_res$simulation1
 
@@ -273,25 +275,12 @@ ggarrange(p_spp_time_sim1,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 ### save data
 
 ```{r}
-save(reccorded_seed_pos_list, file = "../AF_Data/positive_interactions/reccorded_seed_pos_list1.Rdata")
-save(reccorded_seed_neg_list, file = "../AF_Data/negative_interactions/reccorded_seed_neg_list1.Rdata")
-save(reccorded_seed_neg_list, file = "../AF_Data/negative_interactions/reccorded_seed_neg_list1.Rdata")
-save(needed_sim_pos, file = "../Data/positive_interactions/needed_sim_pos1.Rdata")
-save(needed_sim_neg, file = "../Data/negative_interactions/needed_sim_neg1.Rdata")
+
+save(reccorded_seed_fw_list, file = "../AF_Data/foodweb/reccorded_seed_neg_list1.Rdata")
+save(needed_sim_fw, file = "../AF_Data/foodweb/needed_sim_fw.Rdata")
 
 ```
 

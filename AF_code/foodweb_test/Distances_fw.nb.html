@@ -11,7 +11,7 @@
 
 
 
-<title>R Notebook</title>
+<title>Obtain phylogenetic and interaction distances</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1755,198 +1755,1003 @@ pre code {
 
 
 
-<h1 class="title toc-ignore">R Notebook</h1>
+<h1 class="title toc-ignore">Obtain phylogenetic and interaction
+distances</h1>
 
 </div>
 
 
 <!-- rnb-text-begin -->
-<p>This script includes facilitation, competition, AND foodweb.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2luc3RhbGwucGFja2FnZXMoXCJFbnZTdGF0c1wiKVxuI2xpYnJhcnkoZm9yZWFjaCkgI1RvIGRvIHBhcmFsbGVsIGNvbXB1dGlvbmdcblxubGlicmFyeShFbnZTdGF0cylcbmxpYnJhcnkoZm9yZWFjaClcbmBgYCJ9 -->
-<pre class="r"><code>#install.packages(&quot;EnvStats&quot;)
-#library(foreach) #To do parallel computiong
-
-library(EnvStats)
-library(foreach)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShhcGUpXG5cbmBgYCJ9 -->
+<pre class="r"><code>library(ape)
+</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhhcGXigJkgd2FzIGJ1aWx0IHVuZGVyIFIgdmVyc2lvbiA0LjEuM1xuIn0= -->
+<pre><code>Warning: package ‘ape’ was built under R version 4.1.3</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShhcGUpXG5saWJyYXJ5KGFwVHJlZXNoYXBlKVxuYGBgIn0= -->
+<pre class="r"><code>library(ape)
+library(apTreeshape)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhhcFRyZWVzaGFwZeKAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMS4zXG5SZWdpc3RlcmVkIFMzIG1ldGhvZCBvdmVyd3JpdHRlbiBieSAnYXBUcmVlc2hhcGUnOlxuICBtZXRob2QgICAgICAgICAgZnJvbVxuICBpcy5iaW5hcnkucGh5bG8gYXBlIFxuXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYYXBUcmVlc2hhcGXigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3QgaXMgbWFza2VkIGZyb20g4oCYcGFja2FnZTphcGXigJk6XG5cbiAgICBpcy5iaW5hcnkucGh5bG9cbiJ9 -->
+<pre><code>Warning: package ‘apTreeshape’ was built under R version 4.1.3
+Registered S3 method overwritten by &#39;apTreeshape&#39;:
+  method          from
+  is.binary.phylo ape 
+
+Attaching package: ‘apTreeshape’
+
+The following object is masked from ‘package:ape’:
+
+    is.binary.phylo</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShhcGUpXG5saWJyYXJ5KGFwVHJlZXNoYXBlKVxubGlicmFyeShcInZlZ2FuXCIpXG5gYGAifQ== -->
+<pre class="r"><code>library(ape)
+library(apTreeshape)
+library(&quot;vegan&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJh2ZWdhbuKAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMS4zXG5Mb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IHBlcm11dGVcbldhcm5pbmc6IHBhY2thZ2Ug4oCYcGVybXV0ZeKAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMS4zXG5Mb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IGxhdHRpY2VcblRoaXMgaXMgdmVnYW4gMi42LTRcbiJ9 -->
+<pre><code>Warning: package ‘vegan’ was built under R version 4.1.3
+Loading required package: permute
+Warning: package ‘permute’ was built under R version 4.1.3
+Loading required package: lattice
+This is vegan 2.6-4</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<div id="simulation" class="section level1">
-<h1>Simulation</h1>
-<div id="set-general-parameters" class="section level3">
-<h3>set general parameters</h3>
+<div id="load-simulation-data" class="section level3">
+<h3>Load simulation data</h3>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucm0obGlzdCA9IGxzKCkpXG5cbnBhcnMgPSBsaXN0KClcblxuIyBHZW5lcmFsIHBhcmFtZXRlcnNcbiNwYXJzJGludCA9IDAgIyAwIGZvciBjb21wZXRpdGlvbiwgMSBmb3IgZmFjaWxpdGF0aW9uLCAyIGZvciBwcmVkYXRpb25cbnBhcnMkU21heCA9IDEwMDAgIyBNYXhpbWFsIG51bWJlciBvZiBzcGVjaWVzIGluIHRoZSBzeXN0ZW1cblxuIyBSZWxhdGVkIHRvIGludGVyYWN0aW9uIHJhbmdlIHRyYWl0XG5wYXJzJGF2X3IgPSAwLjEgIyBIYWxmIHJhbmdlIG9mIHRoZSBuaWNoZSBvZiB0aGUgZmlyc3Qgc3BlY2llc1xucGFycyRzZCA9IDAuNSpwYXJzJGF2X3IgKyAwLjAwMDEgIyBTdGFuZGFyZCBkZXZpYXRpb24gb2YgdGhlIG5vcm1hbCBkaXN0cmlidXRpb24gdXNlZCB0byBjYWxjdWxhdGUgdGhlIG5pY2hlIG9wdGltdW0gdHJhaXQgb2YgYSBuZXcgc3BlY2llc1xuXG5wYXJzJHVfbWF4ID0gMC4xNSAjIFNwZWNpYXRpb24gcHJvYmFiaWxpdHlcblxuIyBFeHRpbmN0aW9uIHByb2JhYmlsaXR5LCBuZWdhdGl2ZSBpbnRlcmFjdGlvbnMgY29tbXVuaXRpZXNcbnBhcnMkYV9lbmVnID0gMC4wMjUgIyBTaGFwZSBvZiB0aGUgZXhwb25lbnRpYWwgZGVjYXkgb2YgdGhlIG5lZ2F0aXZlIGV4dGluY3Rpb24gLSBpbnRlcmFjdGlvbiByZWxhdGlvbnNoaXBcbnBhcnMkZV8wbmVnID0gMC41ICMgQXN5bXB0b3RpYyBleHRpbmN0aW9uIHByb2JhYmlsaXR5IHdpdGggaW5maW5pdGUgbmVnYXRpdmUgaW50ZXJhY3Rpb25zXG5wYXJzJGVfMW5lZyA9IDEgICMgRXh0aW5jdGlvbiBwcm9iYWJpbGl0eSB3aXRoIGFic2VuY2Ugb2YgaW50ZXJhY3Rpb25zXG5cbiMgRXh0aW5jdGlvbiBwcm9iYWJpbGl0eSwgcG9zaXRpdmUgaW50ZXJhY3Rpb25zIGNvbW11bml0aWVzXG5wYXJzJGFfZXBvcyA9IDEuMiAgIyBTaGFwZSBvZiB0aGUgZXhwb25lbnRpYWwgZGVjYXkgb2YgdGhlIHBvc2l0aXZlIGV4dGluY3Rpb24gLSBpbnRlcmFjdGlvbiByZWxhdGlvbnNoaXBcbnBhcnMkZV8wcG9zID0gMC4wNzUgIyBBc3ltcHRvdGljIGV4dGluY3Rpb24gcHJvYmFiaWxpdHkgd2l0aCBpbmZpbml0ZSBwb3NpdGl2ZSBpbnRlcmFjdGlvbnNcbnBhcnMkZV8xcG9zID0gNS4xOSAjIDEgLSBwYXJzJGVfMHBvc1xuXG4jIEVzdGFibGlzaG1lbnQgcHJvYmFiaWxpdHksIG5lZ2F0aXZlIGludGVyYWN0aW9ucyBjb21tdW5pdGllc1xucGFycyRhX3VuZWcgPSAwLjA3NSAjIFNoYXBlIG9mIHRoZSBleHBvbmVudGlhbCBkZWNheSBvZiB0aGUgY29sb25pemF0aW9uIC0gaW50ZXJhY3Rpb24gcmVsYXRpb25zaGlwXG5wYXJzJHVfMG5lZyA9IDAuMDc1ICMgQXN5bXB0b3RpYyBlc3RhYmxpc2htZW50IHByb2JhYmlsaXR5IHdpdGggaW5maW5pdGUgY29tcGV0aXRpb24gaW50ZXJhY3Rpb25zXG5wYXJzJHVfMW5lZyA9IDIgIyBFc3RhYmxpc2htZW50IHByb2JhYmlsaXR5IHdpdGggYWJzZW5jZSBvZiBjb21wZXRpdGlvbiBpbnRlcmFjdGlvblxuXG4jIEVzdGFibGlzaG1lbnQgcHJvYmFiaWxpdHksIHBvc2l0aXZlIGludGVyYWN0aW9ucyBjb21tdW5pdGllc1xucGFycyRhX3UgPSAwLjQ1ICMgU2hhcGUgb2YgdGhlIGV4cG9uZW50aWFsIGRlY2F5IG9mIHRoZSBjb2xvbml6YXRpb24gLSBpbnRlcmFjdGlvbiByZWxhdGlvbnNoaXBcbnBhcnMkdV8wID0gMSAjIEFzeW1wdG90aWMgZXN0YWJsaXNobWVudCBwcm9iYWJpbGl0eSB3aXRoIGluZmluaXRlIGZhY2lsaXRhdGlvbiBpbnRlcmFjdGlvbnNcbnBhcnMkdV8xID0gLTEgIyBFc3RhYmxpc2htZW50IHByb2JhYmlsaXR5IHdpdGggYWJzZW5jZSBvZiBmYWNpbGl0YXRpb24gaW50ZXJhY3Rpb25zXG5wYXJzJGQgPSAwLjUgIyBEZWNyZWFzZSBzcGVlZCBvZiB0aGUgZXN0YWJsaXNobWVudCBwcm9iYWJpbGl0eVxuXG4jIEV4dGluY3Rpb24gYW5kIGVzdGFibGlzaG1lbnQgcHJvYmFiaWxpdGllIGZvciBib3RoLCBwb3NpdGl2ZSBhbmQgbmVnYXRpdmUgaW50ZXJhY3Rpb25zIGNvbW11bml0aWVzXG5wYXJzJEJzcGUgPSA0ICMgQ29uc3RhbnQgbWluaW1hbCBudW1iZXIgb2YgaW50ZXJhY3Rpb24gcGVyIHNwZWNpZXMgKGV4dGFibGlzaG1lbnQgcHJvYilcbnBhcnMkQmV4dCA9IDQgIyBDb25zdGFudCBtaW5pbWFsIG51bWJlciBvZiBpbnRlcmFjdGlvbiBwZXIgc3BlY2llcyAoZXh0aW5jdGlvbiBwcm9iKVxucGFycyRJX21heCA9IDQwICMgTWF4aW1hbCBudW1iZXIgb2YgaW50ZXJhY3Rpb25pbmcgc3BlY2llc1xuYGBgIn0= -->
-<pre class="r"><code>rm(list = ls())
-
-pars = list()
-
-# General parameters
-#pars$int = 0 # 0 for competition, 1 for facilitation, 2 for predation
-pars$Smax = 1000 # Maximal number of species in the system
-
-# Related to interaction range trait
-pars$av_r = 0.1 # Half range of the niche of the first species
-pars$sd = 0.5*pars$av_r + 0.0001 # Standard deviation of the normal distribution used to calculate the niche optimum trait of a new species
-
-pars$u_max = 0.15 # Speciation probability
-
-# Extinction probability, negative interactions communities
-pars$a_eneg = 0.025 # Shape of the exponential decay of the negative extinction - interaction relationship
-pars$e_0neg = 0.5 # Asymptotic extinction probability with infinite negative interactions
-pars$e_1neg = 1  # Extinction probability with absence of interactions
-
-# Extinction probability, positive interactions communities
-pars$a_epos = 1.2  # Shape of the exponential decay of the positive extinction - interaction relationship
-pars$e_0pos = 0.075 # Asymptotic extinction probability with infinite positive interactions
-pars$e_1pos = 5.19 # 1 - pars$e_0pos
-
-# Establishment probability, negative interactions communities
-pars$a_uneg = 0.075 # Shape of the exponential decay of the colonization - interaction relationship
-pars$u_0neg = 0.075 # Asymptotic establishment probability with infinite competition interactions
-pars$u_1neg = 2 # Establishment probability with absence of competition interaction
-
-# Establishment probability, positive interactions communities
-pars$a_u = 0.45 # Shape of the exponential decay of the colonization - interaction relationship
-pars$u_0 = 1 # Asymptotic establishment probability with infinite facilitation interactions
-pars$u_1 = -1 # Establishment probability with absence of facilitation interactions
-pars$d = 0.5 # Decrease speed of the establishment probability
-
-# Extinction and establishment probabilitie for both, positive and negative interactions communities
-pars$Bspe = 4 # Constant minimal number of interaction per species (extablishment prob)
-pars$Bext = 4 # Constant minimal number of interaction per species (extinction prob)
-pars$I_max = 40 # Maximal number of interactioning species</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGFycyRlXzBuZWcgPSAwLjEgIyBBc3ltcHRvdGljIGV4dGluY3Rpb24gcHJvYmFiaWxpdHkgd2l0aCBpbmZpbml0ZSBuZWdhdGl2ZSBpbnRlcmFjdGlvbnNcbmBgYCJ9 -->
-<pre class="r"><code>pars$e_0neg = 0.1 # Asymptotic extinction probability with infinite negative interactions</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5zb3VyY2UoXCIuL2Z1bmN0aW9uc19md19vbmx5LlJcIilcbnNvdXJjZShcIi4uL09yaWdpbmFsX2NvZGUvZnVuY3Rpb25zL2xpc3RfYXBwZW5kX2Z1bmN0aW9uLlJcIilcblxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5sb2FkKFwiLi9saXN0X3Jlc19mdzJfMS5SZGF0YVwiKVxuXG5cblxuI25hbWVzKGxpc3RfcmVzKSA9IGMoXCJzaW11bGF0aW9uMVwiLCBcInNpbXVsYXRpb24yXCIpXG5cbmxpc3Rfc2ltdWxhdGlvbjEgPC0gbGlzdF9yZXMkc2ltdWxhdGlvbjFcblxuIyBjb3VudCBudW1iZXIgb2YgdGltZXN0ZXBzIHdoZXJlIHRoZXJlIHdlcmUgc3BwXG5cbm5fc3RlcHMgPC0gbGVuZ3RoKGxpc3Rfc2ltdWxhdGlvbjEkbmV0d29ya19saXN0KVxuXG5gYGAifQ== -->
 <pre class="r"><code>
-source(&quot;./functions_fw_only.R&quot;)
-source(&quot;../Original_code/functions/list_append_function.R&quot;)
+load(&quot;./list_res_fw2_1.Rdata&quot;)
+
+
+
+#names(list_res) = c(&quot;simulation1&quot;, &quot;simulation2&quot;)
+
+list_simulation1 &lt;- list_res$simulation1
+
+# count number of timesteps where there were spp
+
+n_steps &lt;- length(list_simulation1$network_list)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="discard-timesteps-where-phylogenetic-distances-cant-be-calculated" class="section level4">
+<h4>Discard timesteps where phylogenetic distances cant be
+calculated</h4>
+<p>It requires at leas 3 species to compute the distances. Check the
+timestep from which we can make the calculations by looking at the pres
+matrix and see when we have more than 3 spp.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5ub24udmFsaWRfdGltZXN0ZXBzX3BoeWxvX2Rpc3RhbmNlIDwtIGMod2hpY2gocm93U3VtcyhsaXN0X3NpbXVsYXRpb24xJHByZXNlbmNlX21hdHJpeCkgPT0gMSkpIywgd2hpY2gocm93U3VtcyhsaXN0X3NpbXVsYXRpb24xJHByZXNlbmNlX21hdHJpeCkgPT0gMikpXG5cbm5vbi52YWxpZF90aW1lc3RlcHNfcGh5bG9fZGlzdGFuY2VcbmBgYCJ9 -->
+<pre class="r"><code>
+non.valid_timesteps_phylo_distance &lt;- c(which(rowSums(list_simulation1$presence_matrix) == 1))#, which(rowSums(list_simulation1$presence_matrix) == 2))
+
+non.valid_timesteps_phylo_distance</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDEgMiAzIDQgNSA2XG4ifQ== -->
+<pre><code>[1] 1 2 3 4 5 6</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="homogenize-elements-to-start-from-valid-timesteps" class="section level4">
+<h4>homogenize elements to start from valid timesteps</h4>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jYW5jZXN0cnktZGlzdGFuY2VzIHRhYmxlXG5cbmxpc3RfYW5jX2Rpc3QgPC0gbGlzdF9zaW11bGF0aW9uMSRsaXN0X2FuY19kaXN0Wy1ub24udmFsaWRfdGltZXN0ZXBzX3BoeWxvX2Rpc3RhbmNlXVxuXG5cblxuIyBOZXR3b3JrIGxpc3RcblxubmV0d29ya19saXN0IDwtIGxpc3Rfc2ltdWxhdGlvbjEkbmV0d29ya19saXN0Wy1ub24udmFsaWRfdGltZXN0ZXBzX3BoeWxvX2Rpc3RhbmNlXVxuXG5cblxuaWYgKGxlbmd0aCh3aGljaChpcy5udWxsKGxpc3Rfc2ltdWxhdGlvbjEkbmV0d29ya19saXN0KSkpID4gMCkge1xuICBcbiAgcHJpbnQoXCJjaGVjayAtIG51bGwgbmV0d29yayBzb21ld2hlcmVcIilcbn0gZWxzZSB7XG4gIHByaW50KFwiYWxsIGdvb2QgLSBubyBudWxsIG5ldHdvcmtzXCIpXG59XG5gYGAifQ== -->
+<pre class="r"><code>
+#ancestry-distances table
+
+list_anc_dist &lt;- list_simulation1$list_anc_dist[-non.valid_timesteps_phylo_distance]
+
+
+
+# Network list
+
+network_list &lt;- list_simulation1$network_list[-non.valid_timesteps_phylo_distance]
+
+
+
+if (length(which(is.null(list_simulation1$network_list))) &gt; 0) {
+  
+  print(&quot;check - null network somewhere&quot;)
+} else {
+  print(&quot;all good - no null networks&quot;)
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiYWxsIGdvb2QgLSBubyBudWxsIG5ldHdvcmtzXCJcbiJ9 -->
+<pre><code>[1] &quot;all good - no null networks&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWYobGVuZ3RoKGxpc3RfYW5jX2Rpc3QpID09IGxlbmd0aChuZXR3b3JrX2xpc3QpKXtcbiAgXG4gIHByaW50KFwiYWxsIGdvb2QgLSBkaXN0YW5jZS1hbmNlc3RyeSB0YWJsZSBhbmQgbmV0d29yayBsaXN0IGhhdmUgdGhlIHNhbWUgbGVuZ3RoXCIpXG59IGVsc2Uge1xuICBcbiAgcHJpbnQoXCJQUk9CTEVNXCIpXG59XG5gYGAifQ== -->
+<pre class="r"><code>if(length(list_anc_dist) == length(network_list)){
+  
+  print(&quot;all good - distance-ancestry table and network list have the same length&quot;)
+} else {
+  
+  print(&quot;PROBLEM&quot;)
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiYWxsIGdvb2QgLSBkaXN0YW5jZS1hbmNlc3RyeSB0YWJsZSBhbmQgbmV0d29yayBsaXN0IGhhdmUgdGhlIHNhbWUgbGVuZ3RoXCJcbiJ9 -->
+<pre><code>[1] &quot;all good - distance-ancestry table and network list have the same length&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+</div>
+<div id="convert-spp-names-from-numbers-to-letters" class="section level2">
+<h2>Convert spp names from numbers to letters</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIyBBbmNlc3RyeS1kaXN0YW5jZVxuXG5saXN0X2FuY19kaXN0X2xldHRlcnMgPC0gbGFwcGx5KGxpc3RfYW5jX2Rpc3QsIGNoYW5nZV9zcHBuYW1lc19sZXR0ZXJzX2FuY2Rpc3QudGFibGUpXG5cblxuIyMgSW50ZXJhY3Rpb25zXG5cbiMjIyMgMXN0LCBzZXQgbmFtZXMgYXMgbnVtYmVycyAoaW5kZXggb2YgY29sdW1ucyBhbmQgcm93cylcblxuIyBXQVJJTkcgLSBFbGltaW5hdGluZyBmaXJzdCB0aW1lc3RlcFxuXG5saXN0X25ldHdvcmtzX3NwcG5hbWVzX251bWJlcnMgPC0gbGFwcGx5KG5ldHdvcmtfbGlzdCwgc2V0X3NwcE5hbWVzX251bWJlcnMpXG5cbiMjIyMgMm5kLCBjb252ZXJ0IG51bWJlcnMgdG8gbGV0dGVyc1xuXG5saXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMgPC0gbGFwcGx5KGxpc3RfbmV0d29ya3Nfc3BwbmFtZXNfbnVtYmVycywgY29udmVydF9zcHBuYW1lc190b2xldHRlcnMpXG5cblxuXG5cbmlmKGxlbmd0aChsaXN0X2FuY19kaXN0X2xldHRlcnMpID09IGxlbmd0aChsaXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMpKXtcbiAgXG4gIHByaW50KFwiYWxsIGdvb2QgLSBkaXN0YW5jZS1hbmNlc3RyeSB0YWJsZSB3aXRoIGxldHRlcnMgYW5kIG5ldHdvcmsgbGlzdCB3aXRoIGxldGVycyBoYXZlIHRoZSBzYW1lIGxlbmd0aFwiKVxufSBlbHNlIHtcbiAgXG4gIHByaW50KFwiUFJPQkxFTVwiKVxufVxuYGBgIn0= -->
+<pre class="r"><code>
+## Ancestry-distance
+
+list_anc_dist_letters &lt;- lapply(list_anc_dist, change_sppnames_letters_ancdist.table)
+
+
+## Interactions
+
+#### 1st, set names as numbers (index of columns and rows)
+
+# WARING - Eliminating first timestep
+
+list_networks_sppnames_numbers &lt;- lapply(network_list, set_sppNames_numbers)
+
+#### 2nd, convert numbers to letters
+
+list_networks_sppnames_letters &lt;- lapply(list_networks_sppnames_numbers, convert_sppnames_toletters)
+
+
+
+
+if(length(list_anc_dist_letters) == length(list_networks_sppnames_letters)){
+  
+  print(&quot;all good - distance-ancestry table with letters and network list with leters have the same length&quot;)
+} else {
+  
+  print(&quot;PROBLEM&quot;)
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiYWxsIGdvb2QgLSBkaXN0YW5jZS1hbmNlc3RyeSB0YWJsZSB3aXRoIGxldHRlcnMgYW5kIG5ldHdvcmsgbGlzdCB3aXRoIGxldGVycyBoYXZlIHRoZSBzYW1lIGxlbmd0aFwiXG4ifQ== -->
+<pre><code>[1] &quot;all good - distance-ancestry table with letters and network list with leters have the same length&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="loop-for-obtaining-phylogenetic-distances" class="section level4">
+<h4>Loop for obtaining phylogenetic distances:</h4>
+</div>
+</div>
+<div id="without-distinguishing-predators-and-preys" class="section level2">
+<h2>Without distinguishing predators and preys</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saXN0X25ld2ljayA8LSBsaXN0KClcbmxpc3RfdHJlZXMgPC0gbGlzdCgpXG5saXN0X25ld2lja190YWlscyA8LSBsaXN0KClcbmxpc3RfZGlzdC5waHlsbyA8LSBsaXN0KClcblxuXG5cblxuZm9yIChpIGluIDE6bGVuZ3RoKGxpc3RfYW5jX2Rpc3RfbGV0dGVycykpIHtcbiAgXG4gIFxuICBwcmludChzcHJpbnRmKFwic3RlcCAlc1wiLCBpKSlcbiAgXG4gIGxpc3RfbmV3aWNrW1tpXV0gPC0gVG9QaHlsbyhsaXN0X2FuY19kaXN0X2xldHRlcnNbW2ldXSlcbiAgXG4gIGxpc3RfbmV3aWNrX3RhaWxzW1tpXV0gPC0gcGFzdGUobGlzdF9uZXdpY2tbW2ldXSwgXCJyb290XCIpXG4gIFxuICBsaXN0X3RyZWVzW1tpXV0gPC0gcmVhZC50cmVlKHRleHQgPSBzdWIoXCJBIHJvb3RcIixcIjtcIixsaXN0X25ld2lja190YWlsc1tbaV1dKSlcbiAgXG4gIGxpc3RfZGlzdC5waHlsb1tbaV1dIDwtIGNvcGhlbmV0aWMucGh5bG8obGlzdF90cmVlc1tbaV1dKVxuICBcblxufVxuXG4jIGNoZWNrIHRoYXQgdGhlcmUgYXJlIG5vIG51bGxzXG5cbmlmIChsZW5ndGgod2hpY2godW5saXN0KGxhcHBseShsaXN0X2Rpc3QucGh5bG8sIGlzLm51bGwpKSA9PSBUUlVFKSkgPT0gMCkge1xuICBcbiAgcHJpbnQoXCJhbGwgZ29vZCAtIG5vIG51bGxzXCIpXG59IGVsc2Uge1xuICBcbiAgcHJpbnQoXCJQUk9CTEVNXCIpXG4gIFxufVxuXG5cblxuaWYgKGxlbmd0aChsaXN0X2Rpc3QucGh5bG8pID09IGxlbmd0aChsaXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMpKXtcbiAgXG4gIHByaW50KFwiYWxsIGdvb2QgLSBsaXN0IHBoeWxvIGRpc3Qgd2l0aCBsZXR0ZXJzIGFuZCBsaXN0IGludGVyYWN0aW9ucyB3aXRoIGxldHRlcnMgaGF2ZSB0aGUgc2FtZSBsZW5ndGhcIilcbiAgXG59ZWxzZXtcbiAgXG4gIHByaW50KFwiUFJPQkxFTVwiKVxuICBcbn1cblxuYGBgIn0= -->
+<pre class="r"><code>
+list_newick &lt;- list()
+list_trees &lt;- list()
+list_newick_tails &lt;- list()
+list_dist.phylo &lt;- list()
+
+
+
+
+for (i in 1:length(list_anc_dist_letters)) {
+  
+  
+  print(sprintf(&quot;step %s&quot;, i))
+  
+  list_newick[[i]] &lt;- ToPhylo(list_anc_dist_letters[[i]])
+  
+  list_newick_tails[[i]] &lt;- paste(list_newick[[i]], &quot;root&quot;)
+  
+  list_trees[[i]] &lt;- read.tree(text = sub(&quot;A root&quot;,&quot;;&quot;,list_newick_tails[[i]]))
+  
+  list_dist.phylo[[i]] &lt;- cophenetic.phylo(list_trees[[i]])
+  
+
+}
+
+# check that there are no nulls
+
+if (length(which(unlist(lapply(list_dist.phylo, is.null)) == TRUE)) == 0) {
+  
+  print(&quot;all good - no nulls&quot;)
+} else {
+  
+  print(&quot;PROBLEM&quot;)
+  
+}
+
+
+
+if (length(list_dist.phylo) == length(list_networks_sppnames_letters)){
+  
+  print(&quot;all good - list phylo dist with letters and list interactions with letters have the same length&quot;)
+  
+}else{
+  
+  print(&quot;PROBLEM&quot;)
+  
+}
 </code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
-<div id="set-parameters-simulation" class="section level3">
-<h3>set parameters simulation</h3>
+<div id="retain-only-present-species-in-network-matrices" class="section level2">
+<h2>Retain only present species in network matrices</h2>
+<p>For phylogenetic distance matrices, the spp for which distances are
+calculated are already only the ones present.</p>
+<p>So I need to crop the interaction matrices to retain only present
+species, and test that these corresponf to the ones present in the
+phylogenetic distance matrices in each timestep.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubnN0ZXBzID0gMzUwICMgU2V0IHRoZSBtYXhpbXVtIHRpbWVzdGVwIHBlciBzaW11bGF0aW9uXG5uc2ltID0gMSAjIFNldCB0aGUgbnVtYmVyIG9mIHNpbXVsYXRpb25zXG5cbiMgVmVjdG9yIHRvIHJlY29yZCBudW1iZXIgb2Ygc2ltdWxhdGlvbiBuZWVkZWQgdG8gcmVhY2ggMTAwIHZhbGlkIHNpbXVsYXRpb25zXG5uZWVkZWRfc2ltX3BvcyA8LSBjKHJlcChOQSwgbnNpbSkpXG5uZWVkZWRfc2ltX25lZyA8LSBjKHJlcChOQSwgbnNpbSkpXG5uZWVkZWRfc2ltX2Z3IDwtIGMocmVwKE5BLCBuc2ltKSlcbmBgYCJ9 -->
-<pre class="r"><code>nsteps = 350 # Set the maximum timestep per simulation
-nsim = 1 # Set the number of simulations
-
-# Vector to record number of simulation needed to reach 100 valid simulations
-needed_sim_pos &lt;- c(rep(NA, nsim))
-needed_sim_neg &lt;- c(rep(NA, nsim))
-needed_sim_fw &lt;- c(rep(NA, nsim))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="seeds-record-matrix" class="section level3">
-<h3>Seeds record matrix</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBMaXN0IG9mIHVzZWQgc2VlZCBwZXIgc2ltdWxhdGlvbiBiYXRjaFxucmVjY29yZGVkX3NlZWRfcG9zX2xpc3QgPC0gbGlzdCgpXG5yZWNjb3JkZWRfc2VlZF9uZWdfbGlzdCA8LSBsaXN0KClcbnJlY2NvcmRlZF9zZWVkX2Z3X2xpc3QgPC0gbGlzdCgpXG5cbnNlZWRfbGlzdCA8LSBOVUxMICMgU2V0IGFuIG9iamVjdCB0byByZWNvcmQgc2VlZCB0aGF0IHdpbGwgYmUgdXNlZCB0byBsYXVuY2ggc2ltdWxhdGlvbnNcblxuYGBgIn0= -->
-<pre class="r"><code># List of used seed per simulation batch
-reccorded_seed_pos_list &lt;- list()
-reccorded_seed_neg_list &lt;- list()
-reccorded_seed_fw_list &lt;- list()
-
-seed_list &lt;- NULL # Set an object to record seed that will be used to launch simulations
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWYobnJvdyhwcmVzZW5jZV9tYXRyaXgpID09IGxlbmd0aChsaXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMpICYgXG4gICBucm93KHByZXNlbmNlX21hdHJpeCkgPT0gbGVuZ3RoKGxpc3RfZGlzdC5waHlsbykpe1xuICBcbiAgcHJpbnQoXCJhbGwgZ29vZCAtIHByZXNlbmNlIG1hdHJpeCwgbGlzdCBwaHlsbyBkaXN0IGFuZCBsaXN0IGludGVyYWN0aW9uIG5ldHdvcmtzIGhhdmUgdGhlIHNhbWUgbl9zdGVwc1wiKVxuICBcbn0gZWxzZSB7XG4gIFxuICBwcmludChcIlBST0JMRU1cIilcbn1cblxuYGBgIn0= -->
+<pre class="r"><code>if(nrow(presence_matrix) == length(list_networks_sppnames_letters) &amp; 
+   nrow(presence_matrix) == length(list_dist.phylo)){
+  
+  print(&quot;all good - presence matrix, list phylo dist and list interaction networks have the same n_steps&quot;)
+  
+} else {
+  
+  print(&quot;PROBLEM&quot;)
+}
 </code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiYWxsIGdvb2QgLSBwcmVzZW5jZSBtYXRyaXgsIGxpc3QgcGh5bG8gZGlzdCBhbmQgbGlzdCBpbnRlcmFjdGlvbiBuZXR3b3JrcyBoYXZlIHRoZSBzYW1lIG5fc3RlcHNcIlxuIn0= -->
+<pre><code>[1] &quot;all good - presence matrix, list phylo dist and list interaction networks have the same n_steps&quot;</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-</div>
-<div id="simulation-1" class="section level2">
-<h2>Simulation</h2>
+<div id="interaction-distances" class="section level4">
+<h4>Interaction distances</h4>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVjY29yZGVkX3NlZWRfZndfbGlzdFxuXG5gYGAifQ== -->
-<pre class="r"><code>reccorded_seed_fw_list
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29tcHV0ZV9ubWkobWF0KVxuXG5gYGAifQ== -->
+<pre class="r"><code>compute_nmi(mat)
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiW1sxXV1cblsxXSAyNDgzOFxuXG5bWzJdXVxuWzFdIDQ0NTY0XG4ifQ== -->
-<pre><code>[[1]]
-[1] 24838
-
-[[2]]
-[1] 44564</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgQkUgICAgICAgICBCSCAgICAgICAgICBCSSAgICAgICAgICBDQSAgICAgICAgICBDQiAgICAgICAgICBDRCAgICAgICAgICBDRiAgICAgICAgICBDRyAgICAgICAgICBDSCBDSSAgICAgICAgICBDSlxuQkUgMS4wMDAwMDAwMDAgMC4wNTM3NzAzNCAwLjAxNzczNzY2OCAwLjAwNTc4MDA0MiAwLjAxNzczNzY2OCAwLjAwMTIwODQ0MSAwLjIzNjA5OTYwNiAwLjA1MDA1MjAzMSAwLjExNzQ3MDU0NCAgMCAwLjAxNzczNzY2OFxuQkggMC4wNTM3NzAzMzggMS4wMDAwMDAwMCAwLjA1MjExMTQ5MCAwLjQzOTI4ODc4OCAwLjA1MjExMTQ5MCAwLjAwMzUzNzE1MCAwLjA1Mzc3MDMzOCAwLjIxODI4NjQyMCAwLjAwMzUzNzE1MCAgMCAwLjE2NTk4MzMyNlxuQkkgMC4wMTc3Mzc2NjggMC4wNTIxMTE0OSAxLjAwMDAwMDAwMCAwLjA1Mzc3MDMzOCAwLjMxMzE5MzA4OSAwLjE1NDQxNzg3MiAwLjA1Mzc3MDMzOCAwLjAwMTU4NzA4MyAwLjAwMzUzNzE1MCAgMCAwLjE2NTk4MzMyNlxuQ0EgMC4wMDU3ODAwNDIgMC40MzkyODg3OSAwLjA1Mzc3MDMzOCAxLjAwMDAwMDAwMCAwLjA1Mzc3MDMzOCAwLjAwMTIwODQ0MSAwLjAwNTc4MDA0MiAwLjEyMjk0ODM5MSAwLjAwMTIwODQ0MSAgMCAwLjAxNzczNzY2OFxuQ0IgMC4wMTc3Mzc2NjggMC4wNTIxMTE0OSAwLjMxMzE5MzA4OSAwLjA1Mzc3MDMzOCAxLjAwMDAwMDAwMCAwLjE1NDQxNzg3MiAwLjA1Mzc3MDMzOCAwLjAwMTU4NzA4MyAwLjE1NDQxNzg3MiAgMCAwLjE2NTk4MzMyNlxuQ0QgMC4wMDEyMDg0NDEgMC4wMDM1MzcxNSAwLjE1NDQxNzg3MiAwLjAwMTIwODQ0MSAwLjE1NDQxNzg3MiAxLjAwMDAwMDAwMCAwLjExNzQ3MDU0NCAwLjAxNTM1MTUwOSAwLjAyNTA0NzgwOSAgMCAwLjA3NDI5NzAzM1xuQ0YgMC4yMzYwOTk2MDYgMC4wNTM3NzAzNCAwLjA1Mzc3MDMzOCAwLjAwNTc4MDA0MiAwLjA1Mzc3MDMzOCAwLjExNzQ3MDU0NCAxLjAwMDAwMDAwMCAwLjA1MDA1MjAzMSAwLjExNzQ3MDU0NCAgMCAwLjMyNjA4NDAxMVxuQ0cgMC4wNTAwNTIwMzEgMC4yMTgyODY0MiAwLjAwMTU4NzA4MyAwLjEyMjk0ODM5MSAwLjAwMTU4NzA4MyAwLjAxNTM1MTUwOSAwLjA1MDA1MjAzMSAxLjAwMDAwMDAwMCAwLjAxNTM1MTUwOSAgMCAwLjAwMTU4NzA4M1xuQ0ggMC4xMTc0NzA1NDQgMC4wMDM1MzcxNSAwLjAwMzUzNzE1MCAwLjAwMTIwODQ0MSAwLjE1NDQxNzg3MiAwLjAyNTA0NzgwOSAwLjExNzQ3MDU0NCAwLjAxNTM1MTUwOSAxLjAwMDAwMDAwMCAgMCAwLjA3NDI5NzAzM1xuQ0kgMC4wMDAwMDAwMDAgMC4wMDAwMDAwMCAwLjAwMDAwMDAwMCAwLjAwMDAwMDAwMCAwLjAwMDAwMDAwMCAwLjAwMDAwMDAwMCAwLjAwMDAwMDAwMCAwLjAwMDAwMDAwMCAwLjAwMDAwMDAwMCAgMSAwLjAwMDAwMDAwMFxuQ0ogMC4wMTc3Mzc2NjggMC4xNjU5ODMzMyAwLjE2NTk4MzMyNiAwLjAxNzczNzY2OCAwLjE2NTk4MzMyNiAwLjA3NDI5NzAzMyAwLjMyNjA4NDAxMSAwLjAwMTU4NzA4MyAwLjA3NDI5NzAzMyAgMCAxLjAwMDAwMDAwMFxuIn0= -->
+<pre><code>            BE         BH          BI          CA          CB          CD          CF          CG          CH CI          CJ
+BE 1.000000000 0.05377034 0.017737668 0.005780042 0.017737668 0.001208441 0.236099606 0.050052031 0.117470544  0 0.017737668
+BH 0.053770338 1.00000000 0.052111490 0.439288788 0.052111490 0.003537150 0.053770338 0.218286420 0.003537150  0 0.165983326
+BI 0.017737668 0.05211149 1.000000000 0.053770338 0.313193089 0.154417872 0.053770338 0.001587083 0.003537150  0 0.165983326
+CA 0.005780042 0.43928879 0.053770338 1.000000000 0.053770338 0.001208441 0.005780042 0.122948391 0.001208441  0 0.017737668
+CB 0.017737668 0.05211149 0.313193089 0.053770338 1.000000000 0.154417872 0.053770338 0.001587083 0.154417872  0 0.165983326
+CD 0.001208441 0.00353715 0.154417872 0.001208441 0.154417872 1.000000000 0.117470544 0.015351509 0.025047809  0 0.074297033
+CF 0.236099606 0.05377034 0.053770338 0.005780042 0.053770338 0.117470544 1.000000000 0.050052031 0.117470544  0 0.326084011
+CG 0.050052031 0.21828642 0.001587083 0.122948391 0.001587083 0.015351509 0.050052031 1.000000000 0.015351509  0 0.001587083
+CH 0.117470544 0.00353715 0.003537150 0.001208441 0.154417872 0.025047809 0.117470544 0.015351509 1.000000000  0 0.074297033
+CI 0.000000000 0.00000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000  1 0.000000000
+CJ 0.017737668 0.16598333 0.165983326 0.017737668 0.165983326 0.074297033 0.326084011 0.001587083 0.074297033  0 1.000000000</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubmFtZXMobGlzdF9yZXMpXG5cbmBgYCJ9 -->
-<pre class="r"><code>names(list_res)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIENvbXB1dGUgZGlzdGFuY2VzXG5cbmxpc3RfZGlzdF9jaGlzcTwtIGxhcHBseShsaXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMsIGNvbXB1dGVfY2hpc3EpXG5cblxuXG5cbmlmIChsZW5ndGgod2hpY2godW5saXN0KGxhcHBseShsaXN0X2Rpc3RfY2hpc3EsIGlzLm51bGwpKSA9PSBUUlVFKSkgPT0gMCkge1xuICBcbiAgcHJpbnQoXCJhbGwgZ29vZCAtIG5vIG51bGxzXCIpXG59IGVsc2Uge1xuICBcbiAgcHJpbnQoXCJQUk9CTEVNXCIpXG4gIFxufVxuXG5cblxuXG5cbmBgYCJ9 -->
+<pre class="r"><code>
+# Compute distances
+
+list_dist_chisq&lt;- lapply(list_networks_sppnames_letters, compute_chisq)
+
+
+
+
+if (length(which(unlist(lapply(list_dist_chisq, is.null)) == TRUE)) == 0) {
+  
+  print(&quot;all good - no nulls&quot;)
+} else {
+  
+  print(&quot;PROBLEM&quot;)
+  
+}
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwic2ltdWxhdGlvbjFcIlxuIn0= -->
-<pre><code>[1] &quot;simulation1&quot;</code></pre>
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWYgKGxlbmd0aChsaXN0X2Rpc3RfY2hpc3EpID09IGxlbmd0aChsaXN0X2Rpc3QucGh5bG8pKSB7XG4gIFxuICBwcmludChcImFsbCBnb29kIC0gc2FtZSBsZW5ndGggbGlzdCBvZiBpbnRlcmFjdGlvbiBkaXN0YW5jZXMgYW5kIGxpc3Qgb2YgcGh5bG8gZGlzdGFuY2VzXCIpXG59IGVsc2Uge1xuICBcbiAgcHJpbnQoXCJQUk9CTEVNXCIpXG4gIFxufVxuXG5gYGAifQ== -->
+<pre class="r"><code>if (length(list_dist_chisq) == length(list_dist.phylo)) {
+  
+  print(&quot;all good - same length list of interaction distances and list of phylo distances&quot;)
+} else {
+  
+  print(&quot;PROBLEM&quot;)
+  
+}
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiYWxsIGdvb2QgLSBzYW1lIGxlbmd0aCBsaXN0IG9mIGludGVyYWN0aW9uIGRpc3RhbmNlcyBhbmQgbGlzdCBvZiBwaHlsbyBkaXN0YW5jZXNcIlxuIn0= -->
+<pre><code>[1] &quot;all good - same length list of interaction distances and list of phylo distances&quot;</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-</div>
-<div id="spp-richness-through-time" class="section level2">
-<h2>Spp richness through time</h2>
+<hr />
+<p>Now I have the phylogenetic distance matrices in list_dist.phylo, and
+the interaction distances in list_dist_chisq.</p>
+<p>Check that both the list of distance matrices for interactions and
+for phylogeny have the same length:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-plot-begin eyJoZWlnaHQiOjQzMi42MzI5LCJ3aWR0aCI6NzAwLCJzaXplX2JlaGF2aW9yIjowLCJjb25kaXRpb25zIjpbXX0= -->
-<p><img src="data:image/png;base64,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" /></p>
-<!-- rnb-plot-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGVuZ3RoKGxpc3RfZGlzdF9jaGlzcVtbMTJdXSkgPT0gbGVuZ3RoKGxpc3RfZGlzdC5waHlsb1tbMTJdXSlcbmBgYCJ9 -->
+<pre class="r"><code>length(list_dist_chisq[[12]]) == length(list_dist.phylo[[12]])</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<div id="save-data" class="section level3">
-<h3>save data</h3>
+<p>Example to show that phylogenetic distance matrices retain the
+extinct species together with the present ones.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5zYXZlKHJlY2NvcmRlZF9zZWVkX2Z3X2xpc3QsIGZpbGUgPSBcIi4uL0FGX0RhdGEvZm9vZHdlYi9yZWNjb3JkZWRfc2VlZF9uZWdfbGlzdDEuUmRhdGFcIilcbnNhdmUobmVlZGVkX3NpbV9mdywgZmlsZSA9IFwiLi4vQUZfRGF0YS9mb29kd2ViL25lZWRlZF9zaW1fZncuUmRhdGFcIilcblxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5kZi50ZXN0LnBoeWxvIDwtIGFzLmRhdGEuZnJhbWUobGlzdF9kaXN0LnBoeWxvW1sxNzRdXSlcbmRmLnRlc3QuY2hpc3EgPC0gYXMuZGF0YS5mcmFtZShsaXN0X2Rpc3RfY2hpc3FbWzE3NF1dKVxuXG5kYXRhX25ldy5waHlsbyA8LSBkZi50ZXN0LnBoeWxvW29yZGVyKG5hbWVzKGRmLnRlc3QucGh5bG8pKSAsIG9yZGVyKG5hbWVzKGRmLnRlc3QucGh5bG8pKV1cbmRhdGFfbmV3LmNoaXNxIDwtIGRmLnRlc3QuY2hpc3Fbb3JkZXIobmFtZXMoZGYudGVzdC5jaGlzcSkpICwgb3JkZXIobmFtZXMoZGYudGVzdC5jaGlzcSkpXVxuXG5jb2xuYW1lcyhkYXRhX25ldy5jaGlzcSlcblxuY29sbmFtZXMoZGF0YV9uZXcucGh5bG8pXG5gYGAifQ== -->
 <pre class="r"><code>
-save(reccorded_seed_fw_list, file = &quot;../AF_Data/foodweb/reccorded_seed_neg_list1.Rdata&quot;)
-save(needed_sim_fw, file = &quot;../AF_Data/foodweb/needed_sim_fw.Rdata&quot;)
+df.test.phylo &lt;- as.data.frame(list_dist.phylo[[174]])
+df.test.chisq &lt;- as.data.frame(list_dist_chisq[[174]])
+
+data_new.phylo &lt;- df.test.phylo[order(names(df.test.phylo)) , order(names(df.test.phylo))]
+data_new.chisq &lt;- df.test.chisq[order(names(df.test.chisq)) , order(names(df.test.chisq))]
+
+colnames(data_new.chisq)
+
+colnames(data_new.phylo)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Therefore, I need to 1st order the names of columns and rows of both
+phylo and interaction distance matrices so that they coincide, and then
+select only those species present to compare the matrices. The way I
+will select those species present is by telling the phylo-distance
+matrix to retain only those species names that the interaction distance
+matrix has:</p>
+<hr />
+</div>
+</div>
+<div id="order-column-and-row-spp-names" class="section level2">
+<h2>Order column and row spp names</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlzdF9kaXN0LnBoeWxvX2RmIDwtIGxhcHBseShsaXN0X2Rpc3QucGh5bG8sIGFzLmRhdGEuZnJhbWUpXG5saXN0X2Rpc3RfY2hpc3FfZGYgPC0gbGFwcGx5KGxpc3RfZGlzdF9jaGlzcSwgYXMuZGF0YS5mcmFtZSlcblxuXG5saXN0X2Rpc3QucGh5bG9fZGYub3JkIDwtIGxhcHBseShsaXN0X2Rpc3QucGh5bG9fZGYsIG9yZGVyX2NvbC5yb3dfbmFtZXMpXG5saXN0X2Rpc3RfY2hpc3FfZGYub3JkIDwtIGxhcHBseShsaXN0X2Rpc3RfY2hpc3FfZGYsIG9yZGVyX2NvbC5yb3dfbmFtZXMpXG5cbmBgYCJ9 -->
+<pre class="r"><code>list_dist.phylo_df &lt;- lapply(list_dist.phylo, as.data.frame)
+list_dist_chisq_df &lt;- lapply(list_dist_chisq, as.data.frame)
+
+
+list_dist.phylo_df.ord &lt;- lapply(list_dist.phylo_df, order_col.row_names)
+list_dist_chisq_df.ord &lt;- lapply(list_dist_chisq_df, order_col.row_names)
 </code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>— How results are stored They are stored in list_res_pos_nsim.Rdata
-and list_res_neg_nsim.Rdata in the form of a list (list_res), which is a
-list of simulations, and each of them contains a list of the results of
-the simulation (res_sim). I need to think about a way to combine the
-results of the simulations (phylog. signal) -&gt; maybe statistic
-describing the relationship between phylog. signal and time,
-dimensionality, etc..</p>
-<p>— The simulation ends if it reaches either a maximum number of
-timesteps (350) or a maximum number of species (1000). To make sure the
-list of networks and the list of trees per timesteps have (1) the same
-length and (2) are correspondent with the timesteps, I need to make sure
-that both start and finish to be measured at the same timesteps, and
-that I know then number of timesteps run per simulation.</p>
-<p>Start: 5 species present could be a good number for starting to
-measure both networks and phylogenies. For the trees, I calculate them
-from the anc table. Networks are stored in a list.</p>
-<p>So list_networks[[5]] should be compared with anc[[timestep 5]]</p>
-<p>— Phylogenetic distances Record them myself rather than with hclust
-or any other algorythm. Pass distances data to Netweek format.</p>
+</div>
+<div id="for-phylogenetic-distance-matrices-retain-only-those-species-present" class="section level2">
+<h2>For phylogenetic distance matrices, retain only those species
+present</h2>
+<p>Species present are those present in the interaction distance
+matrix.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTZWxlY3Qgb25seSBzcHAgcHJlc2VudCBmb3IgcGh5bG9nZW5ldGljIGRpc3RhbmNlIG1hdHJpeFxuXG5saXN0X2Rpc3QucGh5bG9fZGZfcHJlcyA8LSBsaXN0KClcblxuZm9yIChpIGluIDE6bGVuZ3RoKGxpc3RfZGlzdC5waHlsb19kZi5vcmQpKSB7XG4gIFxuICBzcHBfcHJlc2VudCA8LSBjb2xuYW1lcyhsaXN0X2Rpc3RfY2hpc3FfZGYub3JkW1tpXV0pXG4gIGxpc3RfZGlzdC5waHlsb19kZl9wcmVzW1tpXV0gPC0gbGlzdF9kaXN0LnBoeWxvX2RmLm9yZFtbaV1dW3NwcF9wcmVzZW50ICxzcHBfcHJlc2VudF0gXG4gIFxuICBcbn1cblxuIyMgQ2hlY2sgdGhhdCBub3cgcGh5bG8gYW5kIGludGVyYWN0aW9uIGRpc3RhbmNlIG1hdHJpY2VzIGhhdmUgdGhlIHNhbWUgbnVtYmVyIG9mIHNwcCwgc2FtZSBuYW1lcywgYW5kIGluIHRoZSBzYW1lIG9yZGVyXG5cblxuY29sbmFtZXMobGlzdF9kaXN0LnBoeWxvX2RmX3ByZXNbWzEwMF1dKSA9PSBjb2xuYW1lcyhsaXN0X2Rpc3RfY2hpc3FfZGYub3JkW1sxMDBdXSlcblxuYGBgIn0= -->
+<pre class="r"><code># Select only spp present for phylogenetic distance matrix
+
+list_dist.phylo_df_pres &lt;- list()
+
+for (i in 1:length(list_dist.phylo_df.ord)) {
+  
+  spp_present &lt;- colnames(list_dist_chisq_df.ord[[i]])
+  list_dist.phylo_df_pres[[i]] &lt;- list_dist.phylo_df.ord[[i]][spp_present ,spp_present] 
+  
+  
+}
+
+## Check that now phylo and interaction distance matrices have the same number of spp, same names, and in the same order
+
+
+colnames(list_dist.phylo_df_pres[[100]]) == colnames(list_dist_chisq_df.ord[[100]])
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>NOW I’M READY TO COMPUTE CORRELATION</p>
+</div>
+<div id="compute-mds" class="section level1">
+<h1>Compute MDS</h1>
+<p>WARNING: I can’t compute MDS with ~2 spp, so 1st and 2nd matrices
+can’t be analysed. And I eliminate them from the list (6 and 7
+timesteps)</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIGNvbnZlcnQgdG8gbWF0cml4XG5cbmxpc3RfZGlzdF9jaGlzcV9tYXQgPC0gbGFwcGx5KGxpc3RfZGlzdF9jaGlzcV9kZi5vcmQsIGFzLm1hdHJpeClcbmxpc3RfZGlzdC5waHlsb19tYXQgPC0gbGFwcGx5KGxpc3RfZGlzdC5waHlsb19kZl9wcmVzLCBhcy5tYXRyaXgpXG5cblxuIyMgRWxpbWluYXRlIDFzdCBhbmQgMm5kIG1hdHJpeCAtIHRvbyBmZXcgc3BwIHRvIGNvbXB1dGUgTURTXG5cbmxpc3RfZGlzdF9jaGlzcV9tYXQgPC0gbGlzdF9kaXN0X2NoaXNxX21hdFstYygxLDIpXVxubGlzdF9kaXN0LnBoeWxvX21hdCA8LSBsaXN0X2Rpc3QucGh5bG9fbWF0Wy1jKDEsMildXG5cblxuXG4jIGNvbXB1dGUgbWRzXG5cbmxpc3RfbWRzLmludCA8LSBsaXN0KClcbmxpc3RfbWRzLnBoeSA8LSBsaXN0KClcblxuXG4jIENvbXB1dGUgTk1TXG5cbmZvciAoaSBpbiAxOmxlbmd0aChsaXN0X2Rpc3RfY2hpc3FfbWF0KSkge1xuICBcbmxpc3RfbWRzLmludFtbaV1dIDwtIG1vbm9NRFMobGlzdF9kaXN0X2NoaXNxX21hdFtbaV1dLCB5ID0gY21kc2NhbGUobGlzdF9kaXN0X2NoaXNxX21hdFtbaV1dKSlcbmxpc3RfbWRzLnBoeVtbaV1dIDwtIG1vbm9NRFMobGlzdF9kaXN0LnBoeWxvX21hdFtbaV1dLCB5ID0gY21kc2NhbGUobGlzdF9kaXN0LnBoeWxvX21hdFtbaV1dKSlcbiAgXG59XG5gYGAifQ== -->
+<pre class="r"><code>
+# convert to matrix
+
+list_dist_chisq_mat &lt;- lapply(list_dist_chisq_df.ord, as.matrix)
+list_dist.phylo_mat &lt;- lapply(list_dist.phylo_df_pres, as.matrix)
+
+
+## Eliminate 1st and 2nd matrix - too few spp to compute MDS
+
+list_dist_chisq_mat &lt;- list_dist_chisq_mat[-c(1,2)]
+list_dist.phylo_mat &lt;- list_dist.phylo_mat[-c(1,2)]
+
+
+
+# compute mds
+
+list_mds.int &lt;- list()
+list_mds.phy &lt;- list()
+
+
+# Compute NMS
+
+for (i in 1:length(list_dist_chisq_mat)) {
+  
+list_mds.int[[i]] &lt;- monoMDS(list_dist_chisq_mat[[i]], y = cmdscale(list_dist_chisq_mat[[i]]))
+list_mds.phy[[i]] &lt;- monoMDS(list_dist.phylo_mat[[i]], y = cmdscale(list_dist.phylo_mat[[i]]))
+  
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="compute-correlation" class="section level1">
+<h1>Compute correlation</h1>
+<p>already have distance matrices computed (chisq, phylo)</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5wcm90ZXN0IDwtIGxpc3QoKVxucHJvY3J1c3RlcyA8LSBsaXN0KClcblxuZm9yIChpIGluIDE6bGVuZ3RoKGxpc3RfZGlzdC5waHlsb19tYXQpKSB7XG4gIFxuICBwcm90ZXN0W1tpXV0gPC0gcHJvdGVzdChsaXN0X21kcy5pbnRbW2ldXSwgbGlzdF9tZHMucGh5W1tpXV0pXG4gIFxuICBwcm9jcnVzdGVzW1tpXV0gPC0gcHJvY3J1c3RlcyhsaXN0X21kcy5pbnRbW2ldXSxsaXN0X21kcy5waHlbW2ldXSlcbiAgXG4gIFxufVxuXG5cblxuIyMgaXQgc3RhcnRzIGZyb20gdGltZXN0ZXAgOFxuXG5wcm90ZXN0X3B2YWwgPC0gYygpXG5wcm90ZXN0X2NvcnIgPC0gYygpXG5cbmZvciAoaSBpbiAxOmxlbmd0aChwcm90ZXN0KSkge1xuICBcbiAgcHJvdGVzdF9wdmFsW2ldIDwtIHByb3Rlc3RbW2ldXSRzaWduaWZcbiAgXG4gIHByb3Rlc3RfY29ycltpXSA8LXByb3Rlc3RbW2ldXSR0MFxuXG4gIFxufVxuXG5wcm90ZXN0X3B2YWxcblxucHJvdGVzdF9jb3JyXG5cbnRpbWVzdGVwcyA8LSA4Omxlbmd0aChsaXN0X3NpbXVsYXRpb24xJGxpc3RfYW5jX2Rpc3QpXG5cbmRmX3NpZ25hbF90aW1lIDwtIGRhdGEuZnJhbWUodGltZXN0ZXBzLHByb3Rlc3RfcHZhbCxwcm90ZXN0X2NvcnIpXG5cbmRmX3NpZ25hbF90aW1lJHNpZ24gPC0gd2l0aChkZl9zaWduYWxfdGltZSwgaWZlbHNlKHByb3Rlc3RfcHZhbCA8IDAuMDUxLCAnc2lnbicsICdub24uc2lnbicpKVxuXG5cbmRmX3NpZ25hbF90aW1lXG5cbmBgYCJ9 -->
+<pre class="r"><code>
+protest &lt;- list()
+procrustes &lt;- list()
+
+for (i in 1:length(list_dist.phylo_mat)) {
+  
+  protest[[i]] &lt;- protest(list_mds.int[[i]], list_mds.phy[[i]])
+  
+  procrustes[[i]] &lt;- procrustes(list_mds.int[[i]],list_mds.phy[[i]])
+  
+  
+}
+
+
+
+## it starts from timestep 8
+
+protest_pval &lt;- c()
+protest_corr &lt;- c()
+
+for (i in 1:length(protest)) {
+  
+  protest_pval[i] &lt;- protest[[i]]$signif
+  
+  protest_corr[i] &lt;-protest[[i]]$t0
+
+  
+}
+
+protest_pval
+
+protest_corr
+
+timesteps &lt;- 8:length(list_simulation1$list_anc_dist)
+
+df_signal_time &lt;- data.frame(timesteps,protest_pval,protest_corr)
+
+df_signal_time$sign &lt;- with(df_signal_time, ifelse(protest_pval &lt; 0.051, &#39;sign&#39;, &#39;non.sign&#39;))
+
+
+df_signal_time
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="plot-phylogenetic-signal-through-time" class="section level3">
+<h3>Plot phylogenetic signal through time</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saWJyYXJ5KGdncGxvdDIpXG5cbm15LnRoZW1lPC10aGVtZShheGlzLnRleHQ9ZWxlbWVudF90ZXh0KHNpemU9MTIpLFxuICAgICAgICAgICAgICAgIGF4aXMudGl0bGUgPSBlbGVtZW50X3RleHQoc2l6ZSA9IDE0KSxcbiAgICAgICAgICAgICAgICBsZWdlbmQucG9zaXRpb24gPSBcInRvcFwiLFxuICAgICAgICAgICAgICAgIGxlZ2VuZC50ZXh0PWVsZW1lbnRfdGV4dChzaXplPTEwKSxcbiAgICAgICAgICAgICAgICBsZWdlbmQudGl0bGUgPSBlbGVtZW50X3RleHQoc2l6ZT0xMiksXG4gICAgICAgICAgICAgICAgcGxvdC50aXRsZSA9IGVsZW1lbnRfdGV4dChmYWNlPVwiYm9sZFwiLHNpemU9MTQsbWFyZ2luPW1hcmdpbigwLDAsMjAsMCksaGp1c3QgPSAwLjUpLFxuICAgICAgICAgICAgICAgIGF4aXMudGl0bGUueSA9IGVsZW1lbnRfdGV4dChtYXJnaW4gPSBtYXJnaW4odCA9IDAsIHIgPSAxNSwgYiA9IDAsIGwgPSAwKSksXG4gICAgICAgICAgICAgICAgYXhpcy50aXRsZS54ID0gZWxlbWVudF90ZXh0KG1hcmdpbiA9IG1hcmdpbih0ID0gMTUsIHIgPSAwLCBiID0gMCwgbCA9IDApKSlcblxuXG5wIDwtIGdncGxvdChkZl9zaWduYWxfdGltZSwgYWVzKHg9dGltZXN0ZXBzLCB5PXByb3Rlc3RfY29ycikpICtcbiAgICAgICBnZW9tX2xpbmUoKStcbiAgZ2VvbV9wb2ludChhZXMoZmlsbCA9IHNpZ24sIGNvbG9yPXNpZ24pLCBzaXplPTIsIGFscGhhID0gMC43KSArXG4gIHRoZW1lX2J3KCkrXG4gICAgbXkudGhlbWUrXG4gICAgc2NhbGVfY29sb3VyX21hbnVhbCh2YWx1ZXMgPSBjKFwiYmxhY2tcIiwgXCJyZWRcIikpK1xuICAgIGdndGl0bGUoXCJQaHlsb2dlbmV0aWMgc2lnbmFsIHRocm91Z2ggdGltZSAoKylcIikrXG54bGFiKFwidGltZXN0ZXBzXCIpK1xuICB5bGFiKFwiUGh5bG9nZW5ldGljIHNpZ25hbFwiKVxuXG5cbnBcbmBgYCJ9 -->
+<pre class="r"><code>
+library(ggplot2)
+
+my.theme&lt;-theme(axis.text=element_text(size=12),
+                axis.title = element_text(size = 14),
+                legend.position = &quot;top&quot;,
+                legend.text=element_text(size=10),
+                legend.title = element_text(size=12),
+                plot.title = element_text(face=&quot;bold&quot;,size=14,margin=margin(0,0,20,0),hjust = 0.5),
+                axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0)),
+                axis.title.x = element_text(margin = margin(t = 15, r = 0, b = 0, l = 0)))
+
+
+p &lt;- ggplot(df_signal_time, aes(x=timesteps, y=protest_corr)) +
+       geom_line()+
+  geom_point(aes(fill = sign, color=sign), size=2, alpha = 0.7) +
+  theme_bw()+
+    my.theme+
+    scale_colour_manual(values = c(&quot;black&quot;, &quot;red&quot;))+
+    ggtitle(&quot;Phylogenetic signal through time (+)&quot;)+
+xlab(&quot;timesteps&quot;)+
+  ylab(&quot;Phylogenetic signal&quot;)
+
+
+p</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="plot-species-richness-through-time" class="section level3">
+<h3>Plot species richness through time</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTSE9XIEFMU08gTlVNQkVSIE9GIFNQRUNJRVMgSU4gVEhFIEdSQVBIXG5cbnByZXNlbmNlX21hdHJpeCA8LSBsaXN0X3NpbXVsYXRpb24xJHByZXNlbmNlX21hdHJpeFs4Omxlbmd0aChsaXN0X3NpbXVsYXRpb24xJGxpc3RfYW5jX2Rpc3QpLF0gIyBzZWxlY3QgdGhlIHRpbWVzdGVwcyB3ZSBhcmUgYW5hbHlzaW5nIChmcm9tIDggaW4gYWR2YW5jZSlcblxubl9zcHBfdGltZSA8LSBjKClcblxuZm9yIChpIGluIDE6bnJvdyhwcmVzZW5jZV9tYXRyaXgpKSB7XG4gIFxuICBuX3NwcF90aW1lW2ldIDwtIGxlbmd0aCh3aGljaChwcmVzZW5jZV9tYXRyaXhbaSxdID09IDEpKVxuICBcbn1cblxuZGZfc2lnbmFsX3RpbWUkbnNwcCA8LSBuX3NwcF90aW1lXG5cblxuXG5cbnAuc3BwIDwtIGdncGxvdChkZl9zaWduYWxfdGltZSwgYWVzKHg9dGltZXN0ZXBzLCB5ID0gbnNwcCkpICtcbiAgZ2VvbV9saW5lKGNvbG9yPVwiYmxhY2tcIiwgbGluZXR5cGU9XCJ0d29kYXNoXCIpICtcbiAgdGhlbWVfYncoKStcbiAgbXkudGhlbWUrXG4gIHNjYWxlX2NvbG91cl9tYW51YWwodmFsdWVzID0gYyhcImJsYWNrXCIsIFwicmVkXCIpKStcbiAgZ2d0aXRsZShcIlNwZWNpZXMgcmljaG5lc3MgdGhyb3VnaCB0aW1lICgrKVwiKStcbiAgeGxhYihcInRpbWVzdGVwc1wiKStcbiAgeWxhYihcIk4gc3BlY2llc1wiKVxuXG5wLnNwcFxuXG5gYGAifQ== -->
+<pre class="r"><code># SHOW ALSO NUMBER OF SPECIES IN THE GRAPH
+
+presence_matrix &lt;- list_simulation1$presence_matrix[8:length(list_simulation1$list_anc_dist),] # select the timesteps we are analysing (from 8 in advance)
+
+n_spp_time &lt;- c()
+
+for (i in 1:nrow(presence_matrix)) {
+  
+  n_spp_time[i] &lt;- length(which(presence_matrix[i,] == 1))
+  
+}
+
+df_signal_time$nspp &lt;- n_spp_time
+
+
+
+
+p.spp &lt;- ggplot(df_signal_time, aes(x=timesteps, y = nspp)) +
+  geom_line(color=&quot;black&quot;, linetype=&quot;twodash&quot;) +
+  theme_bw()+
+  my.theme+
+  scale_colour_manual(values = c(&quot;black&quot;, &quot;red&quot;))+
+  ggtitle(&quot;Species richness through time (+)&quot;)+
+  xlab(&quot;timesteps&quot;)+
+  ylab(&quot;N species&quot;)
+
+p.spp
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saWJyYXJ5KGdyaWRFeHRyYSlcblxuYXJyYW5nZWQucGxvdHMgPC0gZ3JpZC5hcnJhbmdlKHAsIHAuc3BwLCBcbiAgICAgICAgICAgICBuY29sID0gMSwgbnJvdyA9IDIpXG5cbmFycmFuZ2VkLnBsb3RzXG5gYGAifQ== -->
+<pre class="r"><code>
+library(gridExtra)
+
+arranged.plots &lt;- grid.arrange(p, p.spp, 
+             ncol = 1, nrow = 2)
+
+arranged.plots</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+</div>
+<div id="negative-interactions" class="section level1">
+<h1>NEGATIVE INTERACTIONS</h1>
+<div id="load-simulation-data-1" class="section level3">
+<h3>Load simulation data</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5sb2FkKFwiLi4vRGF0YS9OZWdhdGl2ZV9pbnRlcmFjdGlvbnMvbGlzdF9yZXNfbmVnXzIuUmRhdGFcIilcblxubmFtZXMobGlzdF9yZXMpID0gYyhcInNpbXVsYXRpb24xXCIsIFwic2ltdWxhdGlvbjJcIilcblxubGlzdF9zaW11bGF0aW9uMSA8LSBsaXN0X3JlcyRzaW11bGF0aW9uMVxuXG5cbiMgTGlzdCBmb3IgdGFibGUgYW5jZXN0cnktZGlzdGFuY2VzIGFuZCBuZXR3b3Jrc1xuIyBUaGUgZmlyc3QgZWxlbWVudCBvZiBib3RoIGlzIE5VTEwsIHNvIHdlIGVsaW1pbmF0ZWQgaXRcblxubGlzdF9hbmNfZGlzdCA8LSBsaXN0X3NpbXVsYXRpb24xJGxpc3RfYW5jX2Rpc3RbLTFdXG5uZXR3b3JrX2xpc3QgPC0gbGlzdF9zaW11bGF0aW9uMSRuZXR3b3JrX2xpc3RbLTFdXG5cbmxlbmd0aChsaXN0X2FuY19kaXN0KSA9PSBsZW5ndGgobmV0d29ya19saXN0KVxuYGBgIn0= -->
+<pre class="r"><code>
+load(&quot;../Data/Negative_interactions/list_res_neg_2.Rdata&quot;)
+
+names(list_res) = c(&quot;simulation1&quot;, &quot;simulation2&quot;)
+
+list_simulation1 &lt;- list_res$simulation1
+
+
+# List for table ancestry-distances and networks
+# The first element of both is NULL, so we eliminated it
+
+list_anc_dist &lt;- list_simulation1$list_anc_dist[-1]
+network_list &lt;- list_simulation1$network_list[-1]
+
+length(list_anc_dist) == length(network_list)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="convert-spp-names-from-numbers-to-letters-1" class="section level2">
+<h2>Convert spp names from numbers to letters</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIyBBbmNlc3RyeS1kaXN0YW5jZVxuXG5saXN0X2FuY19kaXN0X2xldHRlcnMgPC0gbGFwcGx5KGxpc3RfYW5jX2Rpc3QsIGNoYW5nZV9zcHBuYW1lc19sZXR0ZXJzX2FuY2Rpc3QudGFibGUpXG5cblxuIyMgSW50ZXJhY3Rpb25zXG5cbiMjIyMgMXN0LCBzZXQgbmFtZXMgYXMgbnVtYmVycyAoaW5kZXggb2YgY29sdW1ucyBhbmQgcm93cylcblxuIyBXQVJJTkcgLSBFbGltaW5hdGluZyBmaXJzdCB0aW1lc3RlcFxuXG5saXN0X25ldHdvcmtzX3NwcG5hbWVzX251bWJlcnMgPC0gbGFwcGx5KG5ldHdvcmtfbGlzdCwgc2V0X3NwcE5hbWVzX251bWJlcnMpXG5cbiMjIyMgMm5kLCBjb252ZXJ0IG51bWJlcnMgdG8gbGV0dGVyc1xuXG5saXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMgPC0gbGFwcGx5KGxpc3RfbmV0d29ya3Nfc3BwbmFtZXNfbnVtYmVycywgY29udmVydF9zcHBuYW1lc190b2xldHRlcnMpXG5cblxuXG5sZW5ndGgobGlzdF9hbmNfZGlzdF9sZXR0ZXJzKSA9PSBsZW5ndGgobGlzdF9uZXR3b3Jrc19zcHBuYW1lc19sZXR0ZXJzKVxuYGBgIn0= -->
+<pre class="r"><code>
+## Ancestry-distance
+
+list_anc_dist_letters &lt;- lapply(list_anc_dist, change_sppnames_letters_ancdist.table)
+
+
+## Interactions
+
+#### 1st, set names as numbers (index of columns and rows)
+
+# WARING - Eliminating first timestep
+
+list_networks_sppnames_numbers &lt;- lapply(network_list, set_sppNames_numbers)
+
+#### 2nd, convert numbers to letters
+
+list_networks_sppnames_letters &lt;- lapply(list_networks_sppnames_numbers, convert_sppnames_toletters)
+
+
+
+length(list_anc_dist_letters) == length(list_networks_sppnames_letters)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="loop-for-obtaining-phylogenetic-distances-1" class="section level4">
+<h4>Loop for obtaining phylogenetic distances:</h4>
+<p>Distances can only be calculated from the 3rd matrix in advance,
+because there is no more than two species until then. So the first two
+matrix are NULL and we will eliminate them.</p>
+<p>We eliminated timestep 1 at the beggining of the code. Eliminating
+now the 1st (timestep2) and 2nd (timestep3) matrices means that we
+retain from timestp 4 in advance.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saXN0X25ld2ljayA8LSBsaXN0KClcbmxpc3RfdHJlZXMgPC0gbGlzdCgpXG5saXN0X25ld2lja190YWlscyA8LSBsaXN0KClcbmxpc3RfZGlzdC5waHlsbyA8LSBsaXN0KClcblxuXG4jIyBDYW4ndCBjYWxjdWxhdGUgZGlzdGFuY2VzIHdpdGggb25seSAxIHNwcCwgc28gSSBuZWVkIHRvIHN0YXJ0IGZyb20gdGhlIDZ0aCBtYXRyaXgsIHNvIHRpbWVzdGVwIDdcblxuZm9yIChpIGluIDY6bGVuZ3RoKGxpc3RfYW5jX2Rpc3RfbGV0dGVycykpIHtcbiAgXG4gIFxuICBwcmludChzcHJpbnRmKFwic3RlcCAlc1wiLCBpKSlcbiAgXG4gIGxpc3RfbmV3aWNrW1tpXV0gPC0gVG9QaHlsbyhsaXN0X2FuY19kaXN0X2xldHRlcnNbW2ldXSlcbiAgXG4gIGxpc3RfbmV3aWNrX3RhaWxzW1tpXV0gPC0gcGFzdGUobGlzdF9uZXdpY2tbW2ldXSwgXCJyb290XCIpXG4gIFxuICBsaXN0X3RyZWVzW1tpXV0gPC0gcmVhZC50cmVlKHRleHQgPSBzdWIoXCJBIHJvb3RcIixcIjtcIixsaXN0X25ld2lja190YWlsc1tbaV1dKSlcbiAgXG4gIGxpc3RfZGlzdC5waHlsb1tbaV1dIDwtIGNvcGhlbmV0aWMucGh5bG8obGlzdF90cmVlc1tbaV1dKVxuICBcblxufVxuXG5cblxuXG4jIEVsaW1pbmF0ZSBmaXJzdCBmaXZlIG1hdHJpY2VzICh0aW1lc3RlcCAyIHRvIDYpIHRoYXQgYXJlIE5VTExcblxubGlzdF9kaXN0LnBoeWxvIDwtIGxpc3RfZGlzdC5waHlsb1stYygxOjUpXVxuXG5cbmxlbmd0aChsaXN0X2Rpc3QucGh5bG8pICMgMTcwXG5gYGAifQ== -->
+<pre class="r"><code>
+list_newick &lt;- list()
+list_trees &lt;- list()
+list_newick_tails &lt;- list()
+list_dist.phylo &lt;- list()
+
+
+## Can&#39;t calculate distances with only 1 spp, so I need to start from the 6th matrix, so timestep 7
+
+for (i in 6:length(list_anc_dist_letters)) {
+  
+  
+  print(sprintf(&quot;step %s&quot;, i))
+  
+  list_newick[[i]] &lt;- ToPhylo(list_anc_dist_letters[[i]])
+  
+  list_newick_tails[[i]] &lt;- paste(list_newick[[i]], &quot;root&quot;)
+  
+  list_trees[[i]] &lt;- read.tree(text = sub(&quot;A root&quot;,&quot;;&quot;,list_newick_tails[[i]]))
+  
+  list_dist.phylo[[i]] &lt;- cophenetic.phylo(list_trees[[i]])
+  
+
+}
+
+
+
+
+# Eliminate first five matrices (timestep 2 to 6) that are NULL
+
+list_dist.phylo &lt;- list_dist.phylo[-c(1:5)]
+
+
+length(list_dist.phylo) # 170</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="interaction-distances-1" class="section level4">
+<h4>Interaction distances</h4>
+<p>We eliminate the 1st and 2nd matrix (timestep 2 and 3) as we did for
+the list of phylogenetic distance matrices so that we can compare the
+lists later.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMgPC0gbGlzdF9uZXR3b3Jrc19zcHBuYW1lc19sZXR0ZXJzWy1jKDE6NSldXG5cbmxlbmd0aChsaXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMpICMgMTcwXG5cbiMgQ29tcHV0ZSBkaXN0YW5jZXNcblxubGlzdF9kaXN0X2NoaXNxPC0gbGFwcGx5KGxpc3RfbmV0d29ya3Nfc3BwbmFtZXNfbGV0dGVycywgY29tcHV0ZV9jaGlzcSlcblxuIyBPbmx5IGZyb20gdGhlIDV0aCBtYXRyaXgsIHNvIHRpbWVzdGVwIDdcblxuYGBgIn0= -->
+<pre class="r"><code>
+list_networks_sppnames_letters &lt;- list_networks_sppnames_letters[-c(1:5)]
+
+length(list_networks_sppnames_letters) # 170
+
+# Compute distances
+
+list_dist_chisq&lt;- lapply(list_networks_sppnames_letters, compute_chisq)
+
+# Only from the 5th matrix, so timestep 7
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>PROBLEM HERE - I receive the following waring:</p>
+<p>Warning in vegdist(matrix[-which(rowSums(matrix) == 0), ], method =
+“chisq”, : data have empty species which influence the results in method
+“chisq”</p>
+<p>WARNING: the 6th and 7th matrices (so timesteps 13 and 14) dont have
+species and therefore I cant calculate distances from them. So I
+eliminate these matrices here, and therefore also in the list of
+phylogenetic distances.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlzdF9kaXN0X2NoaXNxIDwtIGxpc3RfZGlzdF9jaGlzcVstYyg2LDcpXSBcblxubGlzdF9kaXN0LnBoeWxvIDwtIGxpc3RfZGlzdC5waHlsb1stYyg2LDcpXVxuXG5sZW5ndGgobGlzdF9kaXN0X2NoaXNxKSA9PSBsZW5ndGgobGlzdF9kaXN0LnBoeWxvKSAjIDE2OFxuYGBgIn0= -->
+<pre class="r"><code>list_dist_chisq &lt;- list_dist_chisq[-c(6,7)] 
+
+list_dist.phylo &lt;- list_dist.phylo[-c(6,7)]
+
+length(list_dist_chisq) == length(list_dist.phylo) # 168</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<hr />
+<p>Now I have the phylogenetic distance matrices in list_dist.phylo, and
+the interaction distances in list_dist_chisq.</p>
+<p>Check that both the list of distance matrices for interactions and
+for phylogeny have the same length:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGVuZ3RoKGxpc3RfZGlzdF9jaGlzcVtbMTJdXSkgPT0gbGVuZ3RoKGxpc3RfZGlzdC5waHlsb1tbMTJdXSlcbmBgYCJ9 -->
+<pre class="r"><code>length(list_dist_chisq[[12]]) == length(list_dist.phylo[[12]])</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Example to show that phylogenetic distance matrices retain the
+extinct species together with the present ones.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5kZi50ZXN0LnBoeWxvIDwtIGFzLmRhdGEuZnJhbWUobGlzdF9kaXN0LnBoeWxvW1sxNzRdXSlcbmRmLnRlc3QuY2hpc3EgPC0gYXMuZGF0YS5mcmFtZShsaXN0X2Rpc3RfY2hpc3FbWzE3NF1dKVxuXG5kYXRhX25ldy5waHlsbyA8LSBkZi50ZXN0LnBoeWxvW29yZGVyKG5hbWVzKGRmLnRlc3QucGh5bG8pKSAsIG9yZGVyKG5hbWVzKGRmLnRlc3QucGh5bG8pKV1cbmRhdGFfbmV3LmNoaXNxIDwtIGRmLnRlc3QuY2hpc3Fbb3JkZXIobmFtZXMoZGYudGVzdC5jaGlzcSkpICwgb3JkZXIobmFtZXMoZGYudGVzdC5jaGlzcSkpXVxuXG5jb2xuYW1lcyhkYXRhX25ldy5jaGlzcSlcblxuY29sbmFtZXMoZGF0YV9uZXcucGh5bG8pXG5gYGAifQ== -->
+<pre class="r"><code>
+df.test.phylo &lt;- as.data.frame(list_dist.phylo[[174]])
+df.test.chisq &lt;- as.data.frame(list_dist_chisq[[174]])
+
+data_new.phylo &lt;- df.test.phylo[order(names(df.test.phylo)) , order(names(df.test.phylo))]
+data_new.chisq &lt;- df.test.chisq[order(names(df.test.chisq)) , order(names(df.test.chisq))]
+
+colnames(data_new.chisq)
+
+colnames(data_new.phylo)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Therefore, I need to 1st order the names of columns and rows of both
+phylo and interaction distance matrices so that they coincide, and then
+select only those species present to compare the matrices. The way I
+will select those species present is by telling the phylo-distance
+matrix to retain only those species names that the interaction distance
+matrix has:</p>
+<hr />
+</div>
+</div>
+<div id="order-column-and-row-spp-names-1" class="section level2">
+<h2>Order column and row spp names</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlzdF9kaXN0LnBoeWxvX2RmIDwtIGxhcHBseShsaXN0X2Rpc3QucGh5bG8sIGFzLmRhdGEuZnJhbWUpXG5saXN0X2Rpc3RfY2hpc3FfZGYgPC0gbGFwcGx5KGxpc3RfZGlzdF9jaGlzcSwgYXMuZGF0YS5mcmFtZSlcblxuXG5saXN0X2Rpc3QucGh5bG9fZGYub3JkIDwtIGxhcHBseShsaXN0X2Rpc3QucGh5bG9fZGYsIG9yZGVyX2NvbC5yb3dfbmFtZXMpXG5saXN0X2Rpc3RfY2hpc3FfZGYub3JkIDwtIGxhcHBseShsaXN0X2Rpc3RfY2hpc3FfZGYsIG9yZGVyX2NvbC5yb3dfbmFtZXMpXG5cbmBgYCJ9 -->
+<pre class="r"><code>list_dist.phylo_df &lt;- lapply(list_dist.phylo, as.data.frame)
+list_dist_chisq_df &lt;- lapply(list_dist_chisq, as.data.frame)
+
+
+list_dist.phylo_df.ord &lt;- lapply(list_dist.phylo_df, order_col.row_names)
+list_dist_chisq_df.ord &lt;- lapply(list_dist_chisq_df, order_col.row_names)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="for-phylogenetic-distance-matrices-retain-only-those-species-present-1" class="section level2">
+<h2>For phylogenetic distance matrices, retain only those species
+present</h2>
+<p>Species present are those present in the interaction distance
+matrix.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTZWxlY3Qgb25seSBzcHAgcHJlc2VudCBmb3IgcGh5bG9nZW5ldGljIGRpc3RhbmNlIG1hdHJpeFxuXG5saXN0X2Rpc3QucGh5bG9fZGZfcHJlcyA8LSBsaXN0KClcblxuZm9yIChpIGluIDE6bGVuZ3RoKGxpc3RfZGlzdC5waHlsb19kZi5vcmQpKSB7XG4gIFxuICBzcHBfcHJlc2VudCA8LSBjb2xuYW1lcyhsaXN0X2Rpc3RfY2hpc3FfZGYub3JkW1tpXV0pXG4gIGxpc3RfZGlzdC5waHlsb19kZl9wcmVzW1tpXV0gPC0gbGlzdF9kaXN0LnBoeWxvX2RmLm9yZFtbaV1dW3NwcF9wcmVzZW50ICxzcHBfcHJlc2VudF0gXG4gIFxuICBcbn1cblxuIyMgQ2hlY2sgdGhhdCBub3cgcGh5bG8gYW5kIGludGVyYWN0aW9uIGRpc3RhbmNlIG1hdHJpY2VzIGhhdmUgdGhlIHNhbWUgbnVtYmVyIG9mIHNwcCwgc2FtZSBuYW1lcywgYW5kIGluIHRoZSBzYW1lIG9yZGVyXG5cblxuY29sbmFtZXMobGlzdF9kaXN0LnBoeWxvX2RmX3ByZXNbWzEwMF1dKSA9PSBjb2xuYW1lcyhsaXN0X2Rpc3RfY2hpc3FfZGYub3JkW1sxMDBdXSlcblxuYGBgIn0= -->
+<pre class="r"><code># Select only spp present for phylogenetic distance matrix
+
+list_dist.phylo_df_pres &lt;- list()
+
+for (i in 1:length(list_dist.phylo_df.ord)) {
+  
+  spp_present &lt;- colnames(list_dist_chisq_df.ord[[i]])
+  list_dist.phylo_df_pres[[i]] &lt;- list_dist.phylo_df.ord[[i]][spp_present ,spp_present] 
+  
+  
+}
+
+## Check that now phylo and interaction distance matrices have the same number of spp, same names, and in the same order
+
+
+colnames(list_dist.phylo_df_pres[[100]]) == colnames(list_dist_chisq_df.ord[[100]])
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>NOW I’M READY TO COMPUTE CORRELATION</p>
+</div>
+</div>
+<div id="compute-mds-1" class="section level1">
+<h1>Compute MDS</h1>
+<p>WARNING: I can’t compute MDS with ~2 spp, so I eliminate from matrix
+1 to 5th (timestep 7 to 11) which can’t be analysed.</p>
+<p>So in total I eliminated timesteps from 1 to 11, 13 and 14.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIGNvbnZlcnQgdG8gbWF0cml4XG5cbmxpc3RfZGlzdF9jaGlzcV9tYXQgPC0gbGFwcGx5KGxpc3RfZGlzdF9jaGlzcV9kZi5vcmQsIGFzLm1hdHJpeClcbmxpc3RfZGlzdC5waHlsb19tYXQgPC0gbGFwcGx5KGxpc3RfZGlzdC5waHlsb19kZl9wcmVzLCBhcy5tYXRyaXgpXG5cblxuIyMgRWxpbWluYXRlIHVudGlsIDV0aCBtYXRyaXggLSB0b28gZmV3IHNwcCB0byBjb21wdXRlIE1EU1xuXG5saXN0X2Rpc3RfY2hpc3FfbWF0IDwtIGxpc3RfZGlzdF9jaGlzcV9tYXRbLWMoMTo1KV1cbmxpc3RfZGlzdC5waHlsb19tYXQgPC0gbGlzdF9kaXN0LnBoeWxvX21hdFstYygxOjUpXVxuXG5cblxuIyBjb21wdXRlIG1kc1xuXG5saXN0X21kcy5pbnQgPC0gbGlzdCgpXG5saXN0X21kcy5waHkgPC0gbGlzdCgpXG5cblxuIyBDb21wdXRlIE5NU1xuXG5mb3IgKGkgaW4gMTpsZW5ndGgobGlzdF9kaXN0X2NoaXNxX21hdCkpIHtcbiAgXG5saXN0X21kcy5pbnRbW2ldXSA8LSBtb25vTURTKGxpc3RfZGlzdF9jaGlzcV9tYXRbW2ldXSwgeSA9IGNtZHNjYWxlKGxpc3RfZGlzdF9jaGlzcV9tYXRbW2ldXSkpXG5saXN0X21kcy5waHlbW2ldXSA8LSBtb25vTURTKGxpc3RfZGlzdC5waHlsb19tYXRbW2ldXSwgeSA9IGNtZHNjYWxlKGxpc3RfZGlzdC5waHlsb19tYXRbW2ldXSkpXG4gIFxufVxuYGBgIn0= -->
+<pre class="r"><code>
+# convert to matrix
+
+list_dist_chisq_mat &lt;- lapply(list_dist_chisq_df.ord, as.matrix)
+list_dist.phylo_mat &lt;- lapply(list_dist.phylo_df_pres, as.matrix)
+
+
+## Eliminate until 5th matrix - too few spp to compute MDS
+
+list_dist_chisq_mat &lt;- list_dist_chisq_mat[-c(1:5)]
+list_dist.phylo_mat &lt;- list_dist.phylo_mat[-c(1:5)]
+
+
+
+# compute mds
+
+list_mds.int &lt;- list()
+list_mds.phy &lt;- list()
+
+
+# Compute NMS
+
+for (i in 1:length(list_dist_chisq_mat)) {
+  
+list_mds.int[[i]] &lt;- monoMDS(list_dist_chisq_mat[[i]], y = cmdscale(list_dist_chisq_mat[[i]]))
+list_mds.phy[[i]] &lt;- monoMDS(list_dist.phylo_mat[[i]], y = cmdscale(list_dist.phylo_mat[[i]]))
+  
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="compute-correlation-1" class="section level1">
+<h1>Compute correlation</h1>
+<p>already have distance matrices computed (chisq, phylo)</p>
+<p>PROBLEM:</p>
+<p>I receive the following waring message when computing the protest()
+in the loop</p>
+<p>‘nperm’ &gt;= set of all permutations: complete enumeration. Set of
+permutations &lt; ‘minperm’. Generating entire set.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5wcm90ZXN0IDwtIGxpc3QoKVxucHJvY3J1c3RlcyA8LSBsaXN0KClcblxuZm9yIChpIGluIDE6bGVuZ3RoKGxpc3RfZGlzdC5waHlsb19tYXQpKSB7XG4gIFxuICBwcm90ZXN0W1tpXV0gPC0gcHJvdGVzdChsaXN0X21kcy5pbnRbW2ldXSwgbGlzdF9tZHMucGh5W1tpXV0pXG4gIFxuICBwcm9jcnVzdGVzW1tpXV0gPC0gcHJvY3J1c3RlcyhsaXN0X21kcy5pbnRbW2ldXSxsaXN0X21kcy5waHlbW2ldXSlcbiAgXG4gIFxufVxuXG5cblxuIyMgaXQgc3RhcnRzIGZyb20gdGltZXN0ZXAgOFxuXG5wcm90ZXN0X3B2YWwgPC0gYygpXG5wcm90ZXN0X2NvcnIgPC0gYygpXG5cbmZvciAoaSBpbiAxOmxlbmd0aChwcm90ZXN0KSkge1xuICBcbiAgcHJvdGVzdF9wdmFsW2ldIDwtIHByb3Rlc3RbW2ldXSRzaWduaWZcbiAgXG4gIHByb3Rlc3RfY29ycltpXSA8LXByb3Rlc3RbW2ldXSR0MFxuXG4gIFxufVxuXG5cbnRpbWVzdGVwcyA8LSAxNDpsZW5ndGgobGlzdF9zaW11bGF0aW9uMSRsaXN0X2FuY19kaXN0KVxuXG5kZl9zaWduYWxfdGltZSA8LSBkYXRhLmZyYW1lKHRpbWVzdGVwcyxwcm90ZXN0X3B2YWwscHJvdGVzdF9jb3JyKVxuXG5kZl9zaWduYWxfdGltZSRzaWduIDwtIHdpdGgoZGZfc2lnbmFsX3RpbWUsIGlmZWxzZShwcm90ZXN0X3B2YWwgPCAwLjA1MSwgJ3NpZ24nLCAnbm9uLnNpZ24nKSlcblxuXG5kZl9zaWduYWxfdGltZVxuXG5gYGAifQ== -->
+<pre class="r"><code>
+protest &lt;- list()
+procrustes &lt;- list()
+
+for (i in 1:length(list_dist.phylo_mat)) {
+  
+  protest[[i]] &lt;- protest(list_mds.int[[i]], list_mds.phy[[i]])
+  
+  procrustes[[i]] &lt;- procrustes(list_mds.int[[i]],list_mds.phy[[i]])
+  
+  
+}
+
+
+
+## it starts from timestep 8
+
+protest_pval &lt;- c()
+protest_corr &lt;- c()
+
+for (i in 1:length(protest)) {
+  
+  protest_pval[i] &lt;- protest[[i]]$signif
+  
+  protest_corr[i] &lt;-protest[[i]]$t0
+
+  
+}
+
+
+timesteps &lt;- 14:length(list_simulation1$list_anc_dist)
+
+df_signal_time &lt;- data.frame(timesteps,protest_pval,protest_corr)
+
+df_signal_time$sign &lt;- with(df_signal_time, ifelse(protest_pval &lt; 0.051, &#39;sign&#39;, &#39;non.sign&#39;))
+
+
+df_signal_time
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="plot-phylogenetic-signal-through-time-1" class="section level3">
+<h3>Plot phylogenetic signal through time</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saWJyYXJ5KGdncGxvdDIpXG5cbm15LnRoZW1lPC10aGVtZShheGlzLnRleHQ9ZWxlbWVudF90ZXh0KHNpemU9MTIpLFxuICAgICAgICAgICAgICAgIGF4aXMudGl0bGUgPSBlbGVtZW50X3RleHQoc2l6ZSA9IDE0KSxcbiAgICAgICAgICAgICAgICBsZWdlbmQucG9zaXRpb24gPSBcInRvcFwiLFxuICAgICAgICAgICAgICAgIGxlZ2VuZC50ZXh0PWVsZW1lbnRfdGV4dChzaXplPTEwKSxcbiAgICAgICAgICAgICAgICBsZWdlbmQudGl0bGUgPSBlbGVtZW50X3RleHQoc2l6ZT0xMiksXG4gICAgICAgICAgICAgICAgcGxvdC50aXRsZSA9IGVsZW1lbnRfdGV4dChmYWNlPVwiYm9sZFwiLHNpemU9MTQsbWFyZ2luPW1hcmdpbigwLDAsMjAsMCksaGp1c3QgPSAwLjUpLFxuICAgICAgICAgICAgICAgIGF4aXMudGl0bGUueSA9IGVsZW1lbnRfdGV4dChtYXJnaW4gPSBtYXJnaW4odCA9IDAsIHIgPSAxNSwgYiA9IDAsIGwgPSAwKSksXG4gICAgICAgICAgICAgICAgYXhpcy50aXRsZS54ID0gZWxlbWVudF90ZXh0KG1hcmdpbiA9IG1hcmdpbih0ID0gMTUsIHIgPSAwLCBiID0gMCwgbCA9IDApKSlcblxuXG5wX25lZyA8LSBnZ3Bsb3QoZGZfc2lnbmFsX3RpbWUsIGFlcyh4PXRpbWVzdGVwcywgeT1wcm90ZXN0X2NvcnIpKSArXG4gICAgICAgZ2VvbV9saW5lKCkrXG4gIGdlb21fcG9pbnQoYWVzKGZpbGwgPSBzaWduLCBjb2xvcj1zaWduKSwgc2l6ZT0yLCBhbHBoYSA9IDAuNykgK1xuICB0aGVtZV9idygpK1xuICAgIG15LnRoZW1lK1xuICAgIHNjYWxlX2NvbG91cl9tYW51YWwodmFsdWVzID0gYyhcImJsYWNrXCIsIFwicmVkXCIpKStcbiAgICBnZ3RpdGxlKFwiUGh5bG9nZW5ldGljIHNpZ25hbCB0aHJvdWdoIHRpbWUgKC0pXCIpK1xueGxhYihcInRpbWVzdGVwc1wiKStcbiAgeWxhYihcIlBoeWxvZ2VuZXRpYyBzaWduYWxcIilcblxuXG5wX25lZ1xuYGBgIn0= -->
+<pre class="r"><code>
+library(ggplot2)
+
+my.theme&lt;-theme(axis.text=element_text(size=12),
+                axis.title = element_text(size = 14),
+                legend.position = &quot;top&quot;,
+                legend.text=element_text(size=10),
+                legend.title = element_text(size=12),
+                plot.title = element_text(face=&quot;bold&quot;,size=14,margin=margin(0,0,20,0),hjust = 0.5),
+                axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0)),
+                axis.title.x = element_text(margin = margin(t = 15, r = 0, b = 0, l = 0)))
+
+
+p_neg &lt;- ggplot(df_signal_time, aes(x=timesteps, y=protest_corr)) +
+       geom_line()+
+  geom_point(aes(fill = sign, color=sign), size=2, alpha = 0.7) +
+  theme_bw()+
+    my.theme+
+    scale_colour_manual(values = c(&quot;black&quot;, &quot;red&quot;))+
+    ggtitle(&quot;Phylogenetic signal through time (-)&quot;)+
+xlab(&quot;timesteps&quot;)+
+  ylab(&quot;Phylogenetic signal&quot;)
+
+
+p_neg</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="plot-species-richness-through-time-1" class="section level3">
+<h3>Plot species richness through time</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTSE9XIEFMU08gTlVNQkVSIE9GIFNQRUNJRVMgSU4gVEhFIEdSQVBIXG5cbnByZXNlbmNlX21hdHJpeCA8LSBsaXN0X3NpbXVsYXRpb24xJHByZXNlbmNlX21hdHJpeFsxNDpsZW5ndGgobGlzdF9zaW11bGF0aW9uMSRsaXN0X2FuY19kaXN0KSxdICMgc2VsZWN0IHRoZSB0aW1lc3RlcHMgd2UgYXJlIGFuYWx5c2luZyAoZnJvbSA4IGluIGFkdmFuY2UpXG5cbm5fc3BwX3RpbWUgPC0gYygpXG5cbmZvciAoaSBpbiAxOm5yb3cocHJlc2VuY2VfbWF0cml4KSkge1xuICBcbiAgbl9zcHBfdGltZVtpXSA8LSBsZW5ndGgod2hpY2gocHJlc2VuY2VfbWF0cml4W2ksXSA9PSAxKSlcbiAgXG59XG5cbmRmX3NpZ25hbF90aW1lJG5zcHAgPC0gbl9zcHBfdGltZVxuXG5cblxuXG5wLnNwcF9uZWcgPC0gZ2dwbG90KGRmX3NpZ25hbF90aW1lLCBhZXMoeD10aW1lc3RlcHMsIHkgPSBuc3BwKSkgK1xuICBnZW9tX2xpbmUoY29sb3I9XCJibGFja1wiLCBsaW5ldHlwZT1cInR3b2Rhc2hcIikgK1xuICB0aGVtZV9idygpK1xuICBteS50aGVtZStcbiAgc2NhbGVfY29sb3VyX21hbnVhbCh2YWx1ZXMgPSBjKFwiYmxhY2tcIiwgXCJyZWRcIikpK1xuICBnZ3RpdGxlKFwiU3BlY2llcyByaWNobmVzcyB0aHJvdWdoIHRpbWUgKC0pXCIpK1xuICB4bGFiKFwidGltZXN0ZXBzXCIpK1xuICB5bGFiKFwiTiBzcGVjaWVzXCIpXG5cbnAuc3BwX25lZ1xuXG5gYGAifQ== -->
+<pre class="r"><code># SHOW ALSO NUMBER OF SPECIES IN THE GRAPH
+
+presence_matrix &lt;- list_simulation1$presence_matrix[14:length(list_simulation1$list_anc_dist),] # select the timesteps we are analysing (from 8 in advance)
+
+n_spp_time &lt;- c()
+
+for (i in 1:nrow(presence_matrix)) {
+  
+  n_spp_time[i] &lt;- length(which(presence_matrix[i,] == 1))
+  
+}
+
+df_signal_time$nspp &lt;- n_spp_time
+
+
+
+
+p.spp_neg &lt;- ggplot(df_signal_time, aes(x=timesteps, y = nspp)) +
+  geom_line(color=&quot;black&quot;, linetype=&quot;twodash&quot;) +
+  theme_bw()+
+  my.theme+
+  scale_colour_manual(values = c(&quot;black&quot;, &quot;red&quot;))+
+  ggtitle(&quot;Species richness through time (-)&quot;)+
+  xlab(&quot;timesteps&quot;)+
+  ylab(&quot;N species&quot;)
+
+p.spp_neg
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saWJyYXJ5KGdyaWRFeHRyYSlcblxuZ3JpZC5hcnJhbmdlKHBfbmVnLCBwLnNwcF9uZWcsIFxuICAgICAgICAgICAgIG5jb2wgPSAxLCBucm93ID0gMilcblxuXG5cbmdnc2F2ZShhcnJhbmdlZC5wbG90cywgXCJOZWdfc2lnbmFsLnRpbWUucG5nXCIsIGhlaWdodCA9IDE1LCB3aWR0aCA9IDIwKVxuYGBgIn0= -->
+<pre class="r"><code>
+library(gridExtra)
+
+grid.arrange(p_neg, p.spp_neg, 
+             ncol = 1, nrow = 2)
+
+
+
+ggsave(arranged.plots, &quot;Neg_signal.time.png&quot;, height = 15, width = 20)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 </div>
-</div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQoNCg0KVGhpcyBzY3JpcHQgaW5jbHVkZXMgZmFjaWxpdGF0aW9uLCBjb21wZXRpdGlvbiwgQU5EIGZvb2R3ZWIuDQoNCg0KDQpgYGB7cn0NCiNpbnN0YWxsLnBhY2thZ2VzKCJFbnZTdGF0cyIpDQojbGlicmFyeShmb3JlYWNoKSAjVG8gZG8gcGFyYWxsZWwgY29tcHV0aW9uZw0KDQpsaWJyYXJ5KEVudlN0YXRzKQ0KbGlicmFyeShmb3JlYWNoKQ0KYGBgDQoNCg0KDQoNCiMgU2ltdWxhdGlvbg0KDQojIyMgc2V0IGdlbmVyYWwgcGFyYW1ldGVycw0KDQpgYGB7cn0NCnJtKGxpc3QgPSBscygpKQ0KDQpwYXJzID0gbGlzdCgpDQoNCiMgR2VuZXJhbCBwYXJhbWV0ZXJzDQojcGFycyRpbnQgPSAwICMgMCBmb3IgY29tcGV0aXRpb24sIDEgZm9yIGZhY2lsaXRhdGlvbiwgMiBmb3IgcHJlZGF0aW9uDQpwYXJzJFNtYXggPSAxMDAwICMgTWF4aW1hbCBudW1iZXIgb2Ygc3BlY2llcyBpbiB0aGUgc3lzdGVtDQoNCiMgUmVsYXRlZCB0byBpbnRlcmFjdGlvbiByYW5nZSB0cmFpdA0KcGFycyRhdl9yID0gMC4xICMgSGFsZiByYW5nZSBvZiB0aGUgbmljaGUgb2YgdGhlIGZpcnN0IHNwZWNpZXMNCnBhcnMkc2QgPSAwLjUqcGFycyRhdl9yICsgMC4wMDAxICMgU3RhbmRhcmQgZGV2aWF0aW9uIG9mIHRoZSBub3JtYWwgZGlzdHJpYnV0aW9uIHVzZWQgdG8gY2FsY3VsYXRlIHRoZSBuaWNoZSBvcHRpbXVtIHRyYWl0IG9mIGEgbmV3IHNwZWNpZXMNCg0KcGFycyR1X21heCA9IDAuMTUgIyBTcGVjaWF0aW9uIHByb2JhYmlsaXR5DQoNCiMgRXh0aW5jdGlvbiBwcm9iYWJpbGl0eSwgbmVnYXRpdmUgaW50ZXJhY3Rpb25zIGNvbW11bml0aWVzDQpwYXJzJGFfZW5lZyA9IDAuMDI1ICMgU2hhcGUgb2YgdGhlIGV4cG9uZW50aWFsIGRlY2F5IG9mIHRoZSBuZWdhdGl2ZSBleHRpbmN0aW9uIC0gaW50ZXJhY3Rpb24gcmVsYXRpb25zaGlwDQpwYXJzJGVfMG5lZyA9IDAuNSAjIEFzeW1wdG90aWMgZXh0aW5jdGlvbiBwcm9iYWJpbGl0eSB3aXRoIGluZmluaXRlIG5lZ2F0aXZlIGludGVyYWN0aW9ucw0KcGFycyRlXzFuZWcgPSAxICAjIEV4dGluY3Rpb24gcHJvYmFiaWxpdHkgd2l0aCBhYnNlbmNlIG9mIGludGVyYWN0aW9ucw0KDQojIEV4dGluY3Rpb24gcHJvYmFiaWxpdHksIHBvc2l0aXZlIGludGVyYWN0aW9ucyBjb21tdW5pdGllcw0KcGFycyRhX2Vwb3MgPSAxLjIgICMgU2hhcGUgb2YgdGhlIGV4cG9uZW50aWFsIGRlY2F5IG9mIHRoZSBwb3NpdGl2ZSBleHRpbmN0aW9uIC0gaW50ZXJhY3Rpb24gcmVsYXRpb25zaGlwDQpwYXJzJGVfMHBvcyA9IDAuMDc1ICMgQXN5bXB0b3RpYyBleHRpbmN0aW9uIHByb2JhYmlsaXR5IHdpdGggaW5maW5pdGUgcG9zaXRpdmUgaW50ZXJhY3Rpb25zDQpwYXJzJGVfMXBvcyA9IDUuMTkgIyAxIC0gcGFycyRlXzBwb3MNCg0KIyBFc3RhYmxpc2htZW50IHByb2JhYmlsaXR5LCBuZWdhdGl2ZSBpbnRlcmFjdGlvbnMgY29tbXVuaXRpZXMNCnBhcnMkYV91bmVnID0gMC4wNzUgIyBTaGFwZSBvZiB0aGUgZXhwb25lbnRpYWwgZGVjYXkgb2YgdGhlIGNvbG9uaXphdGlvbiAtIGludGVyYWN0aW9uIHJlbGF0aW9uc2hpcA0KcGFycyR1XzBuZWcgPSAwLjA3NSAjIEFzeW1wdG90aWMgZXN0YWJsaXNobWVudCBwcm9iYWJpbGl0eSB3aXRoIGluZmluaXRlIGNvbXBldGl0aW9uIGludGVyYWN0aW9ucw0KcGFycyR1XzFuZWcgPSAyICMgRXN0YWJsaXNobWVudCBwcm9iYWJpbGl0eSB3aXRoIGFic2VuY2Ugb2YgY29tcGV0aXRpb24gaW50ZXJhY3Rpb24NCg0KIyBFc3RhYmxpc2htZW50IHByb2JhYmlsaXR5LCBwb3NpdGl2ZSBpbnRlcmFjdGlvbnMgY29tbXVuaXRpZXMNCnBhcnMkYV91ID0gMC40NSAjIFNoYXBlIG9mIHRoZSBleHBvbmVudGlhbCBkZWNheSBvZiB0aGUgY29sb25pemF0aW9uIC0gaW50ZXJhY3Rpb24gcmVsYXRpb25zaGlwDQpwYXJzJHVfMCA9IDEgIyBBc3ltcHRvdGljIGVzdGFibGlzaG1lbnQgcHJvYmFiaWxpdHkgd2l0aCBpbmZpbml0ZSBmYWNpbGl0YXRpb24gaW50ZXJhY3Rpb25zDQpwYXJzJHVfMSA9IC0xICMgRXN0YWJsaXNobWVudCBwcm9iYWJpbGl0eSB3aXRoIGFic2VuY2Ugb2YgZmFjaWxpdGF0aW9uIGludGVyYWN0aW9ucw0KcGFycyRkID0gMC41ICMgRGVjcmVhc2Ugc3BlZWQgb2YgdGhlIGVzdGFibGlzaG1lbnQgcHJvYmFiaWxpdHkNCg0KIyBFeHRpbmN0aW9uIGFuZCBlc3RhYmxpc2htZW50IHByb2JhYmlsaXRpZSBmb3IgYm90aCwgcG9zaXRpdmUgYW5kIG5lZ2F0aXZlIGludGVyYWN0aW9ucyBjb21tdW5pdGllcw0KcGFycyRCc3BlID0gNCAjIENvbnN0YW50IG1pbmltYWwgbnVtYmVyIG9mIGludGVyYWN0aW9uIHBlciBzcGVjaWVzIChleHRhYmxpc2htZW50IHByb2IpDQpwYXJzJEJleHQgPSA0ICMgQ29uc3RhbnQgbWluaW1hbCBudW1iZXIgb2YgaW50ZXJhY3Rpb24gcGVyIHNwZWNpZXMgKGV4dGluY3Rpb24gcHJvYikNCnBhcnMkSV9tYXggPSA0MCAjIE1heGltYWwgbnVtYmVyIG9mIGludGVyYWN0aW9uaW5nIHNwZWNpZXMNCmBgYA0KDQoNCmBgYHtyfQ0KcGFycyRlXzBuZWcgPSAwLjEgIyBBc3ltcHRvdGljIGV4dGluY3Rpb24gcHJvYmFiaWxpdHkgd2l0aCBpbmZpbml0ZSBuZWdhdGl2ZSBpbnRlcmFjdGlvbnMNCmBgYA0KDQoNCg0KDQoNCg0KYGBge3J9DQoNCnNvdXJjZSgiLi9mdW5jdGlvbnNfZndfb25seS5SIikNCnNvdXJjZSgiLi4vT3JpZ2luYWxfY29kZS9mdW5jdGlvbnMvbGlzdF9hcHBlbmRfZnVuY3Rpb24uUiIpDQoNCmBgYA0KDQoNCiMjIyBzZXQgcGFyYW1ldGVycyBzaW11bGF0aW9uDQoNCmBgYHtyfQ0KbnN0ZXBzID0gMzUwICMgU2V0IHRoZSBtYXhpbXVtIHRpbWVzdGVwIHBlciBzaW11bGF0aW9uDQpuc2ltID0gMSAjIFNldCB0aGUgbnVtYmVyIG9mIHNpbXVsYXRpb25zDQoNCiMgVmVjdG9yIHRvIHJlY29yZCBudW1iZXIgb2Ygc2ltdWxhdGlvbiBuZWVkZWQgdG8gcmVhY2ggMTAwIHZhbGlkIHNpbXVsYXRpb25zDQpuZWVkZWRfc2ltX3BvcyA8LSBjKHJlcChOQSwgbnNpbSkpDQpuZWVkZWRfc2ltX25lZyA8LSBjKHJlcChOQSwgbnNpbSkpDQpuZWVkZWRfc2ltX2Z3IDwtIGMocmVwKE5BLCBuc2ltKSkNCmBgYA0KDQojIyMgU2VlZHMgcmVjb3JkIG1hdHJpeA0KDQpgYGB7cn0NCiMgTGlzdCBvZiB1c2VkIHNlZWQgcGVyIHNpbXVsYXRpb24gYmF0Y2gNCnJlY2NvcmRlZF9zZWVkX3Bvc19saXN0IDwtIGxpc3QoKQ0KcmVjY29yZGVkX3NlZWRfbmVnX2xpc3QgPC0gbGlzdCgpDQpyZWNjb3JkZWRfc2VlZF9md19saXN0IDwtIGxpc3QoKQ0KDQpzZWVkX2xpc3QgPC0gTlVMTCAjIFNldCBhbiBvYmplY3QgdG8gcmVjb3JkIHNlZWQgdGhhdCB3aWxsIGJlIHVzZWQgdG8gbGF1bmNoIHNpbXVsYXRpb25zDQoNCmBgYA0KDQojIyBTaW11bGF0aW9uDQoNCmBgYHtyfQ0KDQojZm9yKGIgaW4gMToxMCl7DQoNCnRvdGFsX25iX3NpbSA8LSAwDQpiIDwtIDENCg0Kc3VjY2Vzc2Z1bF9zaW0gPC0gMSAjIFNldCB0aGUgY291bnQgb2Ygc2ltdWxhdGlvbnMNCmxpc3RfcmVzIDwtIGxpc3QoKSAjIFNldCB0aGUgbGlzdCB0byBzdG9yZSB0aGUgcmVzdWx0cw0KDQoNCnNlZWRfcmVjb3JkIDwtIGMocmVwKE5BLCBuc2ltKSkgIyBTZXQgdGhlIHZlY3RvciB0byByZWNvcmQgdGhlIHNlZWQgdGhhdCBoYXZlIGJlZW4gdXNlZA0KDQoNCg0KDQp3aGlsZShzdWNjZXNzZnVsX3NpbSA8IG5zaW0rMSl7DQogIA0KICBzZWVkIDwtIHNhbXBsZS5pbnQoODAwMDAsIDEpICMgUGljayBhIHJhbmRvbSBudW1iZXIsIHRoaXMgbnVtYmVyIHdpbGwgYmUgdGhlIHNlZWQgZm9yIG9uZSBzaW11bGF0aW9uDQogIHByaW50KHNlZWQpDQogIA0KICAjIElmIGEgc2VlZCBoYXZlIGFscmVhZHkgYmVlbiB0ZXN0ZWQsIHBpY2sgYW5vdGhlciBvbmUNCiAgaWYobGVuZ3RoKHdoaWNoKHNlZWRfbGlzdCA9PSBzZWVkKSkgIT0gMCl7DQogICAgd2hpbGUoc2VlZCAlaW4lIHNlZWRfbGlzdCl7DQogICAgICBzZWVkIDwtIHNhbXBsZS5pbnQoODAwMDAsIDEpDQogICAgfQ0KICB9DQogIA0KICBzZWVkX2xpc3QgPC0gYyhzZWVkX2xpc3QsIHNlZWQpICMgQWRkIHRoZSBzZWVkDQogIA0KICAjIFNJTVVMQVRJT04gOyBmcm9tIHRoZSBmaWxlIGNvZGUvZnVuY3Rpb25zL2Z1bmN0aW9uc19NLUNfYmlmdXJjYXRpb24uUg0KICBzaW11bGF0aW9uIDwtIHNpbV9tb2RlbF9iaWYoc2VlZCA9IHNlZWQsIHBhcnMsIG5zdGVwcyA9IG5zdGVwcykgIA0KICANCiAgIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gc3RvcmVkOiBwcmVzLCB0cmFpdHNfbWF0LCBhbmMsIGV4dGluY3QsIFN0b3RhY3QsIEwsIExfbGlzdA0KICANCiAgdG90YWxfbmJfc2ltIDwtIHRvdGFsX25iX3NpbSArMSAjIENvdW50IHRoZSB0b3RhbCBhbW91bnQgb2Ygc2ltdWxhdGlvbnMNCiAgDQogICMgVGVzdCBpZiB3ZSBoYXZlIGVub3VnaCBzcGVjaWVzIGF0IHRoZSB0aW1lc3RlcCAxNTAgaW4gdGhlIHNpbXVsYXRpb24NCiAgc3VjY2VzcyA8LSBzdW0oc2ltdWxhdGlvbiRwcmVzWzE1MCxdKQ0KICAjcHJpbnQocGFzdGUwKCJTdWNjZXNzID0gIiwgc3VjY2VzcykpDQogIA0KICBpZihzdWNjZXNzID49IDEpew0KICAgICNwcmludCgidGhlIHNpbXVsYXRpb24gaGFzIG1vcmUgdGhhbiAxOSBzcGVjaWVzIGF0IHRoZSB0aW1lIHN0ZXAgMTUwIikNCiAgICBzZWVkX3JlY29yZFtzdWNjZXNzZnVsX3NpbV0gPC0gc2VlZCAjIFJlY29yZCBzZWVkIHdoaWNoIGFsb3dzIHVzIHRvIGhhdmUgImdvb2QiIHNpbXVsYXRpb24NCiAgICByZXNfc2ltIDwtIGxpc3Qoc2ltdWxhdGlvbl9udW1iZXIgPSBwYXN0ZTAoInNpbXVsYXRpb24iLCBzdWNjZXNzZnVsX3NpbSksIA0KICAgICAgICAgICAgICAgICAgICBzZWVkID0gc2VlZCwgDQogICAgICAgICAgICAgICAgICAgIHBhcmFtZXRlcnMgPSBwYXJzLCANCiAgICAgICAgICAgICAgICAgICAgcHJlc2VuY2VfbWF0cml4ID0gc2ltdWxhdGlvbiRwcmVzLCANCiAgICAgICAgICAgICAgICAgICAgdHJhaXRzX2RmID0gc2ltdWxhdGlvbiR0cmFpdHMsIA0KICAgICAgICAgICAgICAgICAgICBwYXJlbnRhZ2VfbWF0cml4ID0gc2ltdWxhdGlvbiRhbmMsIA0KICAgICAgICAgICAgICAgICAgICBleHRpbnhjdGlvbl9tYXRyaXggPSBzaW11bGF0aW9uJGV4dGluY3QsIA0KICAgICAgICAgICAgICAgICAgICBuZXR3b3JrX2xpc3QgPSBzaW11bGF0aW9uJExfbGlzdCwgDQogICAgICAgICAgICAgICAgICAgIGFuY19kaXN0X3RhYmxlID0gc2ltdWxhdGlvbiRkaXN0X2FuYywgDQogICAgICAgICAgICAgICAgICAgIGxpc3RfYW5jX2Rpc3QgPSBzaW11bGF0aW9uJGxpc3RfZGlzdF9hbmMpICMgUmVjb3JkIHJlc3VsdHMgZnJvbSB0aGUgc2ltdWxhdGlvbg0KICAgIA0KICAgIGxpc3RfcmVzIDwtIGxpc3RfYXBwZW5kKGxpc3RfcmVzLCByZXNfc2ltKQ0KICAgIA0KICAgIHByaW50KHBhc3RlKCJzaW11bGF0aW9uICIsIHN1Y2Nlc3NmdWxfc2ltLCAic3VyIiwgbnNpbSkpDQogICAgc3VjY2Vzc2Z1bF9zaW0gPC0gc3VjY2Vzc2Z1bF9zaW0gKyAxICMgQ291bnQgdGhlIGFtb3VudCBvZiAiZ29vZCIgc2ltdWxhdGlvbnMNCiAgfQ0KICANCn0NCg0KDQoNCiAgcmVjY29yZGVkX3NlZWRfZndfbGlzdCA8LSBsaXN0X2FwcGVuZChyZWNjb3JkZWRfc2VlZF9md19saXN0LCBzZWVkX3JlY29yZCkNCiAgbmVlZGVkX3NpbV9md1tiXSA8LSB0b3RhbF9uYl9zaW0NCg0KDQoNCg0KI3ByaW50KHBhc3RlKCJiYXRjaCAiLCBiLCAic3VyIDEwIikpDQojfQ0KICANCiAgcGF0aCA8LSBwYXN0ZTAoIi4uL0FGX0RhdGEvZm9vZHdlYi9saXN0X3Jlc19mdzJfIiwgbnNpbSwgIi5SZGF0YSIpDQoJICAJc2F2ZShsaXN0X3JlcywgZmlsZSA9IHBhdGgpIA0KICANCmBgYA0KDQoNCg0KYGBge3J9DQpuYW1lcyhsaXN0X3JlcykgPC0gInNpbXVsYXRpb24xIg0KI25hbWVzKGxpc3RfcmVzKSA9IGMoInNpbXVsYXRpb24xIiwgInNpbXVsYXRpb24yIiwgInNpbXVsYXRpb24zIiwgInNpbXVsYXRpb240IiwgInNpbXVsYXRpb241IikNCg0KbGlzdF9zaW11bGF0aW9uMSA8LSBsaXN0X3JlcyRzaW11bGF0aW9uMQ0KDQpsaXN0X3NpbXVsYXRpb24yIDwtIGxpc3RfcmVzJHNpbXVsYXRpb24yDQoNCmxpc3Rfc2ltdWxhdGlvbjMgPC0gbGlzdF9yZXMkc2ltdWxhdGlvbjMNCg0KbGlzdF9zaW11bGF0aW9uNCA8LSBsaXN0X3JlcyRzaW11bGF0aW9uNA0KDQpsaXN0X3NpbXVsYXRpb241IDwtIGxpc3RfcmVzJHNpbXVsYXRpb241DQoNCg0KYGBgDQoNCg0KDQojIyBTcHAgcmljaG5lc3MgdGhyb3VnaCB0aW1lDQoNCmBgYHtyfQ0KDQpsaWJyYXJ5KGdncGxvdDIpDQpsaWJyYXJ5KGdncHVicikNCg0KDQoNCg0KcGxvdF9zcHBfcmljaG5lc3NfdGltZSA8LSBmdW5jdGlvbihyZXN1bHRzKSB7DQogIA0KICBwcmVzZW5jZV9tYXRyaXggPC0gcmVzdWx0cyRwcmVzZW5jZV9tYXRyaXggIyBzZWxlY3QgdGhlIHRpbWVzdGVwcyB3ZSBhcmUgYW5hbHlzaW5nIChmcm9tIDggaW4gYWR2YW5jZSkNCg0Kbl9zcHBfdGltZSA8LSBjKCkNCg0KZm9yIChpIGluIDE6bnJvdyhwcmVzZW5jZV9tYXRyaXgpKSB7DQogIA0KICBuX3NwcF90aW1lW2ldIDwtIGxlbmd0aCh3aGljaChwcmVzZW5jZV9tYXRyaXhbaSxdID09IDEpKQ0KICANCn0NCg0KbnN0ZXBzIDwtIDE6bGVuZ3RoKHJlc3VsdHMkbGlzdF9hbmNfZGlzdCkNCm5fc3BwX3RpbWUgPC0gbl9zcHBfdGltZVtuc3RlcHNdDQoNCg0KZGYgPC0gZGF0YS5mcmFtZShuc3RlcHMsIG5fc3BwX3RpbWUpDQoNCg0KcCA8LSBnZ3Bsb3QoZGYsIGFlcyh4PW5zdGVwcywgeSA9IG5fc3BwX3RpbWUpKSArDQogIGdlb21fbGluZShjb2xvcj0iYmxhY2siLCBsaW5ldHlwZT0idHdvZGFzaCIpICsNCiAgdGhlbWVfYncoKSsNCiAgc2NhbGVfY29sb3VyX21hbnVhbCh2YWx1ZXMgPSBjKCJibGFjayIsICJyZWQiKSkrDQogIGdndGl0bGUoIlNwZWNpZXMgcmljaG5lc3MgdGhyb3VnaCB0aW1lIikrDQogIHhsYWIoInRpbWVzdGVwcyIpKw0KICB5bGFiKCJOIHNwZWNpZXMiKQ0KDQpwDQogIA0KfQ0KDQoNCg0KcF9zcHBfdGltZV9zaW0xIDwtIHBsb3Rfc3BwX3JpY2huZXNzX3RpbWUocmVzdWx0cyA9IGxpc3Rfc2ltdWxhdGlvbjEpDQoNCnBfc3BwX3RpbWVfc2ltMiA8LSBwbG90X3NwcF9yaWNobmVzc190aW1lKHJlc3VsdHMgPSBsaXN0X3NpbXVsYXRpb24yKQ0KDQpwX3NwcF90aW1lX3NpbTMgPC0gcGxvdF9zcHBfcmljaG5lc3NfdGltZShyZXN1bHRzID0gbGlzdF9zaW11bGF0aW9uMykNCg0KcF9zcHBfdGltZV9zaW00IDwtIHBsb3Rfc3BwX3JpY2huZXNzX3RpbWUocmVzdWx0cyA9IGxpc3Rfc2ltdWxhdGlvbjQpDQoNCnBfc3BwX3RpbWVfc2ltNSA8LSBwbG90X3NwcF9yaWNobmVzc190aW1lKHJlc3VsdHMgPSBsaXN0X3NpbXVsYXRpb241KQ0KDQpnZ2FycmFuZ2UocF9zcHBfdGltZV9zaW0xLA0KICAgICAgICAgIHBfc3BwX3RpbWVfc2ltMiwNCiAgICAgICAgICBwX3NwcF90aW1lX3NpbTMsDQogICAgICAgICAgcF9zcHBfdGltZV9zaW00LA0KICAgICAgICAgIHBfc3BwX3RpbWVfc2ltNSwNCiAgICAgICAgICBucm93ID0gNSwNCiAgICAgICAgICBuY29sID0gMSkNCg0KYGBgDQoNCg0KDQojIyMgc2F2ZSBkYXRhDQoNCmBgYHtyfQ0KDQpzYXZlKHJlY2NvcmRlZF9zZWVkX2Z3X2xpc3QsIGZpbGUgPSAiLi4vQUZfRGF0YS9mb29kd2ViL3JlY2NvcmRlZF9zZWVkX25lZ19saXN0MS5SZGF0YSIpDQpzYXZlKG5lZWRlZF9zaW1fZncsIGZpbGUgPSAiLi4vQUZfRGF0YS9mb29kd2ViL25lZWRlZF9zaW1fZncuUmRhdGEiKQ0KDQpgYGANCg0KDQotLS0gSG93IHJlc3VsdHMgYXJlIHN0b3JlZA0KVGhleSBhcmUgc3RvcmVkIGluIGxpc3RfcmVzX3Bvc19uc2ltLlJkYXRhIGFuZCBsaXN0X3Jlc19uZWdfbnNpbS5SZGF0YSBpbiB0aGUgZm9ybSBvZiBhIGxpc3QgKGxpc3RfcmVzKSwgd2hpY2ggaXMgYSBsaXN0IG9mIHNpbXVsYXRpb25zLCBhbmQgZWFjaCBvZiB0aGVtIGNvbnRhaW5zIGEgbGlzdCBvZiB0aGUgcmVzdWx0cyBvZiB0aGUgc2ltdWxhdGlvbiAocmVzX3NpbSkuDQpJIG5lZWQgdG8gdGhpbmsgYWJvdXQgYSB3YXkgdG8gY29tYmluZSB0aGUgcmVzdWx0cyBvZiB0aGUgc2ltdWxhdGlvbnMgKHBoeWxvZy4gc2lnbmFsKSAtPiBtYXliZSBzdGF0aXN0aWMgZGVzY3JpYmluZyB0aGUgcmVsYXRpb25zaGlwIGJldHdlZW4gcGh5bG9nLiBzaWduYWwgYW5kIHRpbWUsIGRpbWVuc2lvbmFsaXR5LCBldGMuLg0KDQotLS0gVGhlIHNpbXVsYXRpb24gZW5kcyBpZiBpdCByZWFjaGVzIGVpdGhlciBhIG1heGltdW0gbnVtYmVyIG9mIHRpbWVzdGVwcyAoMzUwKSBvciBhIG1heGltdW0gbnVtYmVyIG9mIHNwZWNpZXMgKDEwMDApLg0KVG8gbWFrZSBzdXJlIHRoZSBsaXN0IG9mIG5ldHdvcmtzIGFuZCB0aGUgbGlzdCBvZiB0cmVlcyBwZXIgdGltZXN0ZXBzIGhhdmUgKDEpIHRoZSBzYW1lIGxlbmd0aCBhbmQgKDIpIGFyZSBjb3JyZXNwb25kZW50IHdpdGggdGhlIHRpbWVzdGVwcywgSSBuZWVkIHRvIG1ha2Ugc3VyZSB0aGF0IGJvdGggc3RhcnQgYW5kIGZpbmlzaCB0byBiZSBtZWFzdXJlZCBhdCB0aGUgc2FtZSB0aW1lc3RlcHMsIGFuZCB0aGF0IEkga25vdyB0aGVuIG51bWJlciBvZiB0aW1lc3RlcHMgcnVuIHBlciBzaW11bGF0aW9uLiANCg0KDQpTdGFydDogNSBzcGVjaWVzIHByZXNlbnQgY291bGQgYmUgYSBnb29kIG51bWJlciBmb3Igc3RhcnRpbmcgdG8gbWVhc3VyZSBib3RoIG5ldHdvcmtzIGFuZCBwaHlsb2dlbmllcy4gDQpGb3IgdGhlIHRyZWVzLCBJIGNhbGN1bGF0ZSB0aGVtIGZyb20gdGhlIGFuYyB0YWJsZS4NCk5ldHdvcmtzIGFyZSBzdG9yZWQgaW4gYSBsaXN0Lg0KDQpTbyBsaXN0X25ldHdvcmtzW1s1XV0gc2hvdWxkIGJlIGNvbXBhcmVkIHdpdGggYW5jW1t0aW1lc3RlcCA1XV0NCg0KDQotLS0gUGh5bG9nZW5ldGljIGRpc3RhbmNlcw0KUmVjb3JkIHRoZW0gbXlzZWxmIHJhdGhlciB0aGFuIHdpdGggaGNsdXN0IG9yIGFueSBvdGhlciBhbGdvcnl0aG0uDQpQYXNzIGRpc3RhbmNlcyBkYXRhIHRvIE5ldHdlZWsgZm9ybWF0Lg0KDQoNCg0KDQoNCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIk9idGFpbiBwaHlsb2dlbmV0aWMgYW5kIGludGVyYWN0aW9uIGRpc3RhbmNlcyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCmBgYHtyfQ0KI3NvdXJjZSgiLi4vT3JpZ2luYWxfY29kZS9mdW5jdGlvbnMvdHJlZV9mdW5jdGlvbnMuUiIpDQojc291cmNlKCIuLi9PcmlnaW5hbF9jb2RlL2Z1bmN0aW9ucy9waHlsb19mdW5jdGlvbnMuUiIpDQpzb3VyY2UoIi4uL0FGX2NvZGUvQUZfZnVuY3Rpb25zX3RyZWUuUiIpDQpsaWJyYXJ5KGFwZSkNCmxpYnJhcnkoYXBUcmVlc2hhcGUpDQoNCmxpYnJhcnkoInZlZ2FuIikNCmBgYA0KDQoNCg0KDQojIyMgTG9hZCBzaW11bGF0aW9uIGRhdGENCg0KDQpgYGB7cn0NCg0KbG9hZCgiLi9saXN0X3Jlc19mdzJfMS5SZGF0YSIpDQoNCg0KDQojbmFtZXMobGlzdF9yZXMpID0gYygic2ltdWxhdGlvbjEiLCAic2ltdWxhdGlvbjIiKQ0KDQpsaXN0X3NpbXVsYXRpb24xIDwtIGxpc3RfcmVzJHNpbXVsYXRpb24xDQoNCiMgY291bnQgbnVtYmVyIG9mIHRpbWVzdGVwcyB3aGVyZSB0aGVyZSB3ZXJlIHNwcA0KDQpuX3N0ZXBzIDwtIGxlbmd0aChsaXN0X3NpbXVsYXRpb24xJG5ldHdvcmtfbGlzdCkNCg0KYGBgDQoNCg0KDQojIyMjIERpc2NhcmQgdGltZXN0ZXBzIHdoZXJlIHBoeWxvZ2VuZXRpYyBkaXN0YW5jZXMgY2FudCBiZSBjYWxjdWxhdGVkDQoNCkl0IHJlcXVpcmVzIGF0IGxlYXMgMyBzcGVjaWVzIHRvIGNvbXB1dGUgdGhlIGRpc3RhbmNlcy4NCkNoZWNrIHRoZSB0aW1lc3RlcCBmcm9tIHdoaWNoIHdlIGNhbiBtYWtlIHRoZSBjYWxjdWxhdGlvbnMgYnkgbG9va2luZyBhdCB0aGUgcHJlcyBtYXRyaXggYW5kIHNlZSB3aGVuIHdlIGhhdmUgbW9yZSB0aGFuIDMgc3BwLg0KDQpgYGB7cn0NCg0Kbm9uLnZhbGlkX3RpbWVzdGVwc19waHlsb19kaXN0YW5jZSA8LSBjKHdoaWNoKHJvd1N1bXMobGlzdF9zaW11bGF0aW9uMSRwcmVzZW5jZV9tYXRyaXgpID09IDEpKSMsIHdoaWNoKHJvd1N1bXMobGlzdF9zaW11bGF0aW9uMSRwcmVzZW5jZV9tYXRyaXgpID09IDIpKQ0KDQpub24udmFsaWRfdGltZXN0ZXBzX3BoeWxvX2Rpc3RhbmNlDQoNCmBgYA0KDQoNCg0KDQojIyMjIGhvbW9nZW5pemUgZWxlbWVudHMgdG8gc3RhcnQgZnJvbSB2YWxpZCB0aW1lc3RlcHMNCg0KYGBge3J9DQoNCiNhbmNlc3RyeS1kaXN0YW5jZXMgdGFibGUNCg0KbGlzdF9hbmNfZGlzdCA8LSBsaXN0X3NpbXVsYXRpb24xJGxpc3RfYW5jX2Rpc3RbLW5vbi52YWxpZF90aW1lc3RlcHNfcGh5bG9fZGlzdGFuY2VdDQoNCg0KDQojIE5ldHdvcmsgbGlzdA0KDQpuZXR3b3JrX2xpc3QgPC0gbGlzdF9zaW11bGF0aW9uMSRuZXR3b3JrX2xpc3RbLW5vbi52YWxpZF90aW1lc3RlcHNfcGh5bG9fZGlzdGFuY2VdDQoNCg0KDQppZiAobGVuZ3RoKHdoaWNoKGlzLm51bGwobGlzdF9zaW11bGF0aW9uMSRuZXR3b3JrX2xpc3QpKSkgPiAwKSB7DQogIA0KICBwcmludCgiY2hlY2sgLSBudWxsIG5ldHdvcmsgc29tZXdoZXJlIikNCn0gZWxzZSB7DQogIHByaW50KCJhbGwgZ29vZCAtIG5vIG51bGwgbmV0d29ya3MiKQ0KfQ0KDQoNCmlmKGxlbmd0aChsaXN0X2FuY19kaXN0KSA9PSBsZW5ndGgobmV0d29ya19saXN0KSl7DQogIA0KICBwcmludCgiYWxsIGdvb2QgLSBkaXN0YW5jZS1hbmNlc3RyeSB0YWJsZSBhbmQgbmV0d29yayBsaXN0IGhhdmUgdGhlIHNhbWUgbGVuZ3RoIikNCn0gZWxzZSB7DQogIA0KICBwcmludCgiUFJPQkxFTSIpDQp9DQoNCg0KYGBgDQoNCg0KDQojIyBDb252ZXJ0IHNwcCBuYW1lcyBmcm9tIG51bWJlcnMgdG8gbGV0dGVycw0KDQpgYGB7cn0NCg0KIyMgQW5jZXN0cnktZGlzdGFuY2UNCg0KbGlzdF9hbmNfZGlzdF9sZXR0ZXJzIDwtIGxhcHBseShsaXN0X2FuY19kaXN0LCBjaGFuZ2Vfc3BwbmFtZXNfbGV0dGVyc19hbmNkaXN0LnRhYmxlKQ0KDQoNCiMjIEludGVyYWN0aW9ucw0KDQojIyMjIDFzdCwgc2V0IG5hbWVzIGFzIG51bWJlcnMgKGluZGV4IG9mIGNvbHVtbnMgYW5kIHJvd3MpDQoNCiMgV0FSSU5HIC0gRWxpbWluYXRpbmcgZmlyc3QgdGltZXN0ZXANCg0KbGlzdF9uZXR3b3Jrc19zcHBuYW1lc19udW1iZXJzIDwtIGxhcHBseShuZXR3b3JrX2xpc3QsIHNldF9zcHBOYW1lc19udW1iZXJzKQ0KDQojIyMjIDJuZCwgY29udmVydCBudW1iZXJzIHRvIGxldHRlcnMNCg0KbGlzdF9uZXR3b3Jrc19zcHBuYW1lc19sZXR0ZXJzIDwtIGxhcHBseShsaXN0X25ldHdvcmtzX3NwcG5hbWVzX251bWJlcnMsIGNvbnZlcnRfc3BwbmFtZXNfdG9sZXR0ZXJzKQ0KDQoNCg0KDQppZihsZW5ndGgobGlzdF9hbmNfZGlzdF9sZXR0ZXJzKSA9PSBsZW5ndGgobGlzdF9uZXR3b3Jrc19zcHBuYW1lc19sZXR0ZXJzKSl7DQogIA0KICBwcmludCgiYWxsIGdvb2QgLSBkaXN0YW5jZS1hbmNlc3RyeSB0YWJsZSB3aXRoIGxldHRlcnMgYW5kIG5ldHdvcmsgbGlzdCB3aXRoIGxldGVycyBoYXZlIHRoZSBzYW1lIGxlbmd0aCIpDQp9IGVsc2Ugew0KICANCiAgcHJpbnQoIlBST0JMRU0iKQ0KfQ0KYGBgDQoNCg0KDQoNCiMjIyMgTG9vcCBmb3Igb2J0YWluaW5nIHBoeWxvZ2VuZXRpYyBkaXN0YW5jZXM6DQoNCg0KIyMgV2l0aG91dCBkaXN0aW5ndWlzaGluZyBwcmVkYXRvcnMgYW5kIHByZXlzDQoNCmBgYHtyfQ0KDQpsaXN0X25ld2ljayA8LSBsaXN0KCkNCmxpc3RfdHJlZXMgPC0gbGlzdCgpDQpsaXN0X25ld2lja190YWlscyA8LSBsaXN0KCkNCmxpc3RfZGlzdC5waHlsbyA8LSBsaXN0KCkNCg0KDQoNCg0KZm9yIChpIGluIDE6bGVuZ3RoKGxpc3RfYW5jX2Rpc3RfbGV0dGVycykpIHsNCiAgDQogIA0KICBwcmludChzcHJpbnRmKCJzdGVwICVzIiwgaSkpDQogIA0KICBsaXN0X25ld2lja1tbaV1dIDwtIFRvUGh5bG8obGlzdF9hbmNfZGlzdF9sZXR0ZXJzW1tpXV0pDQogIA0KICBsaXN0X25ld2lja190YWlsc1tbaV1dIDwtIHBhc3RlKGxpc3RfbmV3aWNrW1tpXV0sICJyb290IikNCiAgDQogIGxpc3RfdHJlZXNbW2ldXSA8LSByZWFkLnRyZWUodGV4dCA9IHN1YigiQSByb290IiwiOyIsbGlzdF9uZXdpY2tfdGFpbHNbW2ldXSkpDQogIA0KICBsaXN0X2Rpc3QucGh5bG9bW2ldXSA8LSBjb3BoZW5ldGljLnBoeWxvKGxpc3RfdHJlZXNbW2ldXSkNCiAgDQoNCn0NCg0KIyBjaGVjayB0aGF0IHRoZXJlIGFyZSBubyBudWxscw0KDQppZiAobGVuZ3RoKHdoaWNoKHVubGlzdChsYXBwbHkobGlzdF9kaXN0LnBoeWxvLCBpcy5udWxsKSkgPT0gVFJVRSkpID09IDApIHsNCiAgDQogIHByaW50KCJhbGwgZ29vZCAtIG5vIG51bGxzIikNCn0gZWxzZSB7DQogIA0KICBwcmludCgiUFJPQkxFTSIpDQogIA0KfQ0KDQoNCg0KaWYgKGxlbmd0aChsaXN0X2Rpc3QucGh5bG8pID09IGxlbmd0aChsaXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMpKXsNCiAgDQogIHByaW50KCJhbGwgZ29vZCAtIGxpc3QgcGh5bG8gZGlzdCB3aXRoIGxldHRlcnMgYW5kIGxpc3QgaW50ZXJhY3Rpb25zIHdpdGggbGV0dGVycyBoYXZlIHRoZSBzYW1lIGxlbmd0aCIpDQogIA0KfWVsc2V7DQogIA0KICBwcmludCgiUFJPQkxFTSIpDQogIA0KfQ0KDQpgYGANCg0KDQoNCiMjIFJldGFpbiBvbmx5IHByZXNlbnQgc3BlY2llcyBpbiBuZXR3b3JrIG1hdHJpY2VzDQoNCkZvciBwaHlsb2dlbmV0aWMgZGlzdGFuY2UgbWF0cmljZXMsIHRoZSBzcHAgZm9yIHdoaWNoIGRpc3RhbmNlcyBhcmUgY2FsY3VsYXRlZCBhcmUgYWxyZWFkeSBvbmx5IHRoZSBvbmVzIHByZXNlbnQuDQoNClNvIEkgbmVlZCB0byBjcm9wIHRoZSBpbnRlcmFjdGlvbiBtYXRyaWNlcyB0byByZXRhaW4gb25seSBwcmVzZW50IHNwZWNpZXMsIGFuZCB0ZXN0IHRoYXQgdGhlc2UgY29ycmVzcG9uZiB0byB0aGUgb25lcyBwcmVzZW50IGluIHRoZSBwaHlsb2dlbmV0aWMgZGlzdGFuY2UgbWF0cmljZXMgaW4gZWFjaCB0aW1lc3RlcC4NCg0KYGBge3J9DQoNCiMgU2V0IHRoZSBzYW1lIHNwcCBuYW1lcyBmb3IgdGhlIHByZXNlbmNlX21hdHJpeCB0aGFuIGZvciB0aGUgaW50ZXJhY2lvbiBtYXRyaWNlcw0KDQpwcmVzZW5jZV9tYXRyaXggPC0gbGlzdF9zaW11bGF0aW9uMSRwcmVzZW5jZV9tYXRyaXgNCg0KcHJlc2VuY2VfbWF0cml4IDwtIHByZXNlbmNlX21hdHJpeFsxOm5fc3RlcHMsXQ0KDQpjb2xuYW1lcyhwcmVzZW5jZV9tYXRyaXgpIDwtIHNlcSgxOjEwMDApDQoNCmNvbG5hbWVzKHByZXNlbmNlX21hdHJpeCkgPC0gY2hhcnRyKCIwMTIzNDU2Nzg5IiwgIkFCQ0RFRkdISUoiLCBjb2xuYW1lcyhwcmVzZW5jZV9tYXRyaXgpKQ0KDQoNCmlmKGxlbmd0aCh3aGljaChjb2xuYW1lcyhwcmVzZW5jZV9tYXRyaXgpICE9IGNvbG5hbWVzKGxpc3RfbmV0d29ya3Nfc3BwbmFtZXNfbGV0dGVyc1tbMV1dKSkpID09IDApew0KICANCiAgcHJpbnQoImFsbCBnb29kIC0gc3BwIG5hbWVzIGluIHByZXNlbmNlX21hdHJpeCBjb3JyZXNwb25kIHRvIHNwcCBuYW1lcyBpbiBuZXR3b3JrIGxpc3QiKQ0KICANCn0gZWxzZSB7DQogIA0KICBwcmludCgiUFJPQkxFTSIpDQp9IA0KDQoNCg0KIyBEaXNjYXJkIHNhbWUgdGltZXN0ZXBzIChyb3dzKSB0aGFuIHRoZSBkaXNjYXJ0ZWQgcGh5bG9nZW5ldGljIGRpc3RhbmNlIG1hdHJpY2VzDQoNCnByZXNlbmNlX21hdHJpeCA8LSBwcmVzZW5jZV9tYXRyaXhbLW5vbi52YWxpZF90aW1lc3RlcHNfcGh5bG9fZGlzdGFuY2UsXQ0KDQoNCmlmKG5yb3cocHJlc2VuY2VfbWF0cml4KSA9PSBsZW5ndGgobGlzdF9uZXR3b3Jrc19zcHBuYW1lc19sZXR0ZXJzKSAmIA0KICAgbnJvdyhwcmVzZW5jZV9tYXRyaXgpID09IGxlbmd0aChsaXN0X2Rpc3QucGh5bG8pKXsNCiAgDQogIHByaW50KCJhbGwgZ29vZCAtIHByZXNlbmNlIG1hdHJpeCwgbGlzdCBwaHlsbyBkaXN0IGFuZCBsaXN0IGludGVyYWN0aW9uIG5ldHdvcmtzIGhhdmUgdGhlIHNhbWUgbl9zdGVwcyIpDQogIA0KfSBlbHNlIHsNCiAgDQogIHByaW50KCJQUk9CTEVNIikNCn0NCg0KDQpgYGANCg0KDQoNCiMjIyMgSW50ZXJhY3Rpb24gZGlzdGFuY2VzDQoNCg0KDQoNCmBgYHtyfQ0KDQoNCmxpYnJhcnkoaWdyYXBoKQ0KDQoNCg0KDQptYXQgPC0gIGxpc3RfbmV0d29ya3Nfc3BwbmFtZXNfbGV0dGVyc1tbMjBdXVtuYW1lcyh3aGljaChwcmVzZW5jZV9tYXRyaXhbMjAsXSA9PSAxKSksIG5hbWVzKHdoaWNoKHByZXNlbmNlX21hdHJpeFsyMCxdID09IDEpKV0NCg0KDQpjb21wdXRlX25taSA8LSBmdW5jdGlvbihtYXRyaXgpIHsNCiAgDQogIA0KICAjICBWZWN0b3Igc291cmNlIGZvciBjb2x1bW4gY29tYmluYXRpb25zDQpuIDwtIHNlcV9sZW4oIG5jb2wobWF0cml4KSApDQoNCiMgIE1ha2UgY29tYmluYXRpb25zDQppZCA8LSBleHBhbmQuZ3JpZCggbiAsIG4gKQ0KDQojICBHZXQgcmVzdWx0DQptYXRyaXhfbm1pIDwtIG1hdHJpeCgwLCBuY29sID0gbmNvbChtYXRyaXgpLCBucm93ID0gbnJvdyhtYXRyaXgpKQ0KDQpmb3IgKGkgaW4gMTpucm93KGlkKSkgew0KICANCiAgbWF0cml4X25taVtpZFtpLDFdLCBpZFtpLDJdXSA8LSBjb21wYXJlKA0KICBtYXRbLGlkW2ksMV1dLA0KICBtYXRbLGlkW2ksMl1dLA0KICBtZXRob2QgPSAibm1pIikNCiAgDQogIG1hdHJpeF9ubWlbaWRbaSwyXSwgaWRbaSwxXV0gPC0gY29tcGFyZSgNCiAgbWF0WyxpZFtpLDFdXSwNCiAgbWF0WyxpZFtpLDJdXSwNCiAgbWV0aG9kID0gIm5taSIpDQogIA0KfQ0KDQoNCmNvbG5hbWVzKG1hdHJpeF9ubWkpIDwtIGNvbG5hbWVzKG1hdCkNCnJvd25hbWVzKG1hdHJpeF9ubWkpIDwtIHJvd25hbWVzKG1hdCkNCg0KcmV0dXJuKG1hdHJpeF9ubWkpDQogIA0KICANCn0NCg0KDQoNCiMjIDFzdCwgY3JvcCB0aGUgbWF0cml4IHdpdGggcHJlc2VudCBzcHANCg0KbGlzdF9uZXRfcHJlc2VudF9zcHAubGV0dGVycyA8LSBsaXN0KCkNCg0KZm9yIChpIGluIDE6bGVuZ3RoKGxpc3RfbmV0d29ya3Nfc3BwbmFtZXNfbGV0dGVycykpIHsNCiAgDQogbGlzdF9uZXRfcHJlc2VudF9zcHAubGV0dGVyc1tbaV1dIDwtIGxpc3RfbmV0d29ya3Nfc3BwbmFtZXNfbGV0dGVyc1tbaV1dW25hbWVzKHdoaWNoKHByZXNlbmNlX21hdHJpeFtpLF0gPT0gMSkpLCBuYW1lcyh3aGljaChwcmVzZW5jZV9tYXRyaXhbaSxdID09IDEpKV0NCiAgDQp9DQoNCg0KDQoNCg0KIyMgMm5kLCBjb21wdXRlIG5taSBmb3IgYWxsIHRoZSBtYXRyaWNlcw0KDQoNCmZvciAoaSBpbiAxOmxlbmd0aChsaXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMpKSB7DQogIA0KfQ0KDQpjb21wdXRlX25taShtYXQpDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KIyAgVmVjdG9yIHNvdXJjZSBmb3IgY29sdW1uIGNvbWJpbmF0aW9ucw0KbiA8LSBzZXFfbGVuKCBuY29sKG1hdCkgKQ0KDQojICBNYWtlIGNvbWJpbmF0aW9ucw0KaWQgPC0gZXhwYW5kLmdyaWQoIG4gLCBuICkNCg0KIyAgR2V0IHJlc3VsdA0KbWF0cml4X25taSA8LSBtYXRyaXgoMCwgbmNvbCA9IG5jb2wobWF0KSwgbnJvdyA9IG5yb3cobWF0KSkNCg0KZm9yIChpIGluIDE6bnJvdyhpZCkpIHsNCiAgDQogIG1hdHJpeF9ubWlbaWRbaSwxXSwgaWRbaSwyXV0gPC0gY29tcGFyZSgNCiAgbWF0WyxpZFtpLDFdXSwNCiAgbWF0WyxpZFtpLDJdXSwNCiAgbWV0aG9kID0gIm5taSIpDQogIA0KICBtYXRyaXhfbm1pW2lkW2ksMl0sIGlkW2ksMV1dIDwtIGNvbXBhcmUoDQogIG1hdFssaWRbaSwxXV0sDQogIG1hdFssaWRbaSwyXV0sDQogIG1ldGhvZCA9ICJubWkiKQ0KICANCn0NCg0KDQpjb2xuYW1lcyhtYXRyaXhfbm1pKSA8LSBjb2xuYW1lcyhtYXQpDQpyb3duYW1lcyhtYXRyaXhfbm1pKSA8LSByb3duYW1lcyhtYXQpDQoNCnJldHVybihtYXRyaXhfbm1pKQ0KDQoNCg0KDQpgYGANCg0KDQoNCmBgYHtyfQ0KDQojIENvbXB1dGUgZGlzdGFuY2VzDQoNCmxpc3RfZGlzdF9jaGlzcTwtIGxhcHBseShsaXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMsIGNvbXB1dGVfY2hpc3EpDQoNCg0KDQoNCmlmIChsZW5ndGgod2hpY2godW5saXN0KGxhcHBseShsaXN0X2Rpc3RfY2hpc3EsIGlzLm51bGwpKSA9PSBUUlVFKSkgPT0gMCkgew0KICANCiAgcHJpbnQoImFsbCBnb29kIC0gbm8gbnVsbHMiKQ0KfSBlbHNlIHsNCiAgDQogIHByaW50KCJQUk9CTEVNIikNCiAgDQp9DQoNCg0KDQoNCg0KYGBgDQoNCg0KYGBge3J9DQoNCmlmIChsZW5ndGgobGlzdF9kaXN0X2NoaXNxKSA9PSBsZW5ndGgobGlzdF9kaXN0LnBoeWxvKSkgew0KICANCiAgcHJpbnQoImFsbCBnb29kIC0gc2FtZSBsZW5ndGggbGlzdCBvZiBpbnRlcmFjdGlvbiBkaXN0YW5jZXMgYW5kIGxpc3Qgb2YgcGh5bG8gZGlzdGFuY2VzIikNCn0gZWxzZSB7DQogIA0KICBwcmludCgiUFJPQkxFTSIpDQogIA0KfQ0KDQpgYGANCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQoNCk5vdyBJIGhhdmUgdGhlIHBoeWxvZ2VuZXRpYyBkaXN0YW5jZSBtYXRyaWNlcyBpbiBsaXN0X2Rpc3QucGh5bG8sIGFuZCB0aGUgaW50ZXJhY3Rpb24gZGlzdGFuY2VzIGluIGxpc3RfZGlzdF9jaGlzcS4NCg0KDQpDaGVjayB0aGF0IGJvdGggdGhlIGxpc3Qgb2YgZGlzdGFuY2UgbWF0cmljZXMgZm9yIGludGVyYWN0aW9ucyBhbmQgZm9yIHBoeWxvZ2VueSBoYXZlIHRoZSBzYW1lIGxlbmd0aDoNCg0KYGBge3J9DQpsZW5ndGgobGlzdF9kaXN0X2NoaXNxW1sxMl1dKSA9PSBsZW5ndGgobGlzdF9kaXN0LnBoeWxvW1sxMl1dKQ0KYGBgDQoNCg0KRXhhbXBsZSB0byBzaG93IHRoYXQgcGh5bG9nZW5ldGljIGRpc3RhbmNlIG1hdHJpY2VzIHJldGFpbiB0aGUgZXh0aW5jdCBzcGVjaWVzIHRvZ2V0aGVyIHdpdGggdGhlIHByZXNlbnQgb25lcy4NCg0KYGBge3J9DQoNCmRmLnRlc3QucGh5bG8gPC0gYXMuZGF0YS5mcmFtZShsaXN0X2Rpc3QucGh5bG9bWzE3NF1dKQ0KZGYudGVzdC5jaGlzcSA8LSBhcy5kYXRhLmZyYW1lKGxpc3RfZGlzdF9jaGlzcVtbMTc0XV0pDQoNCmRhdGFfbmV3LnBoeWxvIDwtIGRmLnRlc3QucGh5bG9bb3JkZXIobmFtZXMoZGYudGVzdC5waHlsbykpICwgb3JkZXIobmFtZXMoZGYudGVzdC5waHlsbykpXQ0KZGF0YV9uZXcuY2hpc3EgPC0gZGYudGVzdC5jaGlzcVtvcmRlcihuYW1lcyhkZi50ZXN0LmNoaXNxKSkgLCBvcmRlcihuYW1lcyhkZi50ZXN0LmNoaXNxKSldDQoNCmNvbG5hbWVzKGRhdGFfbmV3LmNoaXNxKQ0KDQpjb2xuYW1lcyhkYXRhX25ldy5waHlsbykNCmBgYA0KDQoNClRoZXJlZm9yZSwgSSBuZWVkIHRvIDFzdCBvcmRlciB0aGUgbmFtZXMgb2YgY29sdW1ucyBhbmQgcm93cyBvZiBib3RoIHBoeWxvIGFuZCBpbnRlcmFjdGlvbiBkaXN0YW5jZSBtYXRyaWNlcyBzbyB0aGF0IHRoZXkgY29pbmNpZGUsIGFuZCB0aGVuIHNlbGVjdCBvbmx5IHRob3NlIHNwZWNpZXMgcHJlc2VudCB0byBjb21wYXJlIHRoZSBtYXRyaWNlcy4gVGhlIHdheSBJIHdpbGwgc2VsZWN0IHRob3NlIHNwZWNpZXMgcHJlc2VudCBpcyBieSB0ZWxsaW5nIHRoZSBwaHlsby1kaXN0YW5jZSBtYXRyaXggdG8gcmV0YWluIG9ubHkgdGhvc2Ugc3BlY2llcyBuYW1lcyB0aGF0IHRoZSBpbnRlcmFjdGlvbiBkaXN0YW5jZSBtYXRyaXggaGFzOg0KDQoNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCg0KDQoNCiMjIE9yZGVyIGNvbHVtbiBhbmQgcm93IHNwcCBuYW1lcw0KDQoNCmBgYHtyfQ0KbGlzdF9kaXN0LnBoeWxvX2RmIDwtIGxhcHBseShsaXN0X2Rpc3QucGh5bG8sIGFzLmRhdGEuZnJhbWUpDQpsaXN0X2Rpc3RfY2hpc3FfZGYgPC0gbGFwcGx5KGxpc3RfZGlzdF9jaGlzcSwgYXMuZGF0YS5mcmFtZSkNCg0KDQpsaXN0X2Rpc3QucGh5bG9fZGYub3JkIDwtIGxhcHBseShsaXN0X2Rpc3QucGh5bG9fZGYsIG9yZGVyX2NvbC5yb3dfbmFtZXMpDQpsaXN0X2Rpc3RfY2hpc3FfZGYub3JkIDwtIGxhcHBseShsaXN0X2Rpc3RfY2hpc3FfZGYsIG9yZGVyX2NvbC5yb3dfbmFtZXMpDQoNCmBgYA0KDQojIyBGb3IgcGh5bG9nZW5ldGljIGRpc3RhbmNlIG1hdHJpY2VzLCByZXRhaW4gb25seSB0aG9zZSBzcGVjaWVzIHByZXNlbnQNCg0KU3BlY2llcyBwcmVzZW50IGFyZSB0aG9zZSBwcmVzZW50IGluIHRoZSBpbnRlcmFjdGlvbiBkaXN0YW5jZSBtYXRyaXguDQoNCmBgYHtyfQ0KIyBTZWxlY3Qgb25seSBzcHAgcHJlc2VudCBmb3IgcGh5bG9nZW5ldGljIGRpc3RhbmNlIG1hdHJpeA0KDQpsaXN0X2Rpc3QucGh5bG9fZGZfcHJlcyA8LSBsaXN0KCkNCg0KZm9yIChpIGluIDE6bGVuZ3RoKGxpc3RfZGlzdC5waHlsb19kZi5vcmQpKSB7DQogIA0KICBzcHBfcHJlc2VudCA8LSBjb2xuYW1lcyhsaXN0X2Rpc3RfY2hpc3FfZGYub3JkW1tpXV0pDQogIGxpc3RfZGlzdC5waHlsb19kZl9wcmVzW1tpXV0gPC0gbGlzdF9kaXN0LnBoeWxvX2RmLm9yZFtbaV1dW3NwcF9wcmVzZW50ICxzcHBfcHJlc2VudF0gDQogIA0KICANCn0NCg0KIyMgQ2hlY2sgdGhhdCBub3cgcGh5bG8gYW5kIGludGVyYWN0aW9uIGRpc3RhbmNlIG1hdHJpY2VzIGhhdmUgdGhlIHNhbWUgbnVtYmVyIG9mIHNwcCwgc2FtZSBuYW1lcywgYW5kIGluIHRoZSBzYW1lIG9yZGVyDQoNCg0KY29sbmFtZXMobGlzdF9kaXN0LnBoeWxvX2RmX3ByZXNbWzEwMF1dKSA9PSBjb2xuYW1lcyhsaXN0X2Rpc3RfY2hpc3FfZGYub3JkW1sxMDBdXSkNCg0KYGBgDQoNCg0KDQpOT1cgSSdNIFJFQURZIFRPIENPTVBVVEUgQ09SUkVMQVRJT04NCg0KDQoNCiMgQ29tcHV0ZSBNRFMNCg0KDQpXQVJOSU5HOiBJIGNhbid0IGNvbXB1dGUgTURTIHdpdGggfjIgc3BwLCBzbyAxc3QgYW5kIDJuZCBtYXRyaWNlcyBjYW4ndCBiZSBhbmFseXNlZC4gQW5kIEkgZWxpbWluYXRlIHRoZW0gZnJvbSB0aGUgbGlzdCAoNiBhbmQgNyB0aW1lc3RlcHMpDQoNCmBgYHtyfQ0KDQojIGNvbnZlcnQgdG8gbWF0cml4DQoNCmxpc3RfZGlzdF9jaGlzcV9tYXQgPC0gbGFwcGx5KGxpc3RfZGlzdF9jaGlzcV9kZi5vcmQsIGFzLm1hdHJpeCkNCmxpc3RfZGlzdC5waHlsb19tYXQgPC0gbGFwcGx5KGxpc3RfZGlzdC5waHlsb19kZl9wcmVzLCBhcy5tYXRyaXgpDQoNCg0KIyMgRWxpbWluYXRlIDFzdCBhbmQgMm5kIG1hdHJpeCAtIHRvbyBmZXcgc3BwIHRvIGNvbXB1dGUgTURTDQoNCmxpc3RfZGlzdF9jaGlzcV9tYXQgPC0gbGlzdF9kaXN0X2NoaXNxX21hdFstYygxLDIpXQ0KbGlzdF9kaXN0LnBoeWxvX21hdCA8LSBsaXN0X2Rpc3QucGh5bG9fbWF0Wy1jKDEsMildDQoNCg0KDQojIGNvbXB1dGUgbWRzDQoNCmxpc3RfbWRzLmludCA8LSBsaXN0KCkNCmxpc3RfbWRzLnBoeSA8LSBsaXN0KCkNCg0KDQojIENvbXB1dGUgTk1TDQoNCmZvciAoaSBpbiAxOmxlbmd0aChsaXN0X2Rpc3RfY2hpc3FfbWF0KSkgew0KICANCmxpc3RfbWRzLmludFtbaV1dIDwtIG1vbm9NRFMobGlzdF9kaXN0X2NoaXNxX21hdFtbaV1dLCB5ID0gY21kc2NhbGUobGlzdF9kaXN0X2NoaXNxX21hdFtbaV1dKSkNCmxpc3RfbWRzLnBoeVtbaV1dIDwtIG1vbm9NRFMobGlzdF9kaXN0LnBoeWxvX21hdFtbaV1dLCB5ID0gY21kc2NhbGUobGlzdF9kaXN0LnBoeWxvX21hdFtbaV1dKSkNCiAgDQp9DQpgYGANCg0KDQojIENvbXB1dGUgY29ycmVsYXRpb24NCg0KDQphbHJlYWR5IGhhdmUgZGlzdGFuY2UgbWF0cmljZXMgY29tcHV0ZWQgKGNoaXNxLCBwaHlsbykNCg0KYGBge3J9DQoNCnByb3Rlc3QgPC0gbGlzdCgpDQpwcm9jcnVzdGVzIDwtIGxpc3QoKQ0KDQpmb3IgKGkgaW4gMTpsZW5ndGgobGlzdF9kaXN0LnBoeWxvX21hdCkpIHsNCiAgDQogIHByb3Rlc3RbW2ldXSA8LSBwcm90ZXN0KGxpc3RfbWRzLmludFtbaV1dLCBsaXN0X21kcy5waHlbW2ldXSkNCiAgDQogIHByb2NydXN0ZXNbW2ldXSA8LSBwcm9jcnVzdGVzKGxpc3RfbWRzLmludFtbaV1dLGxpc3RfbWRzLnBoeVtbaV1dKQ0KICANCiAgDQp9DQoNCg0KDQojIyBpdCBzdGFydHMgZnJvbSB0aW1lc3RlcCA4DQoNCnByb3Rlc3RfcHZhbCA8LSBjKCkNCnByb3Rlc3RfY29yciA8LSBjKCkNCg0KZm9yIChpIGluIDE6bGVuZ3RoKHByb3Rlc3QpKSB7DQogIA0KICBwcm90ZXN0X3B2YWxbaV0gPC0gcHJvdGVzdFtbaV1dJHNpZ25pZg0KICANCiAgcHJvdGVzdF9jb3JyW2ldIDwtcHJvdGVzdFtbaV1dJHQwDQoNCiAgDQp9DQoNCnByb3Rlc3RfcHZhbA0KDQpwcm90ZXN0X2NvcnINCg0KdGltZXN0ZXBzIDwtIDg6bGVuZ3RoKGxpc3Rfc2ltdWxhdGlvbjEkbGlzdF9hbmNfZGlzdCkNCg0KZGZfc2lnbmFsX3RpbWUgPC0gZGF0YS5mcmFtZSh0aW1lc3RlcHMscHJvdGVzdF9wdmFsLHByb3Rlc3RfY29ycikNCg0KZGZfc2lnbmFsX3RpbWUkc2lnbiA8LSB3aXRoKGRmX3NpZ25hbF90aW1lLCBpZmVsc2UocHJvdGVzdF9wdmFsIDwgMC4wNTEsICdzaWduJywgJ25vbi5zaWduJykpDQoNCg0KZGZfc2lnbmFsX3RpbWUNCg0KYGBgDQoNCiMjIyBQbG90IHBoeWxvZ2VuZXRpYyBzaWduYWwgdGhyb3VnaCB0aW1lDQoNCmBgYHtyfQ0KDQpsaWJyYXJ5KGdncGxvdDIpDQoNCm15LnRoZW1lPC10aGVtZShheGlzLnRleHQ9ZWxlbWVudF90ZXh0KHNpemU9MTIpLA0KICAgICAgICAgICAgICAgIGF4aXMudGl0bGUgPSBlbGVtZW50X3RleHQoc2l6ZSA9IDE0KSwNCiAgICAgICAgICAgICAgICBsZWdlbmQucG9zaXRpb24gPSAidG9wIiwNCiAgICAgICAgICAgICAgICBsZWdlbmQudGV4dD1lbGVtZW50X3RleHQoc2l6ZT0xMCksDQogICAgICAgICAgICAgICAgbGVnZW5kLnRpdGxlID0gZWxlbWVudF90ZXh0KHNpemU9MTIpLA0KICAgICAgICAgICAgICAgIHBsb3QudGl0bGUgPSBlbGVtZW50X3RleHQoZmFjZT0iYm9sZCIsc2l6ZT0xNCxtYXJnaW49bWFyZ2luKDAsMCwyMCwwKSxoanVzdCA9IDAuNSksDQogICAgICAgICAgICAgICAgYXhpcy50aXRsZS55ID0gZWxlbWVudF90ZXh0KG1hcmdpbiA9IG1hcmdpbih0ID0gMCwgciA9IDE1LCBiID0gMCwgbCA9IDApKSwNCiAgICAgICAgICAgICAgICBheGlzLnRpdGxlLnggPSBlbGVtZW50X3RleHQobWFyZ2luID0gbWFyZ2luKHQgPSAxNSwgciA9IDAsIGIgPSAwLCBsID0gMCkpKQ0KDQoNCnAgPC0gZ2dwbG90KGRmX3NpZ25hbF90aW1lLCBhZXMoeD10aW1lc3RlcHMsIHk9cHJvdGVzdF9jb3JyKSkgKw0KICAgICAgIGdlb21fbGluZSgpKw0KICBnZW9tX3BvaW50KGFlcyhmaWxsID0gc2lnbiwgY29sb3I9c2lnbiksIHNpemU9MiwgYWxwaGEgPSAwLjcpICsNCiAgdGhlbWVfYncoKSsNCiAgICBteS50aGVtZSsNCiAgICBzY2FsZV9jb2xvdXJfbWFudWFsKHZhbHVlcyA9IGMoImJsYWNrIiwgInJlZCIpKSsNCiAgICBnZ3RpdGxlKCJQaHlsb2dlbmV0aWMgc2lnbmFsIHRocm91Z2ggdGltZSAoKykiKSsNCnhsYWIoInRpbWVzdGVwcyIpKw0KICB5bGFiKCJQaHlsb2dlbmV0aWMgc2lnbmFsIikNCg0KDQpwDQpgYGANCg0KDQojIyMgUGxvdCBzcGVjaWVzIHJpY2huZXNzIHRocm91Z2ggdGltZQ0KDQpgYGB7cn0NCiMgU0hPVyBBTFNPIE5VTUJFUiBPRiBTUEVDSUVTIElOIFRIRSBHUkFQSA0KDQpwcmVzZW5jZV9tYXRyaXggPC0gbGlzdF9zaW11bGF0aW9uMSRwcmVzZW5jZV9tYXRyaXhbODpsZW5ndGgobGlzdF9zaW11bGF0aW9uMSRsaXN0X2FuY19kaXN0KSxdICMgc2VsZWN0IHRoZSB0aW1lc3RlcHMgd2UgYXJlIGFuYWx5c2luZyAoZnJvbSA4IGluIGFkdmFuY2UpDQoNCm5fc3BwX3RpbWUgPC0gYygpDQoNCmZvciAoaSBpbiAxOm5yb3cocHJlc2VuY2VfbWF0cml4KSkgew0KICANCiAgbl9zcHBfdGltZVtpXSA8LSBsZW5ndGgod2hpY2gocHJlc2VuY2VfbWF0cml4W2ksXSA9PSAxKSkNCiAgDQp9DQoNCmRmX3NpZ25hbF90aW1lJG5zcHAgPC0gbl9zcHBfdGltZQ0KDQoNCg0KDQpwLnNwcCA8LSBnZ3Bsb3QoZGZfc2lnbmFsX3RpbWUsIGFlcyh4PXRpbWVzdGVwcywgeSA9IG5zcHApKSArDQogIGdlb21fbGluZShjb2xvcj0iYmxhY2siLCBsaW5ldHlwZT0idHdvZGFzaCIpICsNCiAgdGhlbWVfYncoKSsNCiAgbXkudGhlbWUrDQogIHNjYWxlX2NvbG91cl9tYW51YWwodmFsdWVzID0gYygiYmxhY2siLCAicmVkIikpKw0KICBnZ3RpdGxlKCJTcGVjaWVzIHJpY2huZXNzIHRocm91Z2ggdGltZSAoKykiKSsNCiAgeGxhYigidGltZXN0ZXBzIikrDQogIHlsYWIoIk4gc3BlY2llcyIpDQoNCnAuc3BwDQoNCmBgYA0KDQoNCg0KDQpgYGB7cn0NCg0KbGlicmFyeShncmlkRXh0cmEpDQoNCmFycmFuZ2VkLnBsb3RzIDwtIGdyaWQuYXJyYW5nZShwLCBwLnNwcCwgDQogICAgICAgICAgICAgbmNvbCA9IDEsIG5yb3cgPSAyKQ0KDQphcnJhbmdlZC5wbG90cw0KYGBgDQoNCg0KIyBORUdBVElWRSBJTlRFUkFDVElPTlMNCg0KDQoNCiMjIyBMb2FkIHNpbXVsYXRpb24gZGF0YQ0KDQoNCmBgYHtyfQ0KDQpsb2FkKCIuLi9EYXRhL05lZ2F0aXZlX2ludGVyYWN0aW9ucy9saXN0X3Jlc19uZWdfMi5SZGF0YSIpDQoNCm5hbWVzKGxpc3RfcmVzKSA9IGMoInNpbXVsYXRpb24xIiwgInNpbXVsYXRpb24yIikNCg0KbGlzdF9zaW11bGF0aW9uMSA8LSBsaXN0X3JlcyRzaW11bGF0aW9uMQ0KDQoNCiMgTGlzdCBmb3IgdGFibGUgYW5jZXN0cnktZGlzdGFuY2VzIGFuZCBuZXR3b3Jrcw0KIyBUaGUgZmlyc3QgZWxlbWVudCBvZiBib3RoIGlzIE5VTEwsIHNvIHdlIGVsaW1pbmF0ZWQgaXQNCg0KbGlzdF9hbmNfZGlzdCA8LSBsaXN0X3NpbXVsYXRpb24xJGxpc3RfYW5jX2Rpc3RbLTFdDQpuZXR3b3JrX2xpc3QgPC0gbGlzdF9zaW11bGF0aW9uMSRuZXR3b3JrX2xpc3RbLTFdDQoNCmxlbmd0aChsaXN0X2FuY19kaXN0KSA9PSBsZW5ndGgobmV0d29ya19saXN0KQ0KYGBgDQoNCg0KDQojIyBDb252ZXJ0IHNwcCBuYW1lcyBmcm9tIG51bWJlcnMgdG8gbGV0dGVycw0KDQpgYGB7cn0NCg0KIyMgQW5jZXN0cnktZGlzdGFuY2UNCg0KbGlzdF9hbmNfZGlzdF9sZXR0ZXJzIDwtIGxhcHBseShsaXN0X2FuY19kaXN0LCBjaGFuZ2Vfc3BwbmFtZXNfbGV0dGVyc19hbmNkaXN0LnRhYmxlKQ0KDQoNCiMjIEludGVyYWN0aW9ucw0KDQojIyMjIDFzdCwgc2V0IG5hbWVzIGFzIG51bWJlcnMgKGluZGV4IG9mIGNvbHVtbnMgYW5kIHJvd3MpDQoNCiMgV0FSSU5HIC0gRWxpbWluYXRpbmcgZmlyc3QgdGltZXN0ZXANCg0KbGlzdF9uZXR3b3Jrc19zcHBuYW1lc19udW1iZXJzIDwtIGxhcHBseShuZXR3b3JrX2xpc3QsIHNldF9zcHBOYW1lc19udW1iZXJzKQ0KDQojIyMjIDJuZCwgY29udmVydCBudW1iZXJzIHRvIGxldHRlcnMNCg0KbGlzdF9uZXR3b3Jrc19zcHBuYW1lc19sZXR0ZXJzIDwtIGxhcHBseShsaXN0X25ldHdvcmtzX3NwcG5hbWVzX251bWJlcnMsIGNvbnZlcnRfc3BwbmFtZXNfdG9sZXR0ZXJzKQ0KDQoNCg0KbGVuZ3RoKGxpc3RfYW5jX2Rpc3RfbGV0dGVycykgPT0gbGVuZ3RoKGxpc3RfbmV0d29ya3Nfc3BwbmFtZXNfbGV0dGVycykNCmBgYA0KDQoNCg0KDQojIyMjIExvb3AgZm9yIG9idGFpbmluZyBwaHlsb2dlbmV0aWMgZGlzdGFuY2VzOg0KDQoNCkRpc3RhbmNlcyBjYW4gb25seSBiZSBjYWxjdWxhdGVkIGZyb20gdGhlIDNyZCBtYXRyaXggaW4gYWR2YW5jZSwgYmVjYXVzZSB0aGVyZSBpcyBubyBtb3JlIHRoYW4gdHdvIHNwZWNpZXMgdW50aWwgdGhlbi4gU28gdGhlIGZpcnN0IHR3byBtYXRyaXggYXJlIE5VTEwgYW5kIHdlIHdpbGwgZWxpbWluYXRlIHRoZW0uDQoNCldlIGVsaW1pbmF0ZWQgdGltZXN0ZXAgMSBhdCB0aGUgYmVnZ2luaW5nIG9mIHRoZSBjb2RlLiBFbGltaW5hdGluZyBub3cgdGhlIDFzdCAodGltZXN0ZXAyKSBhbmQgMm5kICh0aW1lc3RlcDMpIG1hdHJpY2VzIG1lYW5zIHRoYXQgd2UgcmV0YWluIGZyb20gdGltZXN0cCA0IGluIGFkdmFuY2UuDQoNCmBgYHtyfQ0KDQpsaXN0X25ld2ljayA8LSBsaXN0KCkNCmxpc3RfdHJlZXMgPC0gbGlzdCgpDQpsaXN0X25ld2lja190YWlscyA8LSBsaXN0KCkNCmxpc3RfZGlzdC5waHlsbyA8LSBsaXN0KCkNCg0KDQojIyBDYW4ndCBjYWxjdWxhdGUgZGlzdGFuY2VzIHdpdGggb25seSAxIHNwcCwgc28gSSBuZWVkIHRvIHN0YXJ0IGZyb20gdGhlIDZ0aCBtYXRyaXgsIHNvIHRpbWVzdGVwIDcNCg0KZm9yIChpIGluIDY6bGVuZ3RoKGxpc3RfYW5jX2Rpc3RfbGV0dGVycykpIHsNCiAgDQogIA0KICBwcmludChzcHJpbnRmKCJzdGVwICVzIiwgaSkpDQogIA0KICBsaXN0X25ld2lja1tbaV1dIDwtIFRvUGh5bG8obGlzdF9hbmNfZGlzdF9sZXR0ZXJzW1tpXV0pDQogIA0KICBsaXN0X25ld2lja190YWlsc1tbaV1dIDwtIHBhc3RlKGxpc3RfbmV3aWNrW1tpXV0sICJyb290IikNCiAgDQogIGxpc3RfdHJlZXNbW2ldXSA8LSByZWFkLnRyZWUodGV4dCA9IHN1YigiQSByb290IiwiOyIsbGlzdF9uZXdpY2tfdGFpbHNbW2ldXSkpDQogIA0KICBsaXN0X2Rpc3QucGh5bG9bW2ldXSA8LSBjb3BoZW5ldGljLnBoeWxvKGxpc3RfdHJlZXNbW2ldXSkNCiAgDQoNCn0NCg0KDQoNCg0KIyBFbGltaW5hdGUgZmlyc3QgZml2ZSBtYXRyaWNlcyAodGltZXN0ZXAgMiB0byA2KSB0aGF0IGFyZSBOVUxMDQoNCmxpc3RfZGlzdC5waHlsbyA8LSBsaXN0X2Rpc3QucGh5bG9bLWMoMTo1KV0NCg0KDQpsZW5ndGgobGlzdF9kaXN0LnBoeWxvKSAjIDE3MA0KYGBgDQoNCg0KDQoNCg0KIyMjIyBJbnRlcmFjdGlvbiBkaXN0YW5jZXMNCg0KV2UgZWxpbWluYXRlIHRoZSAxc3QgYW5kIDJuZCBtYXRyaXggKHRpbWVzdGVwIDIgYW5kIDMpIGFzIHdlIGRpZCBmb3IgdGhlIGxpc3Qgb2YgcGh5bG9nZW5ldGljIGRpc3RhbmNlIG1hdHJpY2VzIHNvIHRoYXQgd2UgY2FuIGNvbXBhcmUgdGhlIGxpc3RzIGxhdGVyLg0KDQpgYGB7cn0NCg0KbGlzdF9uZXR3b3Jrc19zcHBuYW1lc19sZXR0ZXJzIDwtIGxpc3RfbmV0d29ya3Nfc3BwbmFtZXNfbGV0dGVyc1stYygxOjUpXQ0KDQpsZW5ndGgobGlzdF9uZXR3b3Jrc19zcHBuYW1lc19sZXR0ZXJzKSAjIDE3MA0KDQojIENvbXB1dGUgZGlzdGFuY2VzDQoNCmxpc3RfZGlzdF9jaGlzcTwtIGxhcHBseShsaXN0X25ldHdvcmtzX3NwcG5hbWVzX2xldHRlcnMsIGNvbXB1dGVfY2hpc3EpDQoNCiMgT25seSBmcm9tIHRoZSA1dGggbWF0cml4LCBzbyB0aW1lc3RlcCA3DQoNCmBgYA0KDQpQUk9CTEVNIEhFUkUgLSBJIHJlY2VpdmUgdGhlIGZvbGxvd2luZyB3YXJpbmc6DQoNCldhcm5pbmcgaW4gdmVnZGlzdChtYXRyaXhbLXdoaWNoKHJvd1N1bXMobWF0cml4KSA9PSAwKSwgXSwgbWV0aG9kID0gImNoaXNxIiwgIDoNCiAgZGF0YSBoYXZlIGVtcHR5IHNwZWNpZXMgd2hpY2ggaW5mbHVlbmNlIHRoZSByZXN1bHRzIGluDQogICAgICAgICAgICAgICAgIG1ldGhvZCAiY2hpc3EiDQoNCg0KDQpXQVJOSU5HOiB0aGUgNnRoIGFuZCA3dGggbWF0cmljZXMgIChzbyB0aW1lc3RlcHMgMTMgYW5kIDE0KSBkb250IGhhdmUgc3BlY2llcyBhbmQgdGhlcmVmb3JlIEkgY2FudCBjYWxjdWxhdGUgZGlzdGFuY2VzIGZyb20gdGhlbS4gU28gSSBlbGltaW5hdGUgdGhlc2UgbWF0cmljZXMgaGVyZSwgYW5kIHRoZXJlZm9yZSBhbHNvIGluIHRoZSBsaXN0IG9mIHBoeWxvZ2VuZXRpYyBkaXN0YW5jZXMuDQoNCmBgYHtyfQ0KbGlzdF9kaXN0X2NoaXNxIDwtIGxpc3RfZGlzdF9jaGlzcVstYyg2LDcpXSANCg0KbGlzdF9kaXN0LnBoeWxvIDwtIGxpc3RfZGlzdC5waHlsb1stYyg2LDcpXQ0KDQpsZW5ndGgobGlzdF9kaXN0X2NoaXNxKSA9PSBsZW5ndGgobGlzdF9kaXN0LnBoeWxvKSAjIDE2OA0KYGBgDQoNCg0KDQoNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KDQpOb3cgSSBoYXZlIHRoZSBwaHlsb2dlbmV0aWMgZGlzdGFuY2UgbWF0cmljZXMgaW4gbGlzdF9kaXN0LnBoeWxvLCBhbmQgdGhlIGludGVyYWN0aW9uIGRpc3RhbmNlcyBpbiBsaXN0X2Rpc3RfY2hpc3EuDQoNCg0KQ2hlY2sgdGhhdCBib3RoIHRoZSBsaXN0IG9mIGRpc3RhbmNlIG1hdHJpY2VzIGZvciBpbnRlcmFjdGlvbnMgYW5kIGZvciBwaHlsb2dlbnkgaGF2ZSB0aGUgc2FtZSBsZW5ndGg6DQoNCmBgYHtyfQ0KbGVuZ3RoKGxpc3RfZGlzdF9jaGlzcVtbMTJdXSkgPT0gbGVuZ3RoKGxpc3RfZGlzdC5waHlsb1tbMTJdXSkNCmBgYA0KDQoNCkV4YW1wbGUgdG8gc2hvdyB0aGF0IHBoeWxvZ2VuZXRpYyBkaXN0YW5jZSBtYXRyaWNlcyByZXRhaW4gdGhlIGV4dGluY3Qgc3BlY2llcyB0b2dldGhlciB3aXRoIHRoZSBwcmVzZW50IG9uZXMuDQoNCmBgYHtyfQ0KDQpkZi50ZXN0LnBoeWxvIDwtIGFzLmRhdGEuZnJhbWUobGlzdF9kaXN0LnBoeWxvW1sxNzRdXSkNCmRmLnRlc3QuY2hpc3EgPC0gYXMuZGF0YS5mcmFtZShsaXN0X2Rpc3RfY2hpc3FbWzE3NF1dKQ0KDQpkYXRhX25ldy5waHlsbyA8LSBkZi50ZXN0LnBoeWxvW29yZGVyKG5hbWVzKGRmLnRlc3QucGh5bG8pKSAsIG9yZGVyKG5hbWVzKGRmLnRlc3QucGh5bG8pKV0NCmRhdGFfbmV3LmNoaXNxIDwtIGRmLnRlc3QuY2hpc3Fbb3JkZXIobmFtZXMoZGYudGVzdC5jaGlzcSkpICwgb3JkZXIobmFtZXMoZGYudGVzdC5jaGlzcSkpXQ0KDQpjb2xuYW1lcyhkYXRhX25ldy5jaGlzcSkNCg0KY29sbmFtZXMoZGF0YV9uZXcucGh5bG8pDQpgYGANCg0KDQpUaGVyZWZvcmUsIEkgbmVlZCB0byAxc3Qgb3JkZXIgdGhlIG5hbWVzIG9mIGNvbHVtbnMgYW5kIHJvd3Mgb2YgYm90aCBwaHlsbyBhbmQgaW50ZXJhY3Rpb24gZGlzdGFuY2UgbWF0cmljZXMgc28gdGhhdCB0aGV5IGNvaW5jaWRlLCBhbmQgdGhlbiBzZWxlY3Qgb25seSB0aG9zZSBzcGVjaWVzIHByZXNlbnQgdG8gY29tcGFyZSB0aGUgbWF0cmljZXMuIFRoZSB3YXkgSSB3aWxsIHNlbGVjdCB0aG9zZSBzcGVjaWVzIHByZXNlbnQgaXMgYnkgdGVsbGluZyB0aGUgcGh5bG8tZGlzdGFuY2UgbWF0cml4IHRvIHJldGFpbiBvbmx5IHRob3NlIHNwZWNpZXMgbmFtZXMgdGhhdCB0aGUgaW50ZXJhY3Rpb24gZGlzdGFuY2UgbWF0cml4IGhhczoNCg0KDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQoNCg0KDQojIyBPcmRlciBjb2x1bW4gYW5kIHJvdyBzcHAgbmFtZXMNCg0KDQpgYGB7cn0NCmxpc3RfZGlzdC5waHlsb19kZiA8LSBsYXBwbHkobGlzdF9kaXN0LnBoeWxvLCBhcy5kYXRhLmZyYW1lKQ0KbGlzdF9kaXN0X2NoaXNxX2RmIDwtIGxhcHBseShsaXN0X2Rpc3RfY2hpc3EsIGFzLmRhdGEuZnJhbWUpDQoNCg0KbGlzdF9kaXN0LnBoeWxvX2RmLm9yZCA8LSBsYXBwbHkobGlzdF9kaXN0LnBoeWxvX2RmLCBvcmRlcl9jb2wucm93X25hbWVzKQ0KbGlzdF9kaXN0X2NoaXNxX2RmLm9yZCA8LSBsYXBwbHkobGlzdF9kaXN0X2NoaXNxX2RmLCBvcmRlcl9jb2wucm93X25hbWVzKQ0KDQpgYGANCg0KIyMgRm9yIHBoeWxvZ2VuZXRpYyBkaXN0YW5jZSBtYXRyaWNlcywgcmV0YWluIG9ubHkgdGhvc2Ugc3BlY2llcyBwcmVzZW50DQoNClNwZWNpZXMgcHJlc2VudCBhcmUgdGhvc2UgcHJlc2VudCBpbiB0aGUgaW50ZXJhY3Rpb24gZGlzdGFuY2UgbWF0cml4Lg0KDQpgYGB7cn0NCiMgU2VsZWN0IG9ubHkgc3BwIHByZXNlbnQgZm9yIHBoeWxvZ2VuZXRpYyBkaXN0YW5jZSBtYXRyaXgNCg0KbGlzdF9kaXN0LnBoeWxvX2RmX3ByZXMgPC0gbGlzdCgpDQoNCmZvciAoaSBpbiAxOmxlbmd0aChsaXN0X2Rpc3QucGh5bG9fZGYub3JkKSkgew0KICANCiAgc3BwX3ByZXNlbnQgPC0gY29sbmFtZXMobGlzdF9kaXN0X2NoaXNxX2RmLm9yZFtbaV1dKQ0KICBsaXN0X2Rpc3QucGh5bG9fZGZfcHJlc1tbaV1dIDwtIGxpc3RfZGlzdC5waHlsb19kZi5vcmRbW2ldXVtzcHBfcHJlc2VudCAsc3BwX3ByZXNlbnRdIA0KICANCiAgDQp9DQoNCiMjIENoZWNrIHRoYXQgbm93IHBoeWxvIGFuZCBpbnRlcmFjdGlvbiBkaXN0YW5jZSBtYXRyaWNlcyBoYXZlIHRoZSBzYW1lIG51bWJlciBvZiBzcHAsIHNhbWUgbmFtZXMsIGFuZCBpbiB0aGUgc2FtZSBvcmRlcg0KDQoNCmNvbG5hbWVzKGxpc3RfZGlzdC5waHlsb19kZl9wcmVzW1sxMDBdXSkgPT0gY29sbmFtZXMobGlzdF9kaXN0X2NoaXNxX2RmLm9yZFtbMTAwXV0pDQoNCmBgYA0KDQoNCg0KTk9XIEknTSBSRUFEWSBUTyBDT01QVVRFIENPUlJFTEFUSU9ODQoNCg0KDQojIENvbXB1dGUgTURTDQoNCg0KV0FSTklORzogSSBjYW4ndCBjb21wdXRlIE1EUyB3aXRoIH4yIHNwcCwgc28gSSBlbGltaW5hdGUgZnJvbSBtYXRyaXggMSB0byA1dGggKHRpbWVzdGVwIDcgdG8gMTEpIHdoaWNoIGNhbid0IGJlIGFuYWx5c2VkLiANCg0KU28gaW4gdG90YWwgSSBlbGltaW5hdGVkIHRpbWVzdGVwcyBmcm9tIDEgdG8gMTEsIDEzIGFuZCAxNC4NCg0KYGBge3J9DQoNCiMgY29udmVydCB0byBtYXRyaXgNCg0KbGlzdF9kaXN0X2NoaXNxX21hdCA8LSBsYXBwbHkobGlzdF9kaXN0X2NoaXNxX2RmLm9yZCwgYXMubWF0cml4KQ0KbGlzdF9kaXN0LnBoeWxvX21hdCA8LSBsYXBwbHkobGlzdF9kaXN0LnBoeWxvX2RmX3ByZXMsIGFzLm1hdHJpeCkNCg0KDQojIyBFbGltaW5hdGUgdW50aWwgNXRoIG1hdHJpeCAtIHRvbyBmZXcgc3BwIHRvIGNvbXB1dGUgTURTDQoNCmxpc3RfZGlzdF9jaGlzcV9tYXQgPC0gbGlzdF9kaXN0X2NoaXNxX21hdFstYygxOjUpXQ0KbGlzdF9kaXN0LnBoeWxvX21hdCA8LSBsaXN0X2Rpc3QucGh5bG9fbWF0Wy1jKDE6NSldDQoNCg0KDQojIGNvbXB1dGUgbWRzDQoNCmxpc3RfbWRzLmludCA8LSBsaXN0KCkNCmxpc3RfbWRzLnBoeSA8LSBsaXN0KCkNCg0KDQojIENvbXB1dGUgTk1TDQoNCmZvciAoaSBpbiAxOmxlbmd0aChsaXN0X2Rpc3RfY2hpc3FfbWF0KSkgew0KICANCmxpc3RfbWRzLmludFtbaV1dIDwtIG1vbm9NRFMobGlzdF9kaXN0X2NoaXNxX21hdFtbaV1dLCB5ID0gY21kc2NhbGUobGlzdF9kaXN0X2NoaXNxX21hdFtbaV1dKSkNCmxpc3RfbWRzLnBoeVtbaV1dIDwtIG1vbm9NRFMobGlzdF9kaXN0LnBoeWxvX21hdFtbaV1dLCB5ID0gY21kc2NhbGUobGlzdF9kaXN0LnBoeWxvX21hdFtbaV1dKSkNCiAgDQp9DQpgYGANCg0KDQojIENvbXB1dGUgY29ycmVsYXRpb24NCg0KDQphbHJlYWR5IGhhdmUgZGlzdGFuY2UgbWF0cmljZXMgY29tcHV0ZWQgKGNoaXNxLCBwaHlsbykNCg0KUFJPQkxFTToNCg0KSSByZWNlaXZlIHRoZSBmb2xsb3dpbmcgd2FyaW5nIG1lc3NhZ2Ugd2hlbiBjb21wdXRpbmcgdGhlIHByb3Rlc3QoKSBpbiB0aGUgbG9vcA0KDQonbnBlcm0nID49IHNldCBvZiBhbGwgcGVybXV0YXRpb25zOiBjb21wbGV0ZSBlbnVtZXJhdGlvbi4NClNldCBvZiBwZXJtdXRhdGlvbnMgPCAnbWlucGVybScuIEdlbmVyYXRpbmcgZW50aXJlIHNldC4NCg0KYGBge3J9DQoNCnByb3Rlc3QgPC0gbGlzdCgpDQpwcm9jcnVzdGVzIDwtIGxpc3QoKQ0KDQpmb3IgKGkgaW4gMTpsZW5ndGgobGlzdF9kaXN0LnBoeWxvX21hdCkpIHsNCiAgDQogIHByb3Rlc3RbW2ldXSA8LSBwcm90ZXN0KGxpc3RfbWRzLmludFtbaV1dLCBsaXN0X21kcy5waHlbW2ldXSkNCiAgDQogIHByb2NydXN0ZXNbW2ldXSA8LSBwcm9jcnVzdGVzKGxpc3RfbWRzLmludFtbaV1dLGxpc3RfbWRzLnBoeVtbaV1dKQ0KICANCiAgDQp9DQoNCg0KDQojIyBpdCBzdGFydHMgZnJvbSB0aW1lc3RlcCA4DQoNCnByb3Rlc3RfcHZhbCA8LSBjKCkNCnByb3Rlc3RfY29yciA8LSBjKCkNCg0KZm9yIChpIGluIDE6bGVuZ3RoKHByb3Rlc3QpKSB7DQogIA0KICBwcm90ZXN0X3B2YWxbaV0gPC0gcHJvdGVzdFtbaV1dJHNpZ25pZg0KICANCiAgcHJvdGVzdF9jb3JyW2ldIDwtcHJvdGVzdFtbaV1dJHQwDQoNCiAgDQp9DQoNCg0KdGltZXN0ZXBzIDwtIDE0Omxlbmd0aChsaXN0X3NpbXVsYXRpb24xJGxpc3RfYW5jX2Rpc3QpDQoNCmRmX3NpZ25hbF90aW1lIDwtIGRhdGEuZnJhbWUodGltZXN0ZXBzLHByb3Rlc3RfcHZhbCxwcm90ZXN0X2NvcnIpDQoNCmRmX3NpZ25hbF90aW1lJHNpZ24gPC0gd2l0aChkZl9zaWduYWxfdGltZSwgaWZlbHNlKHByb3Rlc3RfcHZhbCA8IDAuMDUxLCAnc2lnbicsICdub24uc2lnbicpKQ0KDQoNCmRmX3NpZ25hbF90aW1lDQoNCmBgYA0KDQojIyMgUGxvdCBwaHlsb2dlbmV0aWMgc2lnbmFsIHRocm91Z2ggdGltZQ0KDQpgYGB7cn0NCg0KbGlicmFyeShnZ3Bsb3QyKQ0KDQpteS50aGVtZTwtdGhlbWUoYXhpcy50ZXh0PWVsZW1lbnRfdGV4dChzaXplPTEyKSwNCiAgICAgICAgICAgICAgICBheGlzLnRpdGxlID0gZWxlbWVudF90ZXh0KHNpemUgPSAxNCksDQogICAgICAgICAgICAgICAgbGVnZW5kLnBvc2l0aW9uID0gInRvcCIsDQogICAgICAgICAgICAgICAgbGVnZW5kLnRleHQ9ZWxlbWVudF90ZXh0KHNpemU9MTApLA0KICAgICAgICAgICAgICAgIGxlZ2VuZC50aXRsZSA9IGVsZW1lbnRfdGV4dChzaXplPTEyKSwNCiAgICAgICAgICAgICAgICBwbG90LnRpdGxlID0gZWxlbWVudF90ZXh0KGZhY2U9ImJvbGQiLHNpemU9MTQsbWFyZ2luPW1hcmdpbigwLDAsMjAsMCksaGp1c3QgPSAwLjUpLA0KICAgICAgICAgICAgICAgIGF4aXMudGl0bGUueSA9IGVsZW1lbnRfdGV4dChtYXJnaW4gPSBtYXJnaW4odCA9IDAsIHIgPSAxNSwgYiA9IDAsIGwgPSAwKSksDQogICAgICAgICAgICAgICAgYXhpcy50aXRsZS54ID0gZWxlbWVudF90ZXh0KG1hcmdpbiA9IG1hcmdpbih0ID0gMTUsIHIgPSAwLCBiID0gMCwgbCA9IDApKSkNCg0KDQpwX25lZyA8LSBnZ3Bsb3QoZGZfc2lnbmFsX3RpbWUsIGFlcyh4PXRpbWVzdGVwcywgeT1wcm90ZXN0X2NvcnIpKSArDQogICAgICAgZ2VvbV9saW5lKCkrDQogIGdlb21fcG9pbnQoYWVzKGZpbGwgPSBzaWduLCBjb2xvcj1zaWduKSwgc2l6ZT0yLCBhbHBoYSA9IDAuNykgKw0KICB0aGVtZV9idygpKw0KICAgIG15LnRoZW1lKw0KICAgIHNjYWxlX2NvbG91cl9tYW51YWwodmFsdWVzID0gYygiYmxhY2siLCAicmVkIikpKw0KICAgIGdndGl0bGUoIlBoeWxvZ2VuZXRpYyBzaWduYWwgdGhyb3VnaCB0aW1lICgtKSIpKw0KeGxhYigidGltZXN0ZXBzIikrDQogIHlsYWIoIlBoeWxvZ2VuZXRpYyBzaWduYWwiKQ0KDQoNCnBfbmVnDQpgYGANCg0KDQojIyMgUGxvdCBzcGVjaWVzIHJpY2huZXNzIHRocm91Z2ggdGltZQ0KDQpgYGB7cn0NCiMgU0hPVyBBTFNPIE5VTUJFUiBPRiBTUEVDSUVTIElOIFRIRSBHUkFQSA0KDQpwcmVzZW5jZV9tYXRyaXggPC0gbGlzdF9zaW11bGF0aW9uMSRwcmVzZW5jZV9tYXRyaXhbMTQ6bGVuZ3RoKGxpc3Rfc2ltdWxhdGlvbjEkbGlzdF9hbmNfZGlzdCksXSAjIHNlbGVjdCB0aGUgdGltZXN0ZXBzIHdlIGFyZSBhbmFseXNpbmcgKGZyb20gOCBpbiBhZHZhbmNlKQ0KDQpuX3NwcF90aW1lIDwtIGMoKQ0KDQpmb3IgKGkgaW4gMTpucm93KHByZXNlbmNlX21hdHJpeCkpIHsNCiAgDQogIG5fc3BwX3RpbWVbaV0gPC0gbGVuZ3RoKHdoaWNoKHByZXNlbmNlX21hdHJpeFtpLF0gPT0gMSkpDQogIA0KfQ0KDQpkZl9zaWduYWxfdGltZSRuc3BwIDwtIG5fc3BwX3RpbWUNCg0KDQoNCg0KcC5zcHBfbmVnIDwtIGdncGxvdChkZl9zaWduYWxfdGltZSwgYWVzKHg9dGltZXN0ZXBzLCB5ID0gbnNwcCkpICsNCiAgZ2VvbV9saW5lKGNvbG9yPSJibGFjayIsIGxpbmV0eXBlPSJ0d29kYXNoIikgKw0KICB0aGVtZV9idygpKw0KICBteS50aGVtZSsNCiAgc2NhbGVfY29sb3VyX21hbnVhbCh2YWx1ZXMgPSBjKCJibGFjayIsICJyZWQiKSkrDQogIGdndGl0bGUoIlNwZWNpZXMgcmljaG5lc3MgdGhyb3VnaCB0aW1lICgtKSIpKw0KICB4bGFiKCJ0aW1lc3RlcHMiKSsNCiAgeWxhYigiTiBzcGVjaWVzIikNCg0KcC5zcHBfbmVnDQoNCmBgYA0KDQoNCg0KDQpgYGB7cn0NCg0KbGlicmFyeShncmlkRXh0cmEpDQoNCmdyaWQuYXJyYW5nZShwX25lZywgcC5zcHBfbmVnLCANCiAgICAgICAgICAgICBuY29sID0gMSwgbnJvdyA9IDIpDQoNCg0KDQpnZ3NhdmUoYXJyYW5nZWQucGxvdHMsICJOZWdfc2lnbmFsLnRpbWUucG5nIiwgaGVpZ2h0ID0gMTUsIHdpZHRoID0gMjApDQpgYGANCg0KDQoNCg0KDQoNCg0KDQoNCg0K</div>
 
 
 
@@ -1993,7 +2798,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("AF_foodweb.simulation_only.Rmd");
+  window.initializeSourceEmbed("Distances_fw.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>

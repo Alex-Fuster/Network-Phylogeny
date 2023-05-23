@@ -157,15 +157,15 @@ set_sppNames_numbers <- function(mat) {
 
 
 
-set_sppNames_icolrows <-  function(matrix) {
+#set_sppNames_icolrows <-  function(matrix) {
   
-  mat <- matrix
-  rownames(mat) <- rownames(mat, do.NULL = FALSE, prefix = "")
-  colnames(mat) <- colnames(mat, do.NULL = FALSE, prefix = "")
+ # mat <- matrix
+ # rownames(mat) <- rownames(mat, do.NULL = FALSE, prefix = "")
+ # colnames(mat) <- colnames(mat, do.NULL = FALSE, prefix = "")
   
-  return(mat)
+#  return(mat)
   
-}
+#}
 
 
 convert_sppnames_toletters <-  function(mat) {
