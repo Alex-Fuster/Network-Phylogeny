@@ -314,16 +314,155 @@ order_col.row_names <- function(df) {
 
 
 
+#####################
+#Compute NMI
+####################
+
+compute_nmi_igraph_pred <- function(matrix) {
+  
+  
+  #  Vector source for column combinations
+  n <- seq_len( ncol(matrix) )
+  
+  #  Make combinations
+  id <- expand.grid( n , n )
+  
+  #  Get result
+  matrix_nmi <- matrix(0, ncol = ncol(matrix), nrow = nrow(matrix))
+  
+  for (i in 1:nrow(id)) {
+    
+    matrix_nmi[id[i,1], id[i,2]] <- compare(
+      matrix[,id[i,1]],
+      matrix[,id[i,2]],
+      method = "nmi")
+    
+    matrix_nmi[id[i,2], id[i,1]] <- compare(
+      matrix[,id[i,1]],
+      matrix[,id[i,2]],
+      method = "nmi")
+    
+  }
+  
+  
+  colnames(matrix_nmi) <- colnames(matrix)
+  rownames(matrix_nmi) <- rownames(matrix)
+  
+  return(matrix_nmi)
+  
+  
+}
+
+
+
+compute_nmi_igraph_prey <- function(matrix) {
+  
+  
+  #  Vector source for column combinations
+  n <- seq_len( ncol(matrix) )
+  
+  #  Make combinations
+  id <- expand.grid( n , n )
+  
+  #  Get result
+  matrix_nmi <- matrix(0, ncol = ncol(matrix), nrow = nrow(matrix))
+  
+  for (i in 1:nrow(id)) {
+    
+    matrix_nmi[id[i,1], id[i,2]] <- compare(
+      matrix[id[i,1],],
+      matrix[id[i,2],],
+      method = "nmi")
+    
+    matrix_nmi[id[i,2], id[i,1]] <- compare(
+      matrix[id[i,1],],
+      matrix[id[i,2],],
+      method = "nmi")
+    
+  }
+  
+  
+  colnames(matrix_nmi) <- colnames(matrix)
+  rownames(matrix_nmi) <- rownames(matrix)
+  
+  return(matrix_nmi)
+  
+  
+}
 
 
 
 
 
 
+compute_nmi_aricode_pred <- function(matrix) {
+  
+  
+  #  Vector source for column combinations
+  n <- seq_len( ncol(matrix) )
+  
+  #  Make combinations
+  id <- expand.grid( n , n )
+  
+  #  Get result
+  matrix_nmi <- matrix(0, ncol = ncol(matrix), nrow = nrow(matrix))
+  
+  for (i in 1:nrow(id)) {
+    
+    matrix_nmi[id[i,1], id[i,2]] <- NMI(
+      matrix[,id[i,1]],
+      matrix[,id[i,2]])
+    
+    matrix_nmi[id[i,2], id[i,1]] <- NMI(
+      matrix[,id[i,1]],
+      matrix[,id[i,2]])
+    
+  }
+  
+  
+  colnames(matrix_nmi) <- colnames(matrix)
+  rownames(matrix_nmi) <- rownames(matrix)
+  
+  return(matrix_nmi)
+  
+  
+}
 
 
 
 
+compute_nmi_aricode_prey <- function(matrix) {
+  
+  
+  #  Vector source for column combinations
+  n <- seq_len( ncol(matrix) )
+  
+  #  Make combinations
+  id <- expand.grid( n , n )
+  
+  #  Get result
+  matrix_nmi <- matrix(0, ncol = ncol(matrix), nrow = nrow(matrix))
+  
+  for (i in 1:nrow(id)) {
+    
+    matrix_nmi[id[i,1], id[i,2]] <- NMI(
+      matrix[id[i,1],],
+      matrix[id[i,2],])
+    
+    matrix_nmi[id[i,2], id[i,1]] <- NMI(
+      matrix[id[i,1],],
+      matrix[id[i,2],])
+    
+  }
+  
+  
+  colnames(matrix_nmi) <- colnames(matrix)
+  rownames(matrix_nmi) <- rownames(matrix)
+  
+  return(matrix_nmi)
+  
+  
+}
 
 
 

@@ -9,6 +9,8 @@ output: html_notebook
 source("../AF_code/AF_functions_tree.R")
 library(ape)
 library(apTreeshape)
+library(aricode)
+library(igraph)
 
 library("vegan")
 ```
@@ -242,51 +244,6 @@ if(nrow(presence_matrix) == length(list_networks_sppnames_letters) &
 ```{r}
 
 
-library(igraph)
-
-
-
-
-mat <-  list_networks_sppnames_letters[[20]][names(which(presence_matrix[20,] == 1)), names(which(presence_matrix[20,] == 1))]
-
-
-compute_nmi <- function(matrix) {
-  
-  
-  #  Vector source for column combinations
-n <- seq_len( ncol(matrix) )
-
-#  Make combinations
-id <- expand.grid( n , n )
-
-#  Get result
-matrix_nmi <- matrix(0, ncol = ncol(matrix), nrow = nrow(matrix))
-
-for (i in 1:nrow(id)) {
-  
-  matrix_nmi[id[i,1], id[i,2]] <- compare(
-  mat[,id[i,1]],
-  mat[,id[i,2]],
-  method = "nmi")
-  
-  matrix_nmi[id[i,2], id[i,1]] <- compare(
-  mat[,id[i,1]],
-  mat[,id[i,2]],
-  method = "nmi")
-  
-}
-
-
-colnames(matrix_nmi) <- colnames(mat)
-rownames(matrix_nmi) <- rownames(mat)
-
-return(matrix_nmi)
-  
-  
-}
-
-
-
 ## 1st, crop the matrix with present spp
 
 list_net_present_spp.letters <- list()
@@ -300,110 +257,23 @@ for (i in 1:length(list_networks_sppnames_letters)) {
 
 
 
-
 ## 2nd, compute nmi for all the matrices
 
-
-for (i in 1:length(list_networks_sppnames_letters)) {
-  
-}
-
-compute_nmi(mat)
+## DISTANCES AS PREDATORS (columns)
 
 
+list_interact_distances_pred <- lapply(list_net_present_spp.letters, FUN = compute_nmi_aricode_pred)
 
 
+## DISTANCES AS PREYS (rows)
+
+list_interact_distances_prey <- lapply(list_net_present_spp.letters, FUN = compute_nmi_aricode_prey)
 
 
-
-
-
-
-
-#  Vector source for column combinations
-n <- seq_len( ncol(mat) )
-
-#  Make combinations
-id <- expand.grid( n , n )
-
-#  Get result
-matrix_nmi <- matrix(0, ncol = ncol(mat), nrow = nrow(mat))
-
-for (i in 1:nrow(id)) {
-  
-  matrix_nmi[id[i,1], id[i,2]] <- compare(
-  mat[,id[i,1]],
-  mat[,id[i,2]],
-  method = "nmi")
-  
-  matrix_nmi[id[i,2], id[i,1]] <- compare(
-  mat[,id[i,1]],
-  mat[,id[i,2]],
-  method = "nmi")
-  
-}
-
-
-colnames(matrix_nmi) <- colnames(mat)
-rownames(matrix_nmi) <- rownames(mat)
-
-return(matrix_nmi)
-
-
+list_dist.phylo[[3]]
 
 
 ```
-
-
-
-```{r}
-
-# Compute distances
-
-list_dist_chisq<- lapply(list_networks_sppnames_letters, compute_chisq)
-
-
-
-
-if (length(which(unlist(lapply(list_dist_chisq, is.null)) == TRUE)) == 0) {
-  
-  print("all good - no nulls")
-} else {
-  
-  print("PROBLEM")
-  
-}
-
-
-
-
-
-```
-
-
-```{r}
-
-if (length(list_dist_chisq) == length(list_dist.phylo)) {
-  
-  print("all good - same length list of interaction distances and list of phylo distances")
-} else {
-  
-  print("PROBLEM")
-  
-}
-
-```
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -414,13 +284,26 @@ if (length(list_dist_chisq) == length(list_dist.phylo)) {
 
 ------------------------------------------------------------
 
-Now I have the phylogenetic distance matrices in list_dist.phylo, and the interaction distances in list_dist_chisq.
+Now I have the phylogenetic distance matrices in list_dist.phylo, and the interaction distances in list_interact_distances_pred and list_interact_distances_prey.
 
 
 Check that both the list of distance matrices for interactions and for phylogeny have the same length:
 
 ```{r}
-length(list_dist_chisq[[12]]) == length(list_dist.phylo[[12]])
+
+
+if(length(list_dist.phylo) == length(list_interact_distances_pred) &
+   length(list_dist.phylo) == length(list_interact_distances_prey)) {
+  
+  print("all good - list phylo dist and lists interact dist have the same length")
+  
+} else {
+  
+  print("PROBLEM")
+  
+}
+
+
 ```
 
 
@@ -428,15 +311,14 @@ Example to show that phylogenetic distance matrices retain the extinct species t
 
 ```{r}
 
-df.test.phylo <- as.data.frame(list_dist.phylo[[174]])
-df.test.chisq <- as.data.frame(list_dist_chisq[[174]])
+df.test.phylo <- as.data.frame(list_dist.phylo[[15]])
+df.test.int <- as.data.frame(list_interact_distances_pred[[15]])
 
 data_new.phylo <- df.test.phylo[order(names(df.test.phylo)) , order(names(df.test.phylo))]
-data_new.chisq <- df.test.chisq[order(names(df.test.chisq)) , order(names(df.test.chisq))]
+data_new.int <- df.test.int[order(names(df.test.int)) , order(names(df.test.int))]
 
-colnames(data_new.chisq)
+length(colnames(data_new.int)) == length(colnames(data_new.phylo))
 
-colnames(data_new.phylo)
 ```
 
 
@@ -447,18 +329,6 @@ Therefore, I need to 1st order the names of columns and rows of both phylo and i
 
 
 
-## Order column and row spp names
-
-
-```{r}
-list_dist.phylo_df <- lapply(list_dist.phylo, as.data.frame)
-list_dist_chisq_df <- lapply(list_dist_chisq, as.data.frame)
-
-
-list_dist.phylo_df.ord <- lapply(list_dist.phylo_df, order_col.row_names)
-list_dist_chisq_df.ord <- lapply(list_dist_chisq_df, order_col.row_names)
-
-```
 
 ## For phylogenetic distance matrices, retain only those species present
 
@@ -467,23 +337,46 @@ Species present are those present in the interaction distance matrix.
 ```{r}
 # Select only spp present for phylogenetic distance matrix
 
-list_dist.phylo_df_pres <- list()
+list_dist.phylo_pres <- list()
 
 for (i in 1:length(list_dist.phylo_df.ord)) {
   
-  spp_present <- colnames(list_dist_chisq_df.ord[[i]])
-  list_dist.phylo_df_pres[[i]] <- list_dist.phylo_df.ord[[i]][spp_present ,spp_present] 
+  spp_present <- colnames(list_interact_distances_pred[[i]])
+  list_dist.phylo_pres[[i]] <- list_dist.phylo[[i]][spp_present ,spp_present] 
   
   
 }
 
-## Check that now phylo and interaction distance matrices have the same number of spp, same names, and in the same order
-
-
-colnames(list_dist.phylo_df_pres[[100]]) == colnames(list_dist_chisq_df.ord[[100]])
 
 ```
 
+
+
+```{r}
+
+
+## Check that now phylo and interaction distance matrices have the same number of spp, same names, and in the same order
+
+
+
+vec_check <- c()
+
+for (i in 1:length(list_dist.phylo_pres)) {
+  
+  if(length(which((colnames(list_dist.phylo_pres[[i]]) == colnames(list_interact_distances_pred[[i]])) == FALSE)) == 0) {
+  
+  vec_check[i] <- "good"
+  
+} else {
+  
+  vec_check[i] <- "PROBLEM"
+  
+  
+}
+  
+}
+
+```
 
 
 NOW I'M READY TO COMPUTE CORRELATION
