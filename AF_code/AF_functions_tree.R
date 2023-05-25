@@ -492,3 +492,83 @@ check_colnames_lists <- function(list1, list2) {
   
 }
 
+
+# Set diagonal elements of matrix to 1
+
+
+
+diag_to1 <- function(matrix) {
+  
+  diag(matrix)<-1
+  
+  return(matrix)
+  
+}
+
+
+
+# convert NaN to 1
+
+
+convert_nan_to_1 <- function(vector) {
+  
+  vector[is.nan(vector)] <- 1
+  
+  return(vector)
+  
+}
+
+
+
+# convert nan to 1 for all columns or rows
+
+
+convet_nan_to_1_matrix <- function(matrix, marg) {
+  
+  m <- apply(matrix,
+        MARGIN = marg,
+        FUN = convert_nan_to_1)
+  
+  return(m)
+  
+}
+
+
+check_all.finite <- function(matrix) {
+  
+  result <- all( is.finite( matrix ) )
+  
+  return(result)
+  
+}
+
+
+
+nmi_to_distance <- function(value) {
+  
+  result <- 1 - value
+  
+  return(result)
+  
+}
+
+
+nmi_to_distance_for.list <- function(matrix) {
+  
+  apply(matrix, 
+        MARGIN = 2,
+        FUN = nmi_to_distance)
+  
+}
+
+
+
+# Compute mean matrix from a pair of matrix 
+
+compute_mean_two_mat_from_list<- function(list){
+  y<-apply(array(unlist(list), c(dim(list[[1]]), dim(list[[2]]), length(list))), 
+           c(1,2), mean)
+  colnames(y)<-colnames(list[[1]])
+  rownames(y)<-rownames(list[[1]])
+  return(y)
+}
