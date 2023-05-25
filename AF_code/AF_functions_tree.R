@@ -466,6 +466,29 @@ compute_nmi_aricode_prey <- function(matrix) {
 
 
 
+## Check that colnames (number and order) coincide in two lists
 
 
+check_colnames_lists <- function(list1, list2) {
+  
+  vec_check <- c()
+  
+  for (i in 1:length(list1)) {
+    
+    if(length(which((colnames(list1[[i]]) == colnames(list2[[i]])) == FALSE)) == 0) {
+      
+      vec_check[i] <- "good"
+      
+    } else {
+      
+      vec_check[i] <- "PROBLEM"
+      
+      
+    }
+    
+  }
+  
+  return(vec_check)
+  
+}
 

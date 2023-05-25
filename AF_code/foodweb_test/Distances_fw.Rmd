@@ -11,7 +11,7 @@ library(ape)
 library(apTreeshape)
 library(aricode)
 library(igraph)
-
+library(ggplot2)
 library("vegan")
 ```
 
@@ -270,7 +270,17 @@ list_interact_distances_pred <- lapply(list_net_present_spp.letters, FUN = compu
 list_interact_distances_prey <- lapply(list_net_present_spp.letters, FUN = compute_nmi_aricode_prey)
 
 
-list_dist.phylo[[3]]
+
+
+## 3rd, make sure the diagonal are ones (this is mostly the case, except for some spp that have an NAN)
+
+
+
+list_interact_distances_pred <- lapply(list_interact_distances_pred, FUN = diag_to1)
+
+list_interact_distances_prey <- lapply(list_interact_distances_prey, FUN = diag_to1)
+
+
 
 
 ```
@@ -339,7 +349,7 @@ Species present are those present in the interaction distance matrix.
 
 list_dist.phylo_pres <- list()
 
-for (i in 1:length(list_dist.phylo_df.ord)) {
+for (i in 1:length(list_dist.phylo)) {
   
   spp_present <- colnames(list_interact_distances_pred[[i]])
   list_dist.phylo_pres[[i]] <- list_dist.phylo[[i]][spp_present ,spp_present] 
@@ -358,23 +368,29 @@ for (i in 1:length(list_dist.phylo_df.ord)) {
 ## Check that now phylo and interaction distance matrices have the same number of spp, same names, and in the same order
 
 
-
-vec_check <- c()
-
-for (i in 1:length(list_dist.phylo_pres)) {
+if (length(which(check_colnames_lists(list_dist.phylo_pres, list_interact_distances_pred) == FALSE)) == 0) {
   
-  if(length(which((colnames(list_dist.phylo_pres[[i]]) == colnames(list_interact_distances_pred[[i]])) == FALSE)) == 0) {
-  
-  vec_check[i] <- "good"
+  print("all good - names in phylo dist matrices and interaction matrices pred match")
   
 } else {
   
-  vec_check[i] <- "PROBLEM"
-  
-  
-}
+  print("PROBLEM")
   
 }
+
+
+if (length(which(check_colnames_lists(list_dist.phylo_pres, list_interact_distances_prey) == FALSE)) == 0) {
+  
+  print("all good - names in phylo dist matrices and interaction matrices prey match")
+  
+} else {
+  
+  print("PROBLEM")
+  
+}
+
+
+
 
 ```
 
@@ -386,95 +402,324 @@ NOW I'M READY TO COMPUTE CORRELATION
 # Compute MDS
 
 
-WARNING: I can't compute MDS with ~2 spp, so 1st and 2nd matrices can't be analysed. And I eliminate them from the list (6 and 7 timesteps)
+WARNING: I can't compute MDS with ~2 spp, so I eliminate them from the list
 
 ```{r}
 
-# convert to matrix
 
-list_dist_chisq_mat <- lapply(list_dist_chisq_df.ord, as.matrix)
-list_dist.phylo_mat <- lapply(list_dist.phylo_df_pres, as.matrix)
+# Find matrices with no more than 2 spp (label them as "discard")
+
+vec_discard <- c()
+
+for (i in 1:length(list_dist.phylo_pres)) {
+  
+  if(ncol(list_dist.phylo_pres[[i]]) <= 2){
+    
+    vec_discard[i] <- "discard"
+    
+  } else {
+    
+    vec_discard[i] <- "keep"
+    
+  }
+  
+}
 
 
-## Eliminate 1st and 2nd matrix - too few spp to compute MDS
-
-list_dist_chisq_mat <- list_dist_chisq_mat[-c(1,2)]
-list_dist.phylo_mat <- list_dist.phylo_mat[-c(1,2)]
+# Take out matrices to discard
 
 
+list_dist.phylo_pres <- list_dist.phylo_pres[-which(vec_discard == "discard")]
+list_interact_distances_pred <- list_interact_distances_pred[-which(vec_discard == "discard")]
+list_interact_distances_prey <- list_interact_distances_prey[-which(vec_discard == "discard")]
+
+
+
+
+## Check that now phylo and interaction distance matrices have the same number of spp, same names, and in the same order
+
+
+if (length(which(check_colnames_lists(list_dist.phylo_pres, list_interact_distances_pred) == FALSE)) == 0) {
+  
+  print("all good - names in phylo dist matrices and interaction matrices pred match")
+  
+} else {
+  
+  print("PROBLEM")
+  
+}
+
+
+if (length(which(check_colnames_lists(list_dist.phylo_pres, list_interact_distances_prey) == FALSE)) == 0) {
+  
+  print("all good - names in phylo dist matrices and interaction matrices prey match")
+  
+} else {
+  
+  print("PROBLEM")
+  
+}
+
+
+
+
+```
+
+
+
+When comparing spp with all 0 in their interactions (either as prey (if all 0 in the row, top predators) or predators (if all 0 in the column, basal spp)), they give NaN instead of 1 (the NMI should be 1 as they have the same vector of interactions).
+
+Therefore, I assign a 1 to all NaN found.
+
+[[ CHECK THIS ]]
+
+
+```{r}
+
+list_interact_distances_pred_corrected <- list()
+
+for (i in 1:length(list_interact_distances_pred)) {
+  
+  list_interact_distances_pred_corrected[[i]] <- convet_nan_to_1_matrix(matrix = list_interact_distances_pred[[i]],
+                       marg = 2) # 1 (rows), 2 (col), or c(1,2)
+  
+}
+
+
+list_interact_distances_prey_corrected <- list()
+
+for (i in 1:length(list_interact_distances_prey)) {
+  
+  list_interact_distances_prey_corrected[[i]] <- convet_nan_to_1_matrix(matrix = list_interact_distances_prey[[i]],
+                       marg = 1) # 1 (rows), 2 (col), or c(1,2)
+  
+}
+
+
+
+if(length(list_interact_distances_prey_corrected) == length(list_interact_distances_pred_corrected) &
+   length(list_interact_distances_prey_corrected) == length(list_dist.phylo_pres)){
+  
+  print("all good - lists of phylo dist and interactions have the same length")
+  
+} else {
+  
+  print("PROBLEM")
+  
+}
+
+
+
+```
+
+
+NMI to distance (1 - NMI)
+
+```{r}
+
+list_interact_distances_pred_corrected_nmidist <- list()
+
+for (i in 1:length(list_interact_distances_pred_corrected)) {
+  
+  list_interact_distances_pred_corrected_nmidist[[i]] <- nmi_to_distance_for.list(matrix = list_interact_distances_pred_corrected[[i]]) 
+  
+}
+
+
+list_interact_distances_prey_corrected_nmidist <- list()
+
+for (i in 1:length(list_interact_distances_prey_corrected)) {
+  
+  list_interact_distances_prey_corrected_nmidist[[i]] <- nmi_to_distance_for.list(matrix = list_interact_distances_prey_corrected[[i]]) 
+  
+}
+
+
+
+list_interact_distances_mean <- list()
+
+
+for (i in 1:length(list_interact_distances_prey_corrected_nmidist)) {
+  
+  pair_mat <- list(list_interact_distances_prey_corrected_nmidist[[i]], list_interact_distances_pred_corrected_nmidist[[i]])
+  
+  list_interact_distances_mean[[i]] <- compute_mean_two_mat_from_list(list = pair_mat)
+  
+}
+
+
+
+
+if(length(list_interact_distances_mean) == length(list_interact_distances_prey_corrected_nmidist) &
+   length(list_interact_distances_mean) == length(list_interact_distances_pred_corrected_nmidist)){
+  
+  print("all good - list of dist mean interactions and list for pred and prey interactions have the same length")
+  
+} else {
+  
+  print("PROBLEM")
+  
+}
+
+
+
+
+
+```
+
+
+
+```{r}
 
 # compute mds
 
-list_mds.int <- list()
 list_mds.phy <- list()
+list_mds.int_pred <- list()
+list_mds.int_prey <- list()
+list_mds.int_mean <- list()
 
 
 # Compute NMS
 
-for (i in 1:length(list_dist_chisq_mat)) {
-  
-list_mds.int[[i]] <- monoMDS(list_dist_chisq_mat[[i]], y = cmdscale(list_dist_chisq_mat[[i]]))
-list_mds.phy[[i]] <- monoMDS(list_dist.phylo_mat[[i]], y = cmdscale(list_dist.phylo_mat[[i]]))
+for (i in 1:length(list_dist.phylo_pres)) {
+
+list_mds.phy[[i]] <- monoMDS(list_dist.phylo_pres[[i]], y = cmdscale(list_dist.phylo_pres[[i]])) 
+
+list_mds.int_pred[[i]] <- monoMDS(list_interact_distances_pred_corrected_nmidist[[i]], y = cmdscale(list_interact_distances_pred_corrected_nmidist[[i]]))
+
+list_mds.int_prey[[i]] <- monoMDS(list_interact_distances_prey_corrected_nmidist[[i]], y = cmdscale(list_interact_distances_prey_corrected_nmidist[[i]]))
+
+list_mds.int_mean[[i]] <- monoMDS(list_interact_distances_mean[[i]], y = cmdscale(list_interact_distances_mean[[i]]))
+
+
   
 }
+
+
 ```
+
+
+
 
 
 # Compute correlation
 
 
-already have distance matrices computed (chisq, phylo)
 
 ```{r}
 
-protest <- list()
-procrustes <- list()
+protest_pred <- list()
+procrustes_pred <- list()
 
-for (i in 1:length(list_dist.phylo_mat)) {
+protest_prey <- list()
+procrustes_prey <- list()
+
+protest_mean <- list()
+procrustes_mean <- list()
+
+
+for (i in 1:length(list_dist.phylo_pres)) {
   
-  protest[[i]] <- protest(list_mds.int[[i]], list_mds.phy[[i]])
+  protest_pred[[i]] <- protest(list_mds.int_pred[[i]], list_mds.phy[[i]])
   
-  procrustes[[i]] <- procrustes(list_mds.int[[i]],list_mds.phy[[i]])
+  procrustes_pred[[i]] <- procrustes(list_mds.int_pred[[i]],list_mds.phy[[i]])
+  
+  
+}
+
+for (i in 1:length(list_dist.phylo_pres)) {
+  
+  protest_prey[[i]] <- protest(list_mds.int_prey[[i]], list_mds.phy[[i]])
+  
+  procrustes_prey[[i]] <- procrustes(list_mds.int_prey[[i]],list_mds.phy[[i]])
+  
+  
+}
+
+for (i in 1:length(list_dist.phylo_pres)) {
+  
+  protest_mean[[i]] <- protest(list_mds.int_mean[[i]], list_mds.phy[[i]])
+  
+  procrustes_mean[[i]] <- procrustes(list_mds.int_mean[[i]],list_mds.phy[[i]])
   
   
 }
 
 
+```
 
-## it starts from timestep 8
 
-protest_pval <- c()
-protest_corr <- c()
 
-for (i in 1:length(protest)) {
+## Create dataframe results
+
+```{r}
+
+protest_pval_pred <- c()
+protest_corr_pred <- c()
+
+protest_pval_prey <- c()
+protest_corr_prey <- c()
+
+protest_pval_mean <- c()
+protest_corr_mean <- c()
+
+for (i in 1:length(protest_pred)) {
   
-  protest_pval[i] <- protest[[i]]$signif
+  protest_pval_pred[i] <- protest_pred[[i]]$signif
   
-  protest_corr[i] <-protest[[i]]$t0
-
+  protest_corr_pred[i] <-protest_pred[[i]]$t0
+  
+  
+  protest_pval_prey[i] <- protest_prey[[i]]$signif
+  
+  protest_corr_prey[i] <-protest_prey[[i]]$t0
+  
+  
+  protest_pval_mean[i] <- protest_mean[[i]]$signif
+  
+  protest_corr_mean[i] <-protest_mean[[i]]$t0
+  
   
 }
 
-protest_pval
+discarted_timesteps <- length(list_simulation1$network_list) - length(protest_pval_pred)
 
-protest_corr
+timesteps = (discarted_timesteps+1):length(list_simulation1$network_list)
 
-timesteps <- 8:length(list_simulation1$list_anc_dist)
 
-df_signal_time <- data.frame(timesteps,protest_pval,protest_corr)
+df_signal_time <- data.frame(timesteps,
+                             protest_pval_pred,protest_corr_pred,
+                             protest_pval_prey,protest_corr_prey,
+                             protest_pval_mean,protest_corr_mean)
 
-df_signal_time$sign <- with(df_signal_time, ifelse(protest_pval < 0.051, 'sign', 'non.sign'))
+df_signal_time$sign_pred <- with(df_signal_time, ifelse(protest_pval_pred < 0.051, 'sign', 'non.sign'))
+df_signal_time$sign_prey <- with(df_signal_time, ifelse(protest_pval_prey < 0.051, 'sign', 'non.sign'))
+df_signal_time$sign_mean <- with(df_signal_time, ifelse(protest_pval_mean < 0.051, 'sign', 'non.sign'))
 
+
+df_signal_time
+
+
+```
+
+
+```{r}
+
+#save(df_signal_time, file = "../foodweb_test/df_signal_time.RData")
+
+load("../foodweb_test/df_signal_time.RData")
 
 df_signal_time
 
 ```
 
+
+
+
 ### Plot phylogenetic signal through time
 
 ```{r}
 
-library(ggplot2)
 
 my.theme<-theme(axis.text=element_text(size=12),
                 axis.title = element_text(size = 14),
@@ -486,18 +731,42 @@ my.theme<-theme(axis.text=element_text(size=12),
                 axis.title.x = element_text(margin = margin(t = 15, r = 0, b = 0, l = 0)))
 
 
-p <- ggplot(df_signal_time, aes(x=timesteps, y=protest_corr)) +
+p_pred <- ggplot(df_signal_time, aes(x=timesteps, y=protest_corr_pred)) +
        geom_line()+
-  geom_point(aes(fill = sign, color=sign), size=2, alpha = 0.7) +
+  geom_point(aes(fill = sign_pred, color=sign_pred), size=2, alpha = 0.7) +
   theme_bw()+
     my.theme+
     scale_colour_manual(values = c("black", "red"))+
-    ggtitle("Phylogenetic signal through time (+)")+
+    ggtitle("Phylogenetic signal through time (spp as predators)")+
 xlab("timesteps")+
   ylab("Phylogenetic signal")
 
 
-p
+p_prey <- ggplot(df_signal_time, aes(x=timesteps, y=protest_corr_prey)) +
+       geom_line()+
+  geom_point(aes(fill = sign_prey, color=sign_prey), size=2, alpha = 0.7) +
+  theme_bw()+
+    my.theme+
+    scale_colour_manual(values = c("black", "red"))+
+    ggtitle("Phylogenetic signal through time (spp as preys)")+
+xlab("timesteps")+
+  ylab("Phylogenetic signal")
+
+p_mean <- ggplot(df_signal_time, aes(x=timesteps, y=protest_corr_mean)) +
+       geom_line(color="black", linetype="twodash")+
+  #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
+  theme_bw()+
+    my.theme+
+    scale_colour_manual(values = c("black", "red"))+
+    ggtitle("Phylogenetic signal through time")+
+xlab("timesteps")+
+  ylab("Phylogenetic signal")
+
+
+
+
+
+
 ```
 
 
