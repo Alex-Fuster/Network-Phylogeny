@@ -143,6 +143,7 @@ set_sppNames_icolrows_spp <-  function(matrix) {
 
 
 
+# set colnames and rownames as numbers
 
 
 set_sppNames_numbers <- function(mat) {
@@ -168,6 +169,9 @@ set_sppNames_numbers <- function(mat) {
 #}
 
 
+
+# convert colnames and rownames from numbers to letters
+
 convert_sppnames_toletters <-  function(mat) {
   
   
@@ -180,6 +184,7 @@ convert_sppnames_toletters <-  function(mat) {
 
 
 
+# convert species names of ancestry table from numbers to letters
 
 change_sppnames_letters_ancdist.table <- function(mat) {
   
@@ -544,9 +549,9 @@ diag_to0 <- function(matrix) {
 # convert NaN to 1
 
 
-convert_nan_to_1 <- function(vector) {
+convert_nan_to_0 <- function(vector) {
   
-  vector[is.nan(vector)] <- 1
+  vector[is.nan(vector)] <- 0
   
   return(vector)
   
@@ -557,11 +562,11 @@ convert_nan_to_1 <- function(vector) {
 # convert nan to 1 for all columns or rows
 
 
-convet_nan_to_1_matrix <- function(matrix, marg) {
+convet_nan_to_0_matrix <- function(matrix, marg) {
   
   m <- apply(matrix,
         MARGIN = marg,
-        FUN = convert_nan_to_1)
+        FUN = convert_nan_to_0)
   
   return(m)
   
