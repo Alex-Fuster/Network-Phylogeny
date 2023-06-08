@@ -318,6 +318,18 @@ order_col.row_names <- function(df) {
 #Compute NMI
 ####################
 
+
+## NMI is for similarity. This function makes it a distance metric (1 - MNI)
+
+nmi_to_distance <- function(value) {
+  
+  result <- 1 - value
+  
+  return(result)
+  
+}
+
+
 compute_nmi_igraph_pred <- function(matrix) {
   
   
@@ -348,7 +360,9 @@ compute_nmi_igraph_pred <- function(matrix) {
   colnames(matrix_nmi) <- colnames(matrix)
   rownames(matrix_nmi) <- rownames(matrix)
   
-  return(matrix_nmi)
+  matrix_nmi_dist <- nmi_to_distance(matrix_nmi)
+  
+  return(matrix_nmi_dist)
   
   
 }
@@ -385,7 +399,9 @@ compute_nmi_igraph_prey <- function(matrix) {
   colnames(matrix_nmi) <- colnames(matrix)
   rownames(matrix_nmi) <- rownames(matrix)
   
-  return(matrix_nmi)
+  matrix_nmi_dist <- nmi_to_distance(matrix_nmi)
+  
+  return(matrix_nmi_dist)
   
   
 }
@@ -423,7 +439,9 @@ compute_nmi_aricode_pred <- function(matrix) {
   colnames(matrix_nmi) <- colnames(matrix)
   rownames(matrix_nmi) <- rownames(matrix)
   
-  return(matrix_nmi)
+  matrix_nmi_dist <- nmi_to_distance(matrix_nmi)
+  
+  return(matrix_nmi_dist)
   
   
 }
@@ -459,9 +477,25 @@ compute_nmi_aricode_prey <- function(matrix) {
   colnames(matrix_nmi) <- colnames(matrix)
   rownames(matrix_nmi) <- rownames(matrix)
   
-  return(matrix_nmi)
+  matrix_nmi_dist <- nmi_to_distance(matrix_nmi)
+  
+  return(matrix_nmi_dist)
   
   
+}
+
+
+
+
+
+# Compute mean matrix from a pair of matrix 
+
+compute_mean_two_mat_from_list<- function(list){
+  y<-apply(array(unlist(list), c(dim(list[[1]]), dim(list[[2]]), length(list))), 
+           c(1,2), mean)
+  colnames(y)<-colnames(list[[1]])
+  rownames(y)<-rownames(list[[1]])
+  return(y)
 }
 
 
@@ -497,9 +531,9 @@ check_colnames_lists <- function(list1, list2) {
 
 
 
-diag_to1 <- function(matrix) {
+diag_to0 <- function(matrix) {
   
-  diag(matrix)<-1
+  diag(matrix)<-0
   
   return(matrix)
   
@@ -544,31 +578,4 @@ check_all.finite <- function(matrix) {
 
 
 
-nmi_to_distance <- function(value) {
-  
-  result <- 1 - value
-  
-  return(result)
-  
-}
 
-
-nmi_to_distance_for.list <- function(matrix) {
-  
-  apply(matrix, 
-        MARGIN = 2,
-        FUN = nmi_to_distance)
-  
-}
-
-
-
-# Compute mean matrix from a pair of matrix 
-
-compute_mean_two_mat_from_list<- function(list){
-  y<-apply(array(unlist(list), c(dim(list[[1]]), dim(list[[2]]), length(list))), 
-           c(1,2), mean)
-  colnames(y)<-colnames(list[[1]])
-  rownames(y)<-rownames(list[[1]])
-  return(y)
-}

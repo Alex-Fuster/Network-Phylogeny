@@ -132,6 +132,33 @@ compute_shared_predators(mat = matrix)
 
 
 
+```{r}
+
+par(mfrow = c(1,3))
+
+curve(0.1 + 1 * exp(-6 * x),
+      cex = 5,
+      xlab = "Species richness",
+      ylab = "Trait directionality",
+      col = "darkgoldenrod4",
+      lwd = 3)
+
+curve(0.1 + 1 * exp(3 * x),
+      cex = 5,
+      xlab = "Species richness",
+      ylab = "Trait matching fluctuation",
+      col = "darkgoldenrod4",
+      lwd = 3)
+
+curve(0.1 + 1 * exp(-6 * x),
+      cex = 5,
+      xlab = "Species richness",
+      ylab = "Evolutionary rate",
+      col = "darkgoldenrod4",
+      lwd = 3)
+
+
+```
 
 
 
