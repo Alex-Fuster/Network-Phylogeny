@@ -21,11 +21,11 @@ library("vegan")
 ### Load simulation data
 
 
+FOODWEB
+
 ```{r}
 
 load("./list_res_fw2_1.Rdata")
-
-
 
 
 #names(list_res) = c("simulation1", "simulation2")
@@ -38,6 +38,39 @@ list_simulation1 <- list_res$simulation1
 n_steps <- length(list_simulation1$network_list)
 
 ```
+
+COMPETITION
+
+```{r}
+
+load("./Data/Negative_interactions/list_res_neg_2.Rdata")
+
+names(list_res) = c("simulation1", "simulation2")
+
+list_simulation1 <- list_res$simulation1
+
+# count number of timesteps where there were spp
+
+n_steps <- length(list_simulation1$network_list)
+
+```
+FACILITATION
+
+```{r}
+
+load("./Data/Positive_interactions/list_res_pos_2.Rdata")
+
+names(list_res) = c("simulation1", "simulation2")
+
+list_simulation1 <- list_res$simulation1
+
+# count number of timesteps where there were spp
+
+n_steps <- length(list_simulation1$network_list)
+
+```
+
+
 
 
 The presence_matrix (rows = timesteps, cols = species, entries = 1,0) has extra timesteps in case the simulation is longer (max = 350), so I crop it to the number of timesteps in the simulation:
@@ -532,7 +565,11 @@ list_mds.int_pred <- list()
 list_mds.int_prey <- list()
 list_mds.int_mean <- list()
 
+#list_interact_distances_pred_corrected <- list_interact_distances_pred_corrected[-1]
+#list_interact_distances_prey_corrected <- list_interact_distances_prey_corrected[-1]
+#list_interact_distances_mean_corrected <- list_interact_distances_mean_corrected[-1]
 
+list_dist.phylo_pres <- list_dist.phylo_pres[-1]
 
 for (i in 1:length(list_dist.phylo_pres)) {
 
@@ -547,6 +584,8 @@ list_mds.int_mean[[i]] <- monoMDS(list_interact_distances_mean_corrected[[i]], y
 
   
 }
+
+
 
 
 ```
@@ -683,6 +722,28 @@ df_signal_time
 ```
 
 
+```{r}
+
+#save(df_signal_time, file = "../foodweb_test/df_signal_time_competition.RData")
+
+load("../foodweb_test/df_signal_time_competition.RData")
+
+df_signal_time
+
+```
+
+
+
+```{r}
+
+#save(df_signal_time, file = "../foodweb_test/df_signal_time_facilitation.RData")
+
+load("../foodweb_test/df_signal_time_facilitation.RData")
+
+df_signal_time
+
+```
+
 
 
 ### Plot phylogenetic signal through time
@@ -727,7 +788,7 @@ p_mean <- ggplot(df_signal_time, aes(x=timesteps, y=protest_t_mean)) +
   theme_bw()+
     my.theme+
     scale_colour_manual(values = c("black", "red"))+
-    ggtitle("foodweb")+
+    ggtitle("facilitation")+
 xlab("timesteps")+
   ylab("Phylogenetic signal")
 
@@ -737,6 +798,7 @@ xlab("timesteps")+
 
 
 ```
+
 
 
 ### Plot species richness through time
@@ -753,7 +815,7 @@ for (i in 1:nrow(presence_matrix)) {
   
 }
 
-df_signal_time$nspp <- n_spp_time
+df_signal_time$nspp <- n_spp_time[-1]
 
 
 p.spp <- ggplot(df_signal_time, aes(x=timesteps, y = nspp)) +
@@ -784,407 +846,5 @@ ggsave("foodweb_result_phylo.time_1sim.png",
        width = 7)
 
 ```
-
-
-# NEGATIVE INTERACTIONS
-
-
-
-### Load simulation data
-
-
-```{r}
-
-load("../Data/Negative_interactions/list_res_neg_2.Rdata")
-
-names(list_res) = c("simulation1", "simulation2")
-
-list_simulation1 <- list_res$simulation1
-
-
-# List for table ancestry-distances and networks
-# The first element of both is NULL, so we eliminated it
-
-list_anc_dist <- list_simulation1$list_anc_dist[-1]
-network_list <- list_simulation1$network_list[-1]
-
-length(list_anc_dist) == length(network_list)
-```
-
-
-
-## Convert spp names from numbers to letters
-
-```{r}
-
-## Ancestry-distance
-
-list_anc_dist_letters <- lapply(list_anc_dist, change_sppnames_letters_ancdist.table)
-
-
-## Interactions
-
-#### 1st, set names as numbers (index of columns and rows)
-
-# WARING - Eliminating first timestep
-
-list_networks_sppnames_numbers <- lapply(network_list, set_sppNames_numbers)
-
-#### 2nd, convert numbers to letters
-
-list_networks_sppnames_letters <- lapply(list_networks_sppnames_numbers, convert_sppnames_toletters)
-
-
-
-length(list_anc_dist_letters) == length(list_networks_sppnames_letters)
-```
-
-
-
-
-#### Loop for obtaining phylogenetic distances:
-
-
-Distances can only be calculated from the 3rd matrix in advance, because there is no more than two species until then. So the first two matrix are NULL and we will eliminate them.
-
-We eliminated timestep 1 at the beggining of the code. Eliminating now the 1st (timestep2) and 2nd (timestep3) matrices means that we retain from timestp 4 in advance.
-
-```{r}
-
-list_newick <- list()
-list_trees <- list()
-list_newick_tails <- list()
-list_dist.phylo <- list()
-
-
-## Can't calculate distances with only 1 spp, so I need to start from the 6th matrix, so timestep 7
-
-for (i in 6:length(list_anc_dist_letters)) {
-  
-  
-  print(sprintf("step %s", i))
-  
-  list_newick[[i]] <- ToPhylo(list_anc_dist_letters[[i]])
-  
-  list_newick_tails[[i]] <- paste(list_newick[[i]], "root")
-  
-  list_trees[[i]] <- read.tree(text = sub("A root",";",list_newick_tails[[i]]))
-  
-  list_dist.phylo[[i]] <- cophenetic.phylo(list_trees[[i]])
-  
-
-}
-
-
-
-
-# Eliminate first five matrices (timestep 2 to 6) that are NULL
-
-list_dist.phylo <- list_dist.phylo[-c(1:5)]
-
-
-length(list_dist.phylo) # 170
-```
-
-
-
-
-
-#### Interaction distances
-
-We eliminate the 1st and 2nd matrix (timestep 2 and 3) as we did for the list of phylogenetic distance matrices so that we can compare the lists later.
-
-```{r}
-
-list_networks_sppnames_letters <- list_networks_sppnames_letters[-c(1:5)]
-
-length(list_networks_sppnames_letters) # 170
-
-# Compute distances
-
-list_dist_chisq<- lapply(list_networks_sppnames_letters, compute_chisq)
-
-# Only from the 5th matrix, so timestep 7
-
-```
-
-PROBLEM HERE - I receive the following waring:
-
-Warning in vegdist(matrix[-which(rowSums(matrix) == 0), ], method = "chisq",  :
-  data have empty species which influence the results in
-                 method "chisq"
-
-
-
-WARNING: the 6th and 7th matrices  (so timesteps 13 and 14) dont have species and therefore I cant calculate distances from them. So I eliminate these matrices here, and therefore also in the list of phylogenetic distances.
-
-```{r}
-list_dist_chisq <- list_dist_chisq[-c(6,7)] 
-
-list_dist.phylo <- list_dist.phylo[-c(6,7)]
-
-length(list_dist_chisq) == length(list_dist.phylo) # 168
-```
-
-
-
-
-------------------------------------------------------------
-
-Now I have the phylogenetic distance matrices in list_dist.phylo, and the interaction distances in list_dist_chisq.
-
-
-Check that both the list of distance matrices for interactions and for phylogeny have the same length:
-
-```{r}
-length(list_dist_chisq[[12]]) == length(list_dist.phylo[[12]])
-```
-
-
-Example to show that phylogenetic distance matrices retain the extinct species together with the present ones.
-
-```{r}
-
-df.test.phylo <- as.data.frame(list_dist.phylo[[174]])
-df.test.chisq <- as.data.frame(list_dist_chisq[[174]])
-
-data_new.phylo <- df.test.phylo[order(names(df.test.phylo)) , order(names(df.test.phylo))]
-data_new.chisq <- df.test.chisq[order(names(df.test.chisq)) , order(names(df.test.chisq))]
-
-colnames(data_new.chisq)
-
-colnames(data_new.phylo)
-```
-
-
-Therefore, I need to 1st order the names of columns and rows of both phylo and interaction distance matrices so that they coincide, and then select only those species present to compare the matrices. The way I will select those species present is by telling the phylo-distance matrix to retain only those species names that the interaction distance matrix has:
-
-
--------------------------------------------------------------
-
-
-
-## Order column and row spp names
-
-
-```{r}
-list_dist.phylo_df <- lapply(list_dist.phylo, as.data.frame)
-list_dist_chisq_df <- lapply(list_dist_chisq, as.data.frame)
-
-
-list_dist.phylo_df.ord <- lapply(list_dist.phylo_df, order_col.row_names)
-list_dist_chisq_df.ord <- lapply(list_dist_chisq_df, order_col.row_names)
-
-```
-
-## For phylogenetic distance matrices, retain only those species present
-
-Species present are those present in the interaction distance matrix.
-
-```{r}
-# Select only spp present for phylogenetic distance matrix
-
-list_dist.phylo_df_pres <- list()
-
-for (i in 1:length(list_dist.phylo_df.ord)) {
-  
-  spp_present <- colnames(list_dist_chisq_df.ord[[i]])
-  list_dist.phylo_df_pres[[i]] <- list_dist.phylo_df.ord[[i]][spp_present ,spp_present] 
-  
-  
-}
-
-## Check that now phylo and interaction distance matrices have the same number of spp, same names, and in the same order
-
-
-colnames(list_dist.phylo_df_pres[[100]]) == colnames(list_dist_chisq_df.ord[[100]])
-
-```
-
-
-
-NOW I'M READY TO COMPUTE CORRELATION
-
-
-
-# Compute MDS
-
-
-WARNING: I can't compute MDS with ~2 spp, so I eliminate from matrix 1 to 5th (timestep 7 to 11) which can't be analysed. 
-
-So in total I eliminated timesteps from 1 to 11, 13 and 14.
-
-```{r}
-
-# convert to matrix
-
-list_dist_chisq_mat <- lapply(list_dist_chisq_df.ord, as.matrix)
-list_dist.phylo_mat <- lapply(list_dist.phylo_df_pres, as.matrix)
-
-
-## Eliminate until 5th matrix - too few spp to compute MDS
-
-list_dist_chisq_mat <- list_dist_chisq_mat[-c(1:5)]
-list_dist.phylo_mat <- list_dist.phylo_mat[-c(1:5)]
-
-
-
-# compute mds
-
-list_mds.int <- list()
-list_mds.phy <- list()
-
-
-# Compute NMS
-
-for (i in 1:length(list_dist_chisq_mat)) {
-  
-list_mds.int[[i]] <- monoMDS(list_dist_chisq_mat[[i]], y = cmdscale(list_dist_chisq_mat[[i]]))
-list_mds.phy[[i]] <- monoMDS(list_dist.phylo_mat[[i]], y = cmdscale(list_dist.phylo_mat[[i]]))
-  
-}
-```
-
-
-# Compute correlation
-
-
-already have distance matrices computed (chisq, phylo)
-
-PROBLEM:
-
-I receive the following waring message when computing the protest() in the loop
-
-'nperm' >= set of all permutations: complete enumeration.
-Set of permutations < 'minperm'. Generating entire set.
-
-```{r}
-
-protest <- list()
-procrustes <- list()
-
-for (i in 1:length(list_dist.phylo_mat)) {
-  
-  protest[[i]] <- protest(list_mds.int[[i]], list_mds.phy[[i]])
-  
-  procrustes[[i]] <- procrustes(list_mds.int[[i]],list_mds.phy[[i]])
-  
-  
-}
-
-
-
-## it starts from timestep 8
-
-protest_pval <- c()
-protest_corr <- c()
-
-for (i in 1:length(protest)) {
-  
-  protest_pval[i] <- protest[[i]]$signif
-  
-  protest_corr[i] <-protest[[i]]$t0
-
-  
-}
-
-
-timesteps <- 14:length(list_simulation1$list_anc_dist)
-
-df_signal_time <- data.frame(timesteps,protest_pval,protest_corr)
-
-df_signal_time$sign <- with(df_signal_time, ifelse(protest_pval < 0.051, 'sign', 'non.sign'))
-
-
-df_signal_time
-
-```
-
-### Plot phylogenetic signal through time
-
-```{r}
-
-library(ggplot2)
-
-my.theme<-theme(axis.text=element_text(size=12),
-                axis.title = element_text(size = 14),
-                legend.position = "top",
-                legend.text=element_text(size=10),
-                legend.title = element_text(size=12),
-                plot.title = element_text(face="bold",size=14,margin=margin(0,0,20,0),hjust = 0.5),
-                axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0)),
-                axis.title.x = element_text(margin = margin(t = 15, r = 0, b = 0, l = 0)))
-
-
-p_neg <- ggplot(df_signal_time, aes(x=timesteps, y=protest_corr)) +
-       geom_line()+
-  geom_point(aes(fill = sign, color=sign), size=2, alpha = 0.7) +
-  theme_bw()+
-    my.theme+
-    scale_colour_manual(values = c("black", "red"))+
-    ggtitle("Phylogenetic signal through time (-)")+
-xlab("timesteps")+
-  ylab("Phylogenetic signal")
-
-
-p_neg
-```
-
-
-### Plot species richness through time
-
-```{r}
-# SHOW ALSO NUMBER OF SPECIES IN THE GRAPH
-
-presence_matrix <- list_simulation1$presence_matrix[14:length(list_simulation1$list_anc_dist),] # select the timesteps we are analysing (from 8 in advance)
-
-n_spp_time <- c()
-
-for (i in 1:nrow(presence_matrix)) {
-  
-  n_spp_time[i] <- length(which(presence_matrix[i,] == 1))
-  
-}
-
-df_signal_time$nspp <- n_spp_time
-
-
-
-
-p.spp_neg <- ggplot(df_signal_time, aes(x=timesteps, y = nspp)) +
-  geom_line(color="black", linetype="twodash") +
-  theme_bw()+
-  my.theme+
-  scale_colour_manual(values = c("black", "red"))+
-  ggtitle("Species richness through time (-)")+
-  xlab("timesteps")+
-  ylab("N species")
-
-p.spp_neg
-
-```
-
-
-
-
-```{r}
-
-library(gridExtra)
-
-grid.arrange(p_neg, p.spp_neg, 
-             ncol = 1, nrow = 2)
-
-
-
-ggsave(arranged.plots, "Neg_signal.time.png", height = 15, width = 20)
-```
-
-
-
-
-
-
-
-
 
 
