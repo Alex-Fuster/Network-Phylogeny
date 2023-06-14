@@ -1,4 +1,13 @@
 ########################################
+
+# Function to append a list into an existing list
+list_append <- function(lst, ...){
+  lst <- c(lst, list(...))
+  return(lst)
+}
+
+
+
 # Function to generate a new set of traits for ancestors
 # Each species is characterized by a set of 3 traits: n (niche), o (optimum) and r (niche's range)
 rand_traits_anc = function(pars) {
@@ -195,13 +204,19 @@ sim_model_bif = function(seed, pars, nsteps) {
             # Compute the probability of successful establishment #---------------------- P(establishment)
 
             
-         
+            
+              
               estab_prob = (u_0 + u_1*exp(-a_u*sum_I))#/(1 + exp(pars$d * (sum_I - pars$I_max)))
               ##print(paste("estab prob =",spec_prob, " sum of interactions =", sum_I))
-     
               
-            
-            
+              
+          
+         
+
+    
+              
+              
+
             
             # Test if there is establishment of the two new species
             

@@ -1,4 +1,13 @@
 ########################################
+
+
+# Function to append a list into an existing list
+list_append <- function(lst, ...){
+  lst <- c(lst, list(...))
+  return(lst)
+}
+
+
 # Function to generate a new set of traits for ancestors
 # Each species is characterized by a set of 3 traits: n (niche), o (optimum) and r (niche's range)
 rand_traits_anc = function(pars) {

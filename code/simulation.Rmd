@@ -1,0 +1,657 @@
+---
+title: "From simulations_script.R"
+output: html_notebook
+---
+
+```{r}
+#install.packages("EnvStats")
+#library(foreach) #To do parallel computiong
+
+library(EnvStats)
+library(foreach)
+```
+
+
+# FACILITATION & COMPETITION
+
+
+
+
+### set general parameters
+
+```{r}
+rm(list = ls())
+
+pars = list()
+
+# General parameters
+#pars$int = 0 # 0 for competition, 1 for facilitation, 2 for predation
+pars$Smax = 1000 # Maximal number of species in the system
+
+# Related to interaction range trait
+pars$av_r = 0.1 # Half range of the niche of the first species
+pars$sd = 0.5*pars$av_r + 0.0001 # Standard deviation of the normal distribution used to calculate the niche optimum trait of a new species
+
+pars$u_max = 0.15 # Speciation probability
+
+# Extinction probability, negative interactions communities
+pars$a_eneg = 0.025 # Shape of the exponential decay of the negative extinction - interaction relationship
+pars$e_0neg = 0.5 # Asymptotic extinction probability with infinite negative interactions
+pars$e_1neg = 1  # Extinction probability with absence of interactions
+
+# Extinction probability, positive interactions communities
+pars$a_epos = 1.2  # Shape of the exponential decay of the positive extinction - interaction relationship
+pars$e_0pos = 0.075 # Asymptotic extinction probability with infinite positive interactions
+pars$e_1pos = 5.19 # 1 - pars$e_0pos
+
+# Establishment probability, negative interactions communities
+pars$a_uneg = 0.075 # Shape of the exponential decay of the colonization - interaction relationship
+pars$u_0neg = 0.075 # Asymptotic establishment probability with infinite competition interactions
+pars$u_1neg = 2 # Establishment probability with absence of competition interaction
+
+# Establishment probability, positive interactions communities
+pars$a_u = 0.45 # Shape of the exponential decay of the colonization - interaction relationship
+pars$u_0 = 1 # Asymptotic establishment probability with infinite facilitation interactions
+pars$u_1 = -1 # Establishment probability with absence of facilitation interactions
+pars$d = 0.5 # Decrease speed of the establishment probability
+
+# Extinction and establishment probabilitie for both, positive and negative interactions communities
+pars$Bspe = 4 # Constant minimal number of interaction per species (extablishment prob)
+pars$Bext = 4 # Constant minimal number of interaction per species (extinction prob)
+pars$I_max = 40 # Maximal number of interactioning species
+```
+
+
+
+```{r}
+
+source("../code/functions_sim_comp.fac.R")
+
+```
+
+
+
+### set parameters simulation
+
+```{r}
+nsteps = 350 # Set the maximum timestep per simulation
+nsim = 2 # Set the number of simulations
+
+# Vector to record number of simulation needed to reach 100 valid simulations
+needed_sim_pos <- c(rep(NA, nsim))
+needed_sim_neg <- c(rep(NA, nsim))
+```
+
+### Seeds record matrix
+
+```{r}
+# List of used seed per simulation batch
+reccorded_seed_pos_list <- list()
+reccorded_seed_neg_list <- list()
+
+seed_list <- NULL # Set an object to record seed that will be used to launch simulations
+
+```
+
+## Simulation
+
+```{r}
+#for(b in 1:10){
+
+	total_nb_sim <- 0
+	b <- 1
+
+	for(int in 0:1){
+		pars$int = int # Define the interaction type: 0 = competition ; 1 = facilitation
+		successful_sim <- 1 # Set the count of simulations
+		list_res <- list() # Set the list to store the results
+
+		if(pars$int == 1){
+			print("Positive interctions")
+		} else {
+			print("Negative interctions")
+		}
+
+		seed_record <- c(rep(NA, nsim)) # Set the vector to record the seed that have been used
+
+		while(successful_sim < nsim+1){
+
+  		seed <- sample.int(80000, 1) # Pick a random number, this number will be the seed for one simulation
+  		print(seed)
+
+			# If a seed have already been tested, pick another one
+			if(length(which(seed_list == seed)) != 0){
+				while(seed %in% seed_list){
+    			seed <- sample.int(80000, 1)
+  			}
+			}
+
+			seed_list <- c(seed_list, seed) # Add the seed
+
+			# SIMULATION ; from the file code/functions/functions_M-C_bifurcation.R
+  		simulation <- sim_model_bif(seed = seed, pars, nsteps = nsteps)  
+  	
+  		#---------------------- stored: pres, traits_mat, anc, extinct, Stotact, L, L_list
+
+			total_nb_sim <- total_nb_sim +1 # Count the total amount of simulations
+
+			# Test if we have enough species at the timestep 150 in the simulation
+  		success <- sum(simulation$pres[150,])
+			#print(paste0("Success = ", success))
+
+  		if(success >= 20){
+				#print("the simulation has more than 19 species at the time step 150")
+    		seed_record[successful_sim] <- seed # Record seed which alows us to have "good" simulation
+    		res_sim <- list(simulation_number = paste0("simulation", successful_sim), seed = seed, parameters = pars, presence_matrix = simulation$pres, traits_df = simulation$traits, parentage_matrix = simulation$anc, extinxction_matrix = simulation$extinct, network_list = simulation$L_list, anc_dist_table = simulation$dist_anc, list_anc_dist = simulation$list_dist_anc) # Record results from the simulation
+    		list_res <- list_append(list_res, res_sim)
+
+    		print(paste("simulation ", successful_sim, "sur", nsim))
+    		successful_sim <- successful_sim + 1 # Count the amount of "good" simulations
+  		}
+		}
+
+		## Record the amount of simulation needed and their identity
+		if(pars$int == 1){
+			reccorded_seed_pos_list <- list_append(reccorded_seed_pos_list, seed_record)
+			needed_sim_pos[b] <- total_nb_sim
+		} else {
+			reccorded_seed_neg_list <- list_append(reccorded_seed_neg_list, seed_record)
+			needed_sim_neg[b] <- total_nb_sim
+		}
+
+		# Save simulations results data
+		if(pars$int == 1){
+			path <- paste0("../data/positive_interactions/list_res_pos_", nsim, ".Rdata")
+	  	save(list_res, file = path) #Change if interaction tyep = 0 (competition)
+		} else if(pars$int == 0){
+			path <- paste0("../data/negative_interactions/list_res_neg_", nsim, ".Rdata")
+	  	save(list_res, file = path) #Change if interaction tyep = 0 (competition)
+		}
+
+	}
+
+	#print(paste("batch ", b, "sur 10"))
+#}
+	
+```
+
+
+
+### save data
+
+```{r}
+save(reccorded_seed_pos_list, file = "../AF_Data/positive_interactions/reccorded_seed_pos_list1.Rdata")
+save(reccorded_seed_neg_list, file = "../AF_Data/negative_interactions/reccorded_seed_neg_list1.Rdata")
+save(needed_sim_pos, file = "../Data/positive_interactions/needed_sim_pos1.Rdata")
+save(needed_sim_neg, file = "../Data/negative_interactions/needed_sim_neg1.Rdata")
+
+```
+
+
+--- How results are stored
+They are stored in list_res_pos_nsim.Rdata and list_res_neg_nsim.Rdata in the form of a list (list_res), which is a list of simulations, and each of them contains a list of the results of the simulation (res_sim).
+I need to think about a way to combine the results of the simulations (phylog. signal) -> maybe statistic describing the relationship between phylog. signal and time, dimensionality, etc..
+
+--- The simulation ends if it reaches either a maximum number of timesteps (350) or a maximum number of species (1000).
+To make sure the list of networks and the list of trees per timesteps have (1) the same length and (2) are correspondent with the timesteps, I need to make sure that both start and finish to be measured at the same timesteps, and that I know then number of timesteps run per simulation. 
+
+
+Start: 5 species present could be a good number for starting to measure both networks and phylogenies. 
+For the trees, I calculate them from the anc table.
+Networks are stored in a list.
+
+So list_networks[[5]] should be compared with anc[[timestep 5]]
+
+
+--- Phylogenetic distances
+Record them myself rather than with hclust or any other algorythm.
+Pass distances data to Netweek format.
+
+
+
+
+# FOODWEB
+
+### set general parameters
+
+```{r}
+rm(list = ls())
+
+pars = list()
+
+# General parameters
+#pars$int = 0 # 0 for competition, 1 for facilitation, 2 for predation
+pars$Smax = 1000 # Maximal number of species in the system
+
+# Related to interaction range trait
+pars$av_r = 0.1 # Half range of the niche of the first species
+pars$sd = 0.5*pars$av_r + 0.0001 # Standard deviation of the normal distribution used to calculate the niche optimum trait of a new species
+
+pars$u_max = 0.15 # Speciation probability
+
+# Extinction probability, negative interactions communities
+pars$a_eneg = 0.025 # Shape of the exponential decay of the negative extinction - interaction relationship
+pars$e_0neg = 0.5 # Asymptotic extinction probability with infinite negative interactions
+pars$e_1neg = 1  # Extinction probability with absence of interactions
+
+# Extinction probability, positive interactions communities
+pars$a_epos = 1.2  # Shape of the exponential decay of the positive extinction - interaction relationship
+pars$e_0pos = 0.075 # Asymptotic extinction probability with infinite positive interactions
+pars$e_1pos = 5.19 # 1 - pars$e_0pos
+
+# Establishment probability, negative interactions communities
+pars$a_uneg = 0.075 # Shape of the exponential decay of the colonization - interaction relationship
+pars$u_0neg = 0.075 # Asymptotic establishment probability with infinite competition interactions
+pars$u_1neg = 2 # Establishment probability with absence of competition interaction
+
+# Establishment probability, positive interactions communities
+pars$a_u = 0.45 # Shape of the exponential decay of the colonization - interaction relationship
+pars$u_0 = 1 # Asymptotic establishment probability with infinite facilitation interactions
+pars$u_1 = -1 # Establishment probability with absence of facilitation interactions
+pars$d = 0.5 # Decrease speed of the establishment probability
+
+# Extinction and establishment probabilitie for both, positive and negative interactions communities
+pars$Bspe = 4 # Constant minimal number of interaction per species (extablishment prob)
+pars$Bext = 4 # Constant minimal number of interaction per species (extinction prob)
+pars$I_max = 40 # Maximal number of interactioning species
+```
+
+
+```{r}
+pars$e_0neg = 0.1 # Asymptotic extinction probability with infinite negative interactions
+```
+
+
+
+
+```{r}
+
+source("./functions_sim_foodweb.R")
+
+```
+
+
+
+### set parameters simulation
+
+```{r}
+nsteps = 350 # Set the maximum timestep per simulation
+nsim = 1 # Set the number of simulations
+
+# Vector to record number of simulation needed to reach 100 valid simulations
+needed_sim_fw <- c(rep(NA, nsim))
+```
+
+### Seeds record matrix
+
+```{r}
+# List of used seed per simulation batch
+reccorded_seed_fw_list <- list()
+
+seed_list <- NULL # Set an object to record seed that will be used to launch simulations
+
+```
+
+
+```{r}
+
+#for(b in 1:10){
+
+total_nb_sim <- 0
+b <- 1
+
+successful_sim <- 1 # Set the count of simulations
+list_res <- list() # Set the list to store the results
+
+
+seed_record <- c(rep(NA, nsim)) # Set the vector to record the seed that have been used
+
+
+
+
+while(successful_sim < nsim+1){
+  
+  seed <- sample.int(80000, 1) # Pick a random number, this number will be the seed for one simulation
+  print(seed)
+  
+  # If a seed have already been tested, pick another one
+  if(length(which(seed_list == seed)) != 0){
+    while(seed %in% seed_list){
+      seed <- sample.int(80000, 1)
+    }
+  }
+  
+  seed_list <- c(seed_list, seed) # Add the seed
+  
+  # SIMULATION ; from the file code/functions/functions_M-C_bifurcation.R
+  simulation <- sim_model_bif(seed = seed, pars, nsteps = nsteps)  
+  
+  #---------------------- stored: pres, traits_mat, anc, extinct, Stotact, L, L_list
+  
+  total_nb_sim <- total_nb_sim +1 # Count the total amount of simulations
+  
+  # Test if we have enough species at the timestep 150 in the simulation
+  success <- sum(simulation$pres[150,])
+  #print(paste0("Success = ", success))
+  
+  if(success >= 1){
+    #print("the simulation has more than 19 species at the time step 150")
+    seed_record[successful_sim] <- seed # Record seed which alows us to have "good" simulation
+    res_sim <- list(simulation_number = paste0("simulation", successful_sim), 
+                    seed = seed, 
+                    parameters = pars, 
+                    presence_matrix = simulation$pres, 
+                    traits_df = simulation$traits, 
+                    parentage_matrix = simulation$anc, 
+                    extinxction_matrix = simulation$extinct, 
+                    network_list = simulation$L_list, 
+                    anc_dist_table = simulation$dist_anc, 
+                    list_anc_dist = simulation$list_dist_anc) # Record results from the simulation
+    
+    list_res <- list_append(list_res, res_sim)
+    
+    print(paste("simulation ", successful_sim, "sur", nsim))
+    successful_sim <- successful_sim + 1 # Count the amount of "good" simulations
+  }
+  
+}
+
+
+
+  reccorded_seed_fw_list <- list_append(reccorded_seed_fw_list, seed_record)
+  needed_sim_fw[b] <- total_nb_sim
+
+
+
+
+#print(paste("batch ", b, "sur 10"))
+#}
+  
+  path <- paste0("../data/foodweb/list_res_fw_", nsim, ".Rdata")
+	  	save(list_res, file = path) 
+  
+```
+
+
+### save data
+
+```{r}
+
+save(reccorded_seed_fw_list, file = "../data/foodweb/reccorded_seed_fw_list1.Rdata")
+save(needed_sim_fw, file = "../data/foodweb/needed_sim_fw.Rdata")
+
+```
+
+
+
+
+
+
+
+
+# NEUTRAL 
+
+
+# FOODWEB
+
+### set general parameters
+
+```{r}
+rm(list = ls())
+
+pars = list()
+
+# General parameters
+#pars$int = 0 # 0 for competition, 1 for facilitation, 2 for predation
+pars$Smax = 1000 # Maximal number of species in the system
+
+# Related to interaction range trait
+pars$av_r = 0.1 # Half range of the niche of the first species
+pars$sd = 0.5*pars$av_r + 0.0001 # Standard deviation of the normal distribution used to calculate the niche optimum trait of a new species
+
+pars$u_max = 0.15 # Speciation probability
+
+# Extinction probability, negative interactions communities
+pars$a_eneg = 0.025 # Shape of the exponential decay of the negative extinction - interaction relationship
+pars$e_0neg = 0.5 # Asymptotic extinction probability with infinite negative interactions
+pars$e_1neg = 1  # Extinction probability with absence of interactions
+
+# Extinction probability, positive interactions communities
+pars$a_epos = 1.2  # Shape of the exponential decay of the positive extinction - interaction relationship
+pars$e_0pos = 0.075 # Asymptotic extinction probability with infinite positive interactions
+pars$e_1pos = 5.19 # 1 - pars$e_0pos
+
+# Establishment probability, negative interactions communities
+pars$a_uneg = 0.075 # Shape of the exponential decay of the colonization - interaction relationship
+pars$u_0neg = 0.075 # Asymptotic establishment probability with infinite competition interactions
+pars$u_1neg = 2 # Establishment probability with absence of competition interaction
+
+# Establishment probability, positive interactions communities
+pars$a_u = 0.45 # Shape of the exponential decay of the colonization - interaction relationship
+pars$u_0 = 1 # Asymptotic establishment probability with infinite facilitation interactions
+pars$u_1 = -1 # Establishment probability with absence of facilitation interactions
+pars$d = 0.5 # Decrease speed of the establishment probability
+
+# Extinction and establishment probabilitie for both, positive and negative interactions communities
+pars$Bspe = 4 # Constant minimal number of interaction per species (extablishment prob)
+pars$Bext = 4 # Constant minimal number of interaction per species (extinction prob)
+pars$I_max = 40 # Maximal number of interactioning species
+
+```
+
+
+
+```{r}
+
+p_est <- c(0.8, 0.9, 0.95)
+
+p_ext <- c(0.001, 0.01, 0.1, 0.5)
+
+df_scenarios <- expand.grid(p_est, p_ext)
+
+colnames(df_scenarios) <- c("p_est", "p_ext")
+
+
+```
+
+
+
+
+```{r}
+
+source("./functions_sim_neutral.R")
+
+```
+
+
+
+### set parameters simulation
+
+```{r}
+nsteps = 350 # Set the maximum timestep per simulation
+nsim = 1 # Set the number of simulations
+
+# Vector to record number of simulation needed to reach 100 valid simulations
+needed_sim_neutral <- c(rep(NA, nsim))
+```
+
+### Seeds record matrix
+
+```{r}
+# List of used seed per simulation batch
+reccorded_seed_neutral_list <- list()
+
+seed_list <- NULL # Set an object to record seed that will be used to launch simulations
+
+```
+
+
+```{r}
+
+sc_success <- numeric(nrow(df_scenarios))
+fail_sim <- 1
+list_objects_sc <- list()
+
+
+
+
+for (sc in 1:nrow(df_scenarios)) {
+ 
+  
+  
+  #for(b in 1:10){
+
+total_nb_sim <- 0
+b <- 1
+
+successful_sim <- 1 # Set the count of simulations
+list_res <- list() # Set the list to store the results
+
+
+seed_record <- c(rep(NA, nsim)) # Set the vector to record the seed that have been used
+
+
+
+
+while(successful_sim < nsim+1 & fail_sim != 40){
+  
+  seed <- sample.int(80000, 1) # Pick a random number, this number will be the seed for one simulation
+  print(seed)
+  
+  # If a seed have already been tested, pick another one
+  if(length(which(seed_list == seed)) != 0){
+    while(seed %in% seed_list){
+      seed <- sample.int(80000, 1)
+    }
+  }
+  
+  seed_list <- c(seed_list, seed) # Add the seed
+  
+  # SIMULATION ; from the file code/functions/functions_M-C_bifurcation.R
+  simulation <- sim_model_bif(seed = seed, pars, nsteps = nsteps, 
+                              pes = df_scenarios[sc, "p_est"],
+                              pex = df_scenarios[sc, "p_ext"])  
+  
+  #---------------------- stored: pres, traits_mat, anc, extinct, Stotact, L, L_list
+  
+  total_nb_sim <- total_nb_sim +1 # Count the total amount of simulations
+  
+  # Test if we have enough species at the timestep 150 in the simulation
+  success <- sum(simulation$pres[50,])
+  #print(paste0("Success = ", success))
+  
+  if(success >= 5){
+    #print("the simulation has more than 19 species at the time step 150")
+    seed_record[successful_sim] <- seed # Record seed which alows us to have "good" simulation
+    res_sim <- list(simulation_number = paste0("simulation", successful_sim), 
+                    seed = seed, 
+                    parameters = pars, 
+                    presence_matrix = simulation$pres, 
+                    traits_df = simulation$traits, 
+                    parentage_matrix = simulation$anc, 
+                    extinxction_matrix = simulation$extinct, 
+                    network_list = simulation$L_list, 
+                    anc_dist_table = simulation$dist_anc, 
+                    list_anc_dist = simulation$list_dist_anc) # Record results from the simulation
+    
+    list_res <- list_append(list_res, res_sim)
+    
+    print(paste("simulation ", successful_sim, "sur", nsim))
+    successful_sim <- successful_sim + 1 # Count the amount of "good" simulations
+    
+    sc_success[sc] <- "success"
+    
+  } else {
+    
+    sc_success[sc] <- "fail"
+    
+    fail_sim <- fail_sim + 1
+    
+  }
+  
+  
+  
+  
+}
+
+
+
+reccorded_seed_neutral_list <- list_append(reccorded_seed_neutral_list, seed_record)
+needed_sim_neutral[b] <- total_nb_sim
+
+list_objects_sc[[sc]] <- c(list_res, reccorded_seed_neutral_list)
+
+
+#print(paste("batch ", b, "sur 10"))
+#}
+  
+  
+  
+  
+   
+}
+
+
+  
+  path <- paste0("../data/neutral/list_res_neutral_", nsim, ".Rdata")
+	  	save(list_objects_sc, file = path) 
+  
+```
+
+
+### save data
+
+```{r}
+
+save(reccorded_seed_neutral_list, file = "../data/neutral/reccorded_seed_neutral_list1.Rdata")
+save(needed_sim_neutral, file = "../data/neutral/needed_sim_neutral.Rdata")
+
+```
+
+
+
+
+Quick inspection of spp richness
+
+
+```{r}
+
+load("../data/neutral/list_res_neutral_1.Rdata")
+
+list_results <- list_objects_sc[[1]]
+
+results <- list_results[[1]]
+
+
+
+
+
+n_spp_time <- c()
+
+for (i in 1:nrow(results$presence_matrix)) {
+  
+  n_spp_time[i] <- length(which(results$presence_matrix[i,] == 1))
+  
+}
+
+timesteps <- 1:nrow(results$presence_matrix)
+
+df_signal_time<- as.data.frame(n_spp_time,timesteps)
+
+
+library(ggplot2)
+
+p.spp_neg <- ggplot(df_signal_time, aes(x=timesteps, y = n_spp_time)) +
+  geom_line(color="black", linetype="twodash") +
+  theme_bw()+
+  #my.theme+
+  scale_colour_manual(values = c("black", "red"))+
+  ggtitle("Species richness through time (-)")+
+  xlab("timesteps")+
+  ylab("N species")
+
+p.spp_neg
+
+```
+
+

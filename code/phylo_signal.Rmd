@@ -6,7 +6,7 @@ output: html_notebook
 ```{r}
 #source("../Original_code/functions/tree_functions.R")
 #source("../Original_code/functions/phylo_functions.R")
-source("AF_code/AF_functions_tree.R")
+source("code/functions_phylo_signal.R")
 library(ape)
 library(apTreeshape)
 library(aricode)
@@ -54,6 +54,8 @@ list_simulation1 <- list_res$simulation1
 n_steps <- length(list_simulation1$network_list)
 
 ```
+
+
 FACILITATION
 
 ```{r}
@@ -63,6 +65,25 @@ load("./Data/Positive_interactions/list_res_pos_2.Rdata")
 names(list_res) = c("simulation1", "simulation2")
 
 list_simulation1 <- list_res$simulation1
+
+# count number of timesteps where there were spp
+
+n_steps <- length(list_simulation1$network_list)
+
+```
+
+
+
+NEUTRAL
+
+```{r}
+
+load("../data/neutral/list_res_neutral_1.Rdata")
+
+list <- list_objects_sc[[1]]
+
+list_simulation1 <- list[[1]]
+
 
 # count number of timesteps where there were spp
 
@@ -356,7 +377,7 @@ list_interact_distances_prey <- lapply(list_net_present_spp.letters, FUN = compu
 ```
 
 
-Some species have NAN in their diagonal. I make sure this doesnt happen by setting the diagonal to ones with the function **diag_to1()**:
+Some species have NAN in their diagonal. I make sure this doesnt happen by setting the diagonal to ones with the function **diag_to0()**:
 
 
 ```{r}
@@ -569,7 +590,10 @@ list_mds.int_mean <- list()
 #list_interact_distances_prey_corrected <- list_interact_distances_prey_corrected[-1]
 #list_interact_distances_mean_corrected <- list_interact_distances_mean_corrected[-1]
 
-list_dist.phylo_pres <- list_dist.phylo_pres[-1]
+#list_dist.phylo_pres <- list_dist.phylo_pres[-1]
+
+
+
 
 for (i in 1:length(list_dist.phylo_pres)) {
 
@@ -587,7 +611,45 @@ list_mds.int_mean[[i]] <- monoMDS(list_interact_distances_mean_corrected[[i]], y
 
 
 
+```
 
+Sometimes there are matrices of interaction distances with all 0 (why(?)). If so, the above code gives an error. If so, run this:
+
+```{r}
+
+### Check what matrices of interactions have all 0 and discard them
+
+check_matrix.with.values <- function(matrix) {
+  
+  result <- any(matrix != 0)
+  
+  return(result)
+  
+}
+
+list_interact_distances_pred_corrected1 <- list_interact_distances_pred_corrected[-which(lapply(list_interact_distances_pred_corrected,check_matrix.with.values) != TRUE)]
+
+list_interact_distances_prey_corrected1 <- list_interact_distances_prey_corrected[-which(lapply(list_interact_distances_prey_corrected,check_matrix.with.values) != TRUE)]
+
+list_interact_distances_mean_corrected1 <- list_interact_distances_mean_corrected[-which(lapply(list_interact_distances_mean_corrected,check_matrix.with.values) != TRUE)]
+
+list_dist.phylo_pres1 <- list_dist.phylo_pres[-which(lapply(list_interact_distances_mean_corrected,check_matrix.with.values) != TRUE)]
+
+
+
+for (i in 1:length(list_dist.phylo_pres1)) {
+
+list_mds.phy[[i]] <- monoMDS(list_dist.phylo_pres1[[i]], y = cmdscale(list_dist.phylo_pres1[[i]])) 
+
+list_mds.int_pred[[i]] <- monoMDS(list_interact_distances_pred_corrected1[[i]], y = cmdscale(list_interact_distances_pred_corrected1[[i]]))
+
+list_mds.int_prey[[i]] <- monoMDS(list_interact_distances_prey_corrected1[[i]], y = cmdscale(list_interact_distances_prey_corrected1[[i]]))
+
+list_mds.int_mean[[i]] <- monoMDS(list_interact_distances_mean_corrected1[[i]], y = cmdscale(list_interact_distances_mean_corrected1[[i]]))
+
+
+  
+}
 ```
 
 
@@ -611,7 +673,7 @@ protest_mean <- list()
 procrustes_mean <- list()
 
 
-for (i in 1:length(list_dist.phylo_pres)) {
+for (i in 1:length(list_dist.phylo_pres1)) {
   
   protest_pred[[i]] <- protest(list_mds.int_pred[[i]], list_mds.phy[[i]])
   
@@ -620,7 +682,7 @@ for (i in 1:length(list_dist.phylo_pres)) {
   
 }
 
-for (i in 1:length(list_dist.phylo_pres)) {
+for (i in 1:length(list_dist.phylo_pres1)) {
   
   protest_prey[[i]] <- protest(list_mds.int_prey[[i]], list_mds.phy[[i]])
   
@@ -629,7 +691,7 @@ for (i in 1:length(list_dist.phylo_pres)) {
   
 }
 
-for (i in 1:length(list_dist.phylo_pres)) {
+for (i in 1:length(list_dist.phylo_pres1)) {
   
   protest_mean[[i]] <- protest(list_mds.int_mean[[i]], list_mds.phy[[i]])
   
@@ -711,22 +773,14 @@ df_signal_time
 ```
 
 
-```{r}
 
-#save(df_signal_time, file = "../foodweb_test/df_signal_time.RData")
-
-load("../foodweb_test/df_signal_time.RData")
-
-df_signal_time
-
-```
 
 
 ```{r}
 
 #save(df_signal_time, file = "../foodweb_test/df_signal_time_competition.RData")
 
-load("../foodweb_test/df_signal_time_competition.RData")
+load("../code/foodweb_test/df_signal_time_competition.RData")
 
 df_signal_time
 
@@ -744,7 +798,15 @@ df_signal_time
 
 ```
 
+```{r}
 
+#save(df_signal_time, file = "../data/neutral/df_signal_time.RData")
+
+load("../data/neutral/df_signal_time.RData")
+
+df_signal_time
+
+```
 
 ### Plot phylogenetic signal through time
 
@@ -788,7 +850,7 @@ p_mean <- ggplot(df_signal_time, aes(x=timesteps, y=protest_t_mean)) +
   theme_bw()+
     my.theme+
     scale_colour_manual(values = c("black", "red"))+
-    ggtitle("facilitation")+
+    ggtitle("neutral")+
 xlab("timesteps")+
   ylab("Phylogenetic signal")
 
@@ -815,7 +877,7 @@ for (i in 1:nrow(presence_matrix)) {
   
 }
 
-df_signal_time$nspp <- n_spp_time[-1]
+df_signal_time$nspp <- n_spp_time[-c(1:4)]
 
 
 p.spp <- ggplot(df_signal_time, aes(x=timesteps, y = nspp)) +
@@ -841,7 +903,7 @@ ggarrange(p_mean + rremove("xlab"), p.spp,
              ncol = 1, nrow = 2
              )
 
-ggsave("foodweb_result_phylo.time_1sim.png", 
+ggsave("neutral_result_phylo.time_1sim.png", 
        height = 7,
        width = 7)
 

@@ -5,9 +5,6 @@ output: html_notebook
 
 
 
-This script includes facilitation, competition, AND foodweb.
-
-
 
 ```{r}
 #install.packages("EnvStats")

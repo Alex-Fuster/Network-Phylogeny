@@ -6,7 +6,7 @@ output: html_notebook
 ```{r}
 #source("../Original_code/functions/tree_functions.R")
 #source("../Original_code/functions/phylo_functions.R")
-source("AF_functions_tree.R")
+source("functions_phylo_signal.R")
 library(ape)
 library(apTreeshape)
 
