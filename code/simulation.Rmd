@@ -443,14 +443,15 @@ pars$I_max = 40 # Maximal number of interactioning species
 
 ```{r}
 
-p_est <- c(0.8, 0.9, 0.95)
+p_est <- c(0.5, 0.6, 0.7, 0.8, 0.9)
 
-p_ext <- c(0.001, 0.01, 0.1, 0.5)
+p_ext <- c(0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5)
 
 df_scenarios <- expand.grid(p_est, p_ext)
 
 colnames(df_scenarios) <- c("p_est", "p_ext")
 
+df_scenarios
 
 ```
 
@@ -479,7 +480,7 @@ needed_sim_neutral <- c(rep(NA, nsim))
 
 ```{r}
 # List of used seed per simulation batch
-reccorded_seed_neutral_list <- list()
+reccorded_objecs <- list()
 
 seed_list <- NULL # Set an object to record seed that will be used to launch simulations
 
@@ -487,24 +488,37 @@ seed_list <- NULL # Set an object to record seed that will be used to launch sim
 
 
 ```{r}
+library(ggplot2)
+```
 
-sc_success <- numeric(nrow(df_scenarios))
-fail_sim <- 1
-list_objects_sc <- list()
+
+```{r}
+
+sc_success <- c()
+reccorded_objecs <- list()
 
 
 
 
 for (sc in 1:nrow(df_scenarios)) {
  
+   
   
   
-  #for(b in 1:10){
+     #### Probability values
 
-total_nb_sim <- 0
-b <- 1
+pes = df_scenarios[sc, "p_est"]
+pex = df_scenarios[sc, "p_ext"]
+
+probability_values <- c(paste("p(establishment) = ", pes), 
+                        paste("p(extinction) = ", pex))
+
+
+
+
 
 successful_sim <- 1 # Set the count of simulations
+trials <- 1
 list_res <- list() # Set the list to store the results
 
 
@@ -512,8 +526,7 @@ seed_record <- c(rep(NA, nsim)) # Set the vector to record the seed that have be
 
 
 
-
-while(successful_sim < nsim+1 & fail_sim != 40){
+while(successful_sim < nsim+1 & trials != 40){
   
   seed <- sample.int(80000, 1) # Pick a random number, this number will be the seed for one simulation
   print(seed)
@@ -534,13 +547,12 @@ while(successful_sim < nsim+1 & fail_sim != 40){
   
   #---------------------- stored: pres, traits_mat, anc, extinct, Stotact, L, L_list
   
-  total_nb_sim <- total_nb_sim +1 # Count the total amount of simulations
   
   # Test if we have enough species at the timestep 150 in the simulation
-  success <- sum(simulation$pres[50,])
+  success <- sum(simulation$pres[100,])
   #print(paste0("Success = ", success))
   
-  if(success >= 5){
+  if(success >= 20){
     #print("the simulation has more than 19 species at the time step 150")
     seed_record[successful_sim] <- seed # Record seed which alows us to have "good" simulation
     res_sim <- list(simulation_number = paste0("simulation", successful_sim), 
@@ -554,18 +566,76 @@ while(successful_sim < nsim+1 & fail_sim != 40){
                     anc_dist_table = simulation$dist_anc, 
                     list_anc_dist = simulation$list_dist_anc) # Record results from the simulation
     
-    list_res <- list_append(list_res, res_sim)
+    list_res[[sc]] <- res_sim
     
     print(paste("simulation ", successful_sim, "sur", nsim))
     successful_sim <- successful_sim + 1 # Count the amount of "good" simulations
     
     sc_success[sc] <- "success"
     
+    
+    
+    
+    #### Network formed
+    
+    
+    net <- res_sim$network_list[length(res_sim$network_list)]
+    
+    spp_present_net <- res_sim$presence_matrix
+    
+    n_steps <- length(res_sim$network_list)
+  
+    
+    anc_dist <- res_sim$list_dist_anc[length(res_sim$list_dist_anc)]
+    
+    
+    
+    #### Plot richness
+    
+    n_spp_time <- c()
+    
+    for (i in 1:nrow(res_sim$presence_matrix)) {
+      
+      n_spp_time[i] <- length(which(res_sim$presence_matrix[i,] == 1))
+      
+    }
+    
+    timesteps <- 1:nrow(res_sim$presence_matrix)
+    
+    df_signal_time<- as.data.frame(n_spp_time,timesteps)
+    
+    
+    p <- ggplot(df_signal_time, aes(x=timesteps, y = n_spp_time)) +
+      geom_line(color="black", linetype="twodash") +
+      theme_bw()+
+      #my.theme+
+      scale_colour_manual(values = c("black", "red"))+
+      ggtitle("Species richness through time")+
+      xlab("timesteps")+
+      ylab("N species")
+    
+    
+    
+    ############# Save objects for given scenario (probabilities)
+    
+    
+    reccorded_objecs[[sc]] <- list(prob_values = probability_values, 
+                                   species_present = spp_present_net,
+                                   ancestor_distances = anc_dist,
+                                   seed = seed_record, 
+                                   matrix_int = net, 
+                                   plot_richness = p,
+                                   steps = n_steps)
+    
+    
+    
+    
+    
   } else {
     
-    sc_success[sc] <- "fail"
+    trials <- trials + 1
     
-    fail_sim <- fail_sim + 1
+    
     
   }
   
@@ -575,28 +645,156 @@ while(successful_sim < nsim+1 & fail_sim != 40){
 }
 
 
-
-reccorded_seed_neutral_list <- list_append(reccorded_seed_neutral_list, seed_record)
-needed_sim_neutral[b] <- total_nb_sim
-
-list_objects_sc[[sc]] <- c(list_res, reccorded_seed_neutral_list)
-
-
-#print(paste("batch ", b, "sur 10"))
-#}
+if(trials == 40) {
   
+  sc_success[sc] <- "fail"
+    
+    reccorded_objecs[[sc]] <- list(probability_values, seed_record, "fail")
+
   
-  
-  
-   
 }
 
 
+
+
+}
+
+
+
+
   
-  path <- paste0("../data/neutral/list_res_neutral_", nsim, ".Rdata")
-	  	save(list_objects_sc, file = path) 
+#  path <- paste0("../data/neutral/list_res_neutral_", nsim, ".Rdata")
+	  #	save(list_objects_sc, file = path) 
+	  	
+	  	
   
 ```
+
+```{r}
+df_scenarios$success <- sc_success
+
+df_scenarios
+```
+## Select only those that succeeded
+
+```{r}
+
+df_scenarios[-which(df_scenarios$success == "fail"),]
+```
+
+```{r}
+
+reccorded_objecs_success <- reccorded_objecs[-which(df_scenarios$success == "fail")]
+
+```
+
+
+
+
+PLOTS OF SPP RICHNESS
+
+```{r}
+library(ggpubr)
+## [[1]] -> probabilities
+## [[2]] -> seed
+## [[3]] -> matrix interactions
+## [[4]] -> spp.richness plot
+
+ggarrange(reccorded_objecs_success[[6]]$plot_richnes,
+          reccorded_objecs_success[[7]]$plot_richnes,
+          reccorded_objecs_success[[8]]$plot_richnes,
+          reccorded_objecs_success[[9]]$plot_richnes,
+          reccorded_objecs_success[[10]]$plot_richnes,
+          reccorded_objecs_success[[12]]$plot_richnes,
+          ncol = 2,
+          nrow = 3
+  
+  
+)
+
+
+
+```
+
+
+### cHECK PROPERTIES OF NETWORKS\
+
+First, we need to obtain the networks. We will select those spp present.
+
+```{r}
+
+nrow(reccorded_objecs_success[[6]]$species_present)
+
+
+
+
+## spp names from numbers to letters
+
+net_numbers <- set_sppNames_numbers(reccorded_objecs_success[[6]]$matrix_int[[1]])
+
+net_letters <- convert_sppnames_toletters(net_numbers)
+
+
+## Crop network for present spp
+
+colnames(reccorded_objecs_success[[6]]$species_present) <- seq(1:1000)
+
+colnames(reccorded_objecs_success[[6]]$species_present) <- chartr("0123456789", "ABCDEFGHIJ", colnames(reccorded_objecs_success[[6]]$species_present))
+
+presents <- reccorded_objecs_success[[6]]$species_present[reccorded_objecs_success[[6]]$steps,]
+
+net_present_spp.letters <- net_letters[names(which(presents == 1)), names(which(presents == 1))]
+
+
+
+```
+
+
+Network metrics
+
+```{r}
+
+library(igraph)
+
+graph <- graph_from_adjacency_matrix(adjmatrix = net_present_spp.letters,
+                            mode = "directed")
+
+plot(graph, vertex.size=4, 
+     vertex.label=NA, 
+     edge.arrow.size= 0.3, 
+     layout = layout_on_sphere) 
+
+## compute connectance
+
+S <- vcount(graph)
+L <- ecount(graph)
+
+# average number of interactions species
+L.S <- L/S
+
+# food web connectance
+C <- L/S^2
+
+# MODULARITY
+
+modularity(graph, membership = )
+
+```
+
+## Metrics from empirical networks
+
+see:
+https://mlurgi.github.io/networks_for_r/lesson-4.html
+
+
+
+
+
+
+
+
+
+
 
 
 ### save data
