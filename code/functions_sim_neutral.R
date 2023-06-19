@@ -293,7 +293,7 @@ sim_model_bif = function(seed, pars, nsteps, pes, pex) {
       # Test for extinction                         #---------------------- P(extinction)
 
         
-      ext_prob <- pex
+      ext_prob <- rep(pex, times = ncol(L))
       
       #  in_I = colSums(L) + Bext*pres_vec
       #  out_I = rowSums(L) 	

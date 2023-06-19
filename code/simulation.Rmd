@@ -453,6 +453,7 @@ colnames(df_scenarios) <- c("p_est", "p_ext")
 
 df_scenarios
 
+
 ```
 
 
@@ -679,12 +680,17 @@ df_scenarios
 
 ```{r}
 
-df_scenarios[-which(df_scenarios$success == "fail"),]
+df_scenarios_success <- df_scenarios[-which(df_scenarios$success == "fail"),]
+
+#saveRDS(df_scenarios_success, file = "neutral_df_scenarios_success.rds")
+
 ```
 
 ```{r}
 
 reccorded_objecs_success <- reccorded_objecs[-which(df_scenarios$success == "fail")]
+
+#saveRDS(reccorded_objecs_success, file = "neutral_reccorded_objecs_success.rds")
 
 ```
 
@@ -717,74 +723,6 @@ ggarrange(reccorded_objecs_success[[6]]$plot_richnes,
 ```
 
 
-### cHECK PROPERTIES OF NETWORKS\
-
-First, we need to obtain the networks. We will select those spp present.
-
-```{r}
-
-nrow(reccorded_objecs_success[[6]]$species_present)
-
-
-
-
-## spp names from numbers to letters
-
-net_numbers <- set_sppNames_numbers(reccorded_objecs_success[[6]]$matrix_int[[1]])
-
-net_letters <- convert_sppnames_toletters(net_numbers)
-
-
-## Crop network for present spp
-
-colnames(reccorded_objecs_success[[6]]$species_present) <- seq(1:1000)
-
-colnames(reccorded_objecs_success[[6]]$species_present) <- chartr("0123456789", "ABCDEFGHIJ", colnames(reccorded_objecs_success[[6]]$species_present))
-
-presents <- reccorded_objecs_success[[6]]$species_present[reccorded_objecs_success[[6]]$steps,]
-
-net_present_spp.letters <- net_letters[names(which(presents == 1)), names(which(presents == 1))]
-
-
-
-```
-
-
-Network metrics
-
-```{r}
-
-library(igraph)
-
-graph <- graph_from_adjacency_matrix(adjmatrix = net_present_spp.letters,
-                            mode = "directed")
-
-plot(graph, vertex.size=4, 
-     vertex.label=NA, 
-     edge.arrow.size= 0.3, 
-     layout = layout_on_sphere) 
-
-## compute connectance
-
-S <- vcount(graph)
-L <- ecount(graph)
-
-# average number of interactions species
-L.S <- L/S
-
-# food web connectance
-C <- L/S^2
-
-# MODULARITY
-
-modularity(graph, membership = )
-
-```
-
-## Metrics from empirical networks
-
-see:
-https://mlurgi.github.io/networks_for_r/lesson-4.html
 
 
 
