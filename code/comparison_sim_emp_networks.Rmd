@@ -147,11 +147,6 @@ xlab="Degree", ylab="Cumulative Frequency")
 
 
 
-## Metrics from empirical networks
-
-see:
-https://mlurgi.github.io/networks_for_r/lesson-4.html
-
 
 
 
@@ -423,6 +418,8 @@ for (i in 1:length(adj_matrix_list)) {
 }
 
 
+df_motifs <- Filter(function(x)!all(is.na(x)), df_motifs)
+
 df_motifs
 
 ```
@@ -447,14 +444,54 @@ my.theme<-theme(axis.text=element_text(size=12),
 library(ggplot2)
 library(reshape2)
 
-df_motifs$scenario <- as.character(c(1:nrow(df_motifs)))
+df_motifs$scenario <- chartr("123456789", "ABCDEFGHI", c(1:nrow(df_motifs)))
+
+
 
 df_melted = melt(df_motifs, id.vars = 'scenario')
 
 ggplot(df_melted, aes(x = variable, y = value)) + geom_line(aes(color = scenario, group = scenario))+
   theme_bw()+
   my.theme+
-  theme(legend.position = "right")
+  theme(legend.position = "right")+
+  xlab("triad isomorphism classes")+
+  ylab("frequency")
+
+
+```
+
+
+
+
+
+
+
+## Metrics from empirical networks
+
+see:
+https://mlurgi.github.io/networks_for_r/lesson-4.html
+
+
+
+
+```{r}
+
+library(data.table)
+library(purrr)
+
+data_files <- list.files("../data/empirical_foodwebs/csv")  # Identify file names
+data_files
+
+
+list_files <- list()
+
+for(i in 1:length(data_files)) {                              # Head of for-loop
+ list_files[[i]] <- assign(paste0("data", i),                                   # Read and store data frames
+         read.csv2(paste0("../data/empirical_foodwebs/csv/",
+                   data_files[i]), sep = ","))
+}
+
+list_files[[1]]
 
 
 ```
