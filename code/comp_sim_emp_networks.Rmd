@@ -1,0 +1,433 @@
+---
+title: "Measure and compare network metrics from simulated community with empirical ones"
+output: html_notebook
+---
+
+
+
+
+```{r}
+
+my.theme<-theme(axis.text=element_text(size=12),
+                axis.title = element_text(size = 14),
+                legend.position = "top",
+                legend.text=element_text(size=10),
+                legend.title = element_text(size=12),
+                plot.title = element_text(face="bold",size=14,margin=margin(0,0,20,0),hjust = 0.5),
+                axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0)),
+                axis.title.x = element_text(margin = margin(t = 15, r = 0, b = 0, l = 0)))
+```
+
+
+
+
+these metrics used in: https://www.nature.com/articles/s41598-019-54443-0
+
+
+1. Number of species within the foodweb (S)
+2. liks density (L/S)
+3. directed connectance (C = L/S2)
+4. %T (Top species that have resource species but lack any consumer species)
+5. % I (Intermediate species that have both resource and consumer species)
+6. % B (Basal species that have consumer species but lack resources species)
+7. %C (Cannibal species that eat themselves)
+8. %Omn (species that eat species at different trophic levels)
+9. Standard deviation of mean generality (GenSD)
+10. Standard deviation of mean vulnerability (VulSD)
+
+
+Reference page: https://rfrelat.github.io/BalticFoodWeb.html
+
+
+```{r}
+library(fluxweb)
+library(NetIndices)
+library(ggplot2)
+library(reshape2)
+library(data.table)
+library(purrr)
+library(here)
+library(igraph)
+
+source("functions/functions_metrics_networks.R")
+source("functions/functions_phylo_signal.R")
+
+```
+
+
+# Compare metrics between scenarios to choose the best one
+
+
+
+
+# Get mean metrics of chosen scenarios
+
+
+
+### Get data paths
+
+
+Facilitation, competition, foodweb
+
+```{r}
+
+
+
+# Make a vector of all your file paths
+
+file_paths_fac <- list.files(path = here::here("data/selection_evolution/facilitation/"), pattern = ".rds", full.names = TRUE)
+
+file_paths_comp <- list.files(path = here::here("data/selection_evolution/competition/"), pattern = ".rds", full.names = TRUE)
+
+file_paths_fw <- list.files(path = here::here("data/selection_evolution/foodweb/"), pattern = ".rds", full.names = TRUE)
+
+
+
+
+# Make a vector of file names
+file_names_fac <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_paths_fac))
+
+file_names_comp <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_paths_comp))
+
+file_names_fw <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_paths_fw))
+
+
+```
+
+
+
+### Compute network metrics
+
+Get the adjacency matrix of each simulation and compute the network metrics
+
+```{r}
+
+# Get adjacency matrix from each simulation object stored in our folder
+         
+adj_matrix_list_fac <-  get_adjancency_from_simulation.objects(file_path = file_paths_fac)
+
+adj_matrix_list_comp <-  get_adjancency_from_simulation.objects(file_path = file_paths_comp)
+
+adj_matrix_list_fw <-  get_adjancency_from_simulation.objects(file_path = file_paths_fw)
+
+
+# Compute network metrics
+
+net_metr_fac.sim <- get_network_measures_from_adjacency(list_adj_matrix = adj_matrix_list_fac)
+
+net_metr_comp.sim <- get_network_measures_from_adjacency(list_adj_matrix = adj_matrix_list_comp)
+
+net_metr_fw.sim <- get_network_measures_from_adjacency(list_adj_matrix = adj_matrix_list_fw)
+
+```
+
+
+Print tables
+
+```{r}
+net_metr_fac.sim
+```
+
+```{r}
+net_metr_comp.sim
+```
+
+
+```{r}
+net_metr_fw.sim
+```
+
+
+Compute table with mean metrics
+
+```{r}
+
+
+
+df_metrics_fac <- reshape_df_net.metrics(df_metrics = net_metr_fac.sim,
+                       interaction = "facilitation")
+
+df_metrics_comp <- reshape_df_net.metrics(df_metrics = net_metr_comp.sim,
+                       interaction = "competition")
+
+
+df_metrics_fw <- reshape_df_net.metrics(df_metrics = net_metr_fw.sim,
+                       interaction = "foodweb")
+
+
+df_metrics_comp$id  <- 1:nrow(df_metrics_comp)
+
+df_metrics <- merge(df_metrics_fac, 
+      df_metrics_comp,
+      by = "metric")
+
+df_metrics <- merge(df_metrics,
+                    df_metrics_fw,
+                    by = "metric")
+
+df_metrics <- df_metrics[order(df_metrics$id), ]
+
+rownames(df_metrics) <- NULL
+
+df_metrics$id <- NULL
+
+df_metrics
+
+```
+
+
+
+
+
+### Compute Motifs
+
+Vector of frequencies of triad isomorphic classes
+
+```{r}
+
+motifs_fac_sim <- compute_motifs_from_adjacency(adj_matrix_list_fac)
+
+motifs_comp_sim <- compute_motifs_from_adjacency(adj_matrix_list_comp)
+
+motifs_fw_sim <- compute_motifs_from_adjacency(adj_matrix_list_fw)
+
+```
+
+```{r}
+
+
+
+df_mean_motifs_fac <- reshape_df_motifs(motifs_fac_sim[[1]], interaction = "facilitation")
+
+df_mean_motifs_comp <- reshape_df_motifs(motifs_comp_sim[[1]], interaction = "competition")
+
+df_mean_motifs_fw <- reshape_df_motifs(motifs_fw_sim[[1]], interaction = "foodweb")
+
+
+
+
+df_mean_motifs_comp$id  <- 1:nrow(df_mean_motifs_comp)
+
+df_motifs <- merge(df_mean_motifs_fac, 
+      df_mean_motifs_comp,
+      by = "motif")
+
+df_motifs <- merge(df_motifs, df_mean_motifs_fw,
+                   by = "motif")
+
+df_motifs <- df_motifs[order(df_motifs$id), ]
+
+rownames(df_motifs) <- NULL
+
+df_motifs$id <- NULL
+
+df_motifs
+
+
+```
+
+
+plot motif means of each interaction type
+
+```{r}
+
+
+df_melted = melt(df_motifs, id.vars = 'motif')
+
+
+ggplot(df_melted, aes(x = motif, y = value)) + geom_line(aes(color = variable, group = variable))+
+    theme_bw()+
+    my.theme+
+    theme(legend.position = "right")+
+    xlab("triad isomorphism classes")+
+    ylab("frequency")
+
+
+ggplot(df_melted, aes(x = motif, y = value)) + 
+  geom_point(aes(color = variable, group = variable, size = 4, alpha = 0.7))+
+    theme_bw()+
+    my.theme+
+    theme(legend.position = "right")+
+    xlab("triad isomorphism classes")+
+    ylab("frequency")
+
+```
+
+
+
+
+
+
+# Neutral
+
+```{r}
+readRDS(file = "neutral_df_scenarios_success.rds")
+readRDS(file = "neutral_reccorded_objecs_success.rds")
+```
+
+
+
+scenario id, parameters changed
+
+```{r}
+
+df_scenarios_success <- readRDS(file = "neutral_df_scenarios_success.rds")
+
+df_scenarios_success
+
+```
+
+
+
+vector of networks (in order of scenario id)
+
+
+1. get the adjacency matrix of each scenario
+
+```{r}
+
+
+adj_matrix_list <- list()
+
+for (i in 1:length(reccorded_objecs_success)) {
+  
+  
+  ## spp names from numbers to letters
+  
+  net_numbers <- set_sppNames_numbers(reccorded_objecs_success[[i]]$matrix_int[[1]])
+  
+  net_letters <- convert_sppnames_toletters(net_numbers)
+  
+  
+  ## Crop network for present spp
+  
+  colnames(reccorded_objecs_success[[i]]$species_present) <- seq(1:1000)
+  
+  colnames(reccorded_objecs_success[[i]]$species_present) <- chartr("0123456789", "ABCDEFGHIJ", colnames(reccorded_objecs_success[[i]]$species_present))
+  
+  presents <- reccorded_objecs_success[[i]]$species_present[reccorded_objecs_success[[i]]$steps,]
+  
+  adj_matrix_list[[i]] <- net_letters[names(which(presents == 1)), names(which(presents == 1))]
+  
+  
+  
+  
+}
+
+
+```
+
+
+
+
+
+
+```{r}
+
+
+net_metr_neutral.sim <- get_network_measures_from_adjacency_neutral(list_adj_matrix = adj_matrix_list, 
+                                 vec_p_est = df_scenarios_success$p_est,
+                                 vec_p_ext = df_scenarios_success$p_ext)
+
+#saveRDS(net_metr_neutral.sim, file = "net_metr_neutral.sim.rds")
+#df_scenarios_success <- readRDS(file = "net_metr_neutral.sim.rds")
+
+net_metr_neutral.sim
+
+
+
+```
+
+
+
+
+Vector of frequencies of triad isomorphic classes
+
+```{r}
+
+motifs_neutral.sim <- compute_motifs_from_adjacency(adj_matrix_list)
+
+motifs_neutral.sim
+
+```
+
+
+
+
+
+
+
+## Metrics from empirical networks
+
+see:
+https://mlurgi.github.io/networks_for_r/lesson-4.html
+
+
+
+
+```{r}
+
+list_files <- list()
+
+for(i in 1:length(data_files)) {                              # Head of for-loop
+ list_files[[i]] <- assign(paste0("data", i),                                   # Read and store data frames
+         read.csv2(paste0("../data/empirical_foodwebs/csv/",
+                   data_files[i]), sep = ",",row.names=1))
+ 
+ list_files[[i]][list_files[[i]] > 0] <- 1
+ 
+ 
+ list_files[[i]] <- as.matrix(list_files[[i]])
+ 
+ class(list_files[[i]]) <- "numeric"
+ 
+}
+
+references <- read.csv("../data/empirical_foodwebs/references.csv")
+
+
+```
+
+
+
+
+
+```{r}
+
+
+
+net_metr_empirical <- get_network_measures_from_incidence(list_incidence_matrix = list_files, ref_id = references$ID)
+
+net_metr_empirical
+
+
+graph <- graph_from_incidence_matrix(incidence = list_files[[1]],
+                                         directed = TRUE)
+
+V(graph)
+
+```
+
+
+The matrices are incidence matrices with preys (rows) x predators (columns). As opposed to the simulated networks that were adjacency matrices (spp x spp).
+
+Something is going on - the ercentage of basals is always 0. 
+
+
+
+
+Vector of frequencies of triad isomorphic classes
+
+```{r}
+
+motifs_empirical <- compute_motifs_from_incidende(list_incidence_matrix = list_files, ref_id = references$ID)
+
+motifs_empirical
+
+
+```
+
+  
+
+
+
