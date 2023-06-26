@@ -623,7 +623,13 @@ reshape_df_net.metrics  <- function(df_metrics, interaction) {
   df_mean_net_metrics <- data.frame(names(colMeans(df_metrics)),colMeans(df_metrics))
   rownames(df_mean_net_metrics) <- NULL
   
-  colnames(df_mean_net_metrics) <- c("metric", interaction)
+  sd <- apply(df_metrics, 2, sd)
+  
+  se <-  sd/sqrt(nrow(df_metrics))
+  
+  df_mean_net_metrics$se <- se
+  
+  colnames(df_mean_net_metrics) <- c("metric", interaction, paste("se_", interaction))
   
   return(df_mean_net_metrics)
   
