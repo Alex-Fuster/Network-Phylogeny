@@ -89,9 +89,9 @@ get_network_measures_from_adjacency <- function(list_adj_matrix) {
     
     
     
-    # 3. directed connectance (C = L/S2)
+    # 3. connectance (C = L/S2)
     
-    df[i, "C"] <- L/(S*S)
+    df[i, "C"] <- L/(S*(S-1)/2)
     
     
     
@@ -247,9 +247,9 @@ get_network_measures_from_adjacency_neutral <- function(list_adj_matrix, vec_p_e
     
     
     
-    # 3. directed connectance (C = L/S2)
+    # 3. connectance (C = L/S2)
     
-    df[i, "C"] <- L/(S*S)
+    df[i, "C"] <- L/(S*(S-1)/2)
     
     
     
@@ -405,9 +405,9 @@ get_network_measures_from_incidence <- function(list_incidence_matrix, ref_id) {
     
     
     
-    # 3. directed connectance (C = L/S2)
+    # 3. connectance (C = L/S2)
     
-    df[i, "C"] <- L/(S*S)
+    df[i, "C"] <- L/(S*(S-1)/2)
     
     
     
