@@ -51,6 +51,7 @@ library(purrr)
 library(here)
 library(igraph)
 library(stringr)
+library(ggpubr)
 
 
 source("functions/functions_metrics_networks.R")
@@ -330,6 +331,8 @@ file_paths_comp <- list.files(path = here::here("data/selection_evolution/compet
 
 file_paths_fw <- list.files(path = here::here("data/selection_evolution/foodweb/"), pattern = ".rds", full.names = TRUE)
 
+file_paths_fw1 <- list.files(path = here::here("data/selection_evolution/foodweb1/"), pattern = ".rds", full.names = TRUE)
+
 file_paths_n <- list.files(path = here::here("data/neutral/sims/"), pattern = ".rds", full.names = TRUE)
 
 
@@ -341,6 +344,8 @@ file_names_fac <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_p
 file_names_comp <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_paths_comp))
 
 file_names_fw <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_paths_fw))
+
+file_names_fw1 <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_paths_fw1))
 
 file_names_n <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_paths_n))
 
@@ -363,6 +368,8 @@ adj_matrix_list_comp <-  get_adjancency_from_simulation.objects(file_path = file
 
 adj_matrix_list_fw <-  get_adjancency_from_simulation.objects(file_path = file_paths_fw)
 
+adj_matrix_list_fw1 <-  get_adjancency_from_simulation.objects(file_path = file_paths_fw1)
+
 adj_matrix_list_n <-  get_adjancency_from_simulation.objects(file_path = file_paths_n)
 
 
@@ -374,8 +381,67 @@ net_metr_comp.sim <- get_network_measures_from_adjacency(list_adj_matrix = adj_m
 
 net_metr_fw.sim <- get_network_measures_from_adjacency(list_adj_matrix = adj_matrix_list_fw)
 
+net_metr_fw.sim1 <- get_network_measures_from_adjacency(list_adj_matrix = adj_matrix_list_fw1)
+
 net_metr_n.sim <- get_network_measures_from_adjacency(list_adj_matrix = adj_matrix_list_n)
 
+
+
+list_files <- readRDS(file_paths_fw1[[3]])
+
+net <- list_files$network_list[[length(list_files$network_list)]]
+
+mat_b_col <- matrix(0,1025,25)
+
+net1 <- cbind(mat_b_col, net)
+
+net_numbers <- set_sppNames_numbers(net1)
+
+net_letters <- convert_sppnames_toletters(net_numbers)
+
+
+ ## Crop network for present spp
+    
+    
+    colnames(list_files$presence_matrix) <- seq(1:1000)
+    
+    colnames(list_files$presence_matrix) <- as.character(as.numeric(colnames(list_files$presence_matrix)) + 
+                                                           rep(25, times = ncol(list_files$presence_matrix)))
+        
+    colnames(list_files$presence_matrix) <- chartr("0123456789", "ABCDEFGHIJ", colnames(list_files$presence_matrix))
+    
+    list_files$presence_matrix <- list_files$presence_matrix[length(list_files$network_list),]
+    
+    
+vec_names_rows <- c(rownames(net_letters[1:25, ]), names(which(list_files$presence_matrix == 1))) 
+
+vec_names_cols <- c(colnames(net_letters[,1:25]), names(which(list_files$presence_matrix == 1)))
+
+    
+adj_matrix <- net_letters[names(which(list_files$presence_matrix == 1)),names(which(list_files$presence_matrix == 1))]
+
+adj_matrix <- net_letters[vec_names_rows, vec_names_cols]
+
+cbind(net_letters[,1:25], adj_matrix)
+
+## check spp diversity over time
+
+n_spp_timestep <- c()
+
+for(i in 1:nrow(list_files$presence_matrix)){
+  
+  n_spp_timestep[i] <- length(which(list_files$presence_matrix[i,] == 1))
+  
+}
+
+timesteps <- c(1:length(n_spp_timestep))
+
+plot(timesteps, n_spp_timestep)
+
+
+list_files$traits_df
+
+plot(list_files$traits_df[,1], list_files$traits_df[,3])
 ```
 
 
@@ -397,6 +463,9 @@ df_metrics_comp <- reshape_df_net.metrics(df_metrics = net_metr_comp.sim,
 df_metrics_fw <- reshape_df_net.metrics(df_metrics = net_metr_fw.sim,
                        interaction = "foodweb")
 
+df_metrics_fw1 <- reshape_df_net.metrics(df_metrics = net_metr_fw.sim1,
+                       interaction = "foodweb")
+
 df_metrics_n <- reshape_df_net.metrics(df_metrics = net_metr_n.sim,
                        interaction = "neutral")
 
@@ -409,6 +478,10 @@ df_metrics <- merge(df_metrics_fac,
 
 df_metrics <- merge(df_metrics,
                     df_metrics_fw,
+                    by = "metric")
+
+df_metrics <- merge(df_metrics,
+                    df_metrics_fw1,
                     by = "metric")
 
 df_metrics <- merge(df_metrics,
@@ -438,34 +511,49 @@ Plot the results
 
 ```{r}
 
-# S
-
-df_S <- df_metrics[df_metrics$metric == "S",]
-
-df_S_plot <- df_S[,c("metric","facilitation", "competition", "foodweb", "neutral", "empirical")]
-
-df_S_se <- df_S[1,c("metric","se_ facilitation", "se_ competition", "se_ foodweb", "se_ neutral", "se_ empirical")]
 
 
+p_S <- plot_metric(metric = "S", y_axis = "N species")
 
-df_S_plot <- melt(df_S_plot, id = "metric")
+p_link.dens <- plot_metric(metric = "Link_density", y_axis = "L/S")
 
-df_S_se_plot <- melt(df_S_se, id = "metric")
+p_C <- plot_metric(metric = "C", y_axis = "Connectance")
 
-colnames(df_S_se_plot)[colnames(df_S_se_plot) == "value"] <- "se"
+p_top <- plot_metric(metric = "perc_tops", y_axis = "% top species")
 
-df_S_plot$se <- df_S_se_plot$se
+p_int <- plot_metric(metric = "perc_int", y_axis = "% intermediate species")
 
-ggplot(df_S_plot) +
-  geom_bar( aes(x=variable, y=value, fill = variable), stat="identity", position = position_dodge(width = 0.2)) +
- geom_errorbar( aes(x=variable, ymin=value-se, ymax=value+se), width=0.1, alpha=0.9, size=1) +
-  ggtitle("metric: S")+
-  scale_fill_manual(values = c("gray50", "gray50", "gray50", "gray50", "gray82"))+
-  xlab("")+
-  ylab("N species")+
-  theme_bw()+
-  my.theme+
-    theme(legend.position = "none")
+p_basal <- plot_metric(metric = "perc_basals", y_axis = "% basal species")
+
+p_cannibals <- plot_metric(metric = "perc_cannibals", y_axis = "% cannibal species")
+
+p_omnivory <- plot_metric(metric = "omnivory", y_axis = "omnivory")
+
+p_sd_gen <- plot_metric(metric = "sd_gen", y_axis = "SD generality")
+
+p_sd_vul <- plot_metric(metric = "sd_vul", y_axis = "SD vulnerability")
+
+
+plot_metrics_comparison_sim_emp <- ggarrange(
+  
+  p_S,
+  p_link.dens,
+  p_C,
+  p_top,
+  p_int,
+  p_basal,
+  p_cannibals,
+  p_omnivory,
+  p_sd_gen,
+  p_sd_vul,
+  
+  nrow = 5,
+  ncol = 2
+  
+)
+
+
+#ggsave("../figures/plot_metrics_comparison_sim_emp.png", height = 15, width = 12)
 
 ```
 

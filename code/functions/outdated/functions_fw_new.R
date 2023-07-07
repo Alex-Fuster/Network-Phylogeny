@@ -1,3 +1,6 @@
+
+# AS MATHILDE'S BUT WITH BASALS
+
 ########################################
 
 # Function to append a list into an existing list
@@ -9,7 +12,7 @@ list_append <- function(lst, ...){
 
 
 # Function to generate a new set of traits for ancestors
-# Each species is characterized by a set of 3 traits: n (niche), o (optimum) and r (niche's range)
+# Each species is characterized by a set of 3 traits: n, o and r
 rand_traits_anc = function(pars) {
   with(as.list(pars),{
     n = runif(1, 0, 1)
@@ -25,61 +28,70 @@ rand_traits_anc = function(pars) {
 rand_traits_mut = function(traits_anc, pars) {
   
   with(as.list(c(traits_anc, pars)),{
-  
-      #n_m = -1
-      #while((n_m < 0) || (n_m > 1)){n_m = n + rnorm(1, mean = 0, sd = pars$sd)}
-      n_m = EnvStats::rnormTrunc(1, mean = n, sd = pars$sd, min = 0, max = 1)
-      r_m = -1
-      while((r_m < 0) || (r_m > 1)){r_m = r + rnorm(1, mean = 0, sd = 0.02)}
-      traits_mut = c(n = n_m, r = r_m, o = n)
-      
-    traits_mut
+
+    #n_m = -1
+    #while((n_m < 0) || (n_m > 1)){n_m = n + rnorm(1, mean = 0, sd = pars$sd)}
+    n_m = EnvStats::rnormTrunc(1, mean = n, sd = pars$sd, min = 0, max = 1)
+    r_m = -1
+    while((r_m < 0) || (r_m > 1)){r_m = r + rnorm(1, mean = 0, sd = 0.02)}
+    traits_mut = c(n = n_m, r = r_m, o = n)
+
+    traits_mut 
   })
 }
 
 ########################################
 # Function to compute the interaction network from a set of traits
-get_L_mat = function(pars, traits_mat) {
+get_L_mat = function(basal, pars, traits_mat) {
   with(as.list(pars),{
-    L = matrix(0, nr = pars$Smax, nc = pars$Smax)
+    L = matrix(0, nr = Smax+Sbasal, nc = Smax)
     
     # Lower boundary
     low = traits_mat$n - traits_mat$r
-    low_mat = matrix(low, nr = pars$Smax, nc = pars$Smax, byrow = TRUE)
+    low_mat = matrix(low, nr = Smax+Sbasal, nc = Smax, byrow = TRUE)
     
     # Upper boundary
     high = traits_mat$n + traits_mat$r
-    high_mat = matrix(high, nr = pars$Smax, nc = pars$Smax, byrow = TRUE)
+    high_mat = matrix(high, nr = Smax+Sbasal, nc = Smax, byrow = TRUE)	
     S = nrow(traits_mat)
     
     # Matrix of niche positions
-    n_mat = matrix(traits_mat$n, nr = pars$Smax, nc = pars$Smax, byrow = FALSE)
+    n_mat = matrix(traits_mat$n, nr = Smax, nc = Smax, byrow = FALSE)
     
-    ## Add the basal species
-    #n_basal = matrix(basal, nr = pars$Sbasal, nc = pars$Smax, byrow = FALSE)
-    #n_mat = rbind(n_basal, n_mat)
+    # Add the basal species
+    n_basal = matrix(basal, nr = Sbasal, nc = Smax, byrow = FALSE)
+    n_mat = rbind(n_basal, n_mat)
+    
+   # print("n_mat con low_mat")
+    
+   # print(n_mat > low_mat)
+   # print("n_mat con high_mat")
+    
+   # print(n_mat < high_mat)
     
     # Test interactions
     L[n_mat > low_mat & n_mat < high_mat] = 1
-    if(pars$Smax > 1) diag(L) = 0
+    if(Smax > 1) diag(L[(Sbasal+1):(Sbasal+Smax),]) = 0
     L
   })
 }
 
 ########################################
 # Function to compute the interactions of a given species
-get_L_vec = function(pars, traits_mat, traits_mut) {
+get_L_vec = function(basal, pars, traits_mat, traits_mut) {
   with(as.list(pars),{
-    L_vec = numeric(pars$Smax)
+    
+    
+    L_vec = numeric(Smax + Sbasal)
     
     # Lower boundary
-    low = as.numeric(traits_mut["n"]) - as.numeric(traits_mut["r"])
+    low = traits_mut["n"] - traits_mut["r"]
     
     # Upper boundary
-    high = as.numeric(traits_mut["n"]) + as.numeric(traits_mut["r"])
+    high = traits_mut["n"] + traits_mut["r"]
     
     # Vector of niche positions
-    n_vec = c(traits_mat$n)
+    n_vec = c(basal, traits_mat$n)
     
     # Test interactions
     L_vec[n_vec > as.numeric(low) & n_vec < as.numeric(high)] = 1
@@ -95,8 +107,12 @@ sim_model_bif = function(seed, pars, nsteps) {
     
     set.seed(seed)
     
+    # Draw the traits of the producers
+    #	basal = runif(Sbasal, 0, 1)
+    basal = runif(Sbasal, 0, 0.2)
+    
     # Draw the first species traits
-    traits_mat = matrix(nr = pars$Smax, nc = 3)
+    traits_mat = matrix(nr = Smax, nc = 3)
     traits_mat[1,] = rand_traits_anc(pars)
     traits_mat = as.data.frame(traits_mat)
     names(traits_mat) = c("n","r","o")
@@ -105,7 +121,7 @@ sim_model_bif = function(seed, pars, nsteps) {
     pres = matrix(0, nr = nsteps, nc = Smax)
     pres[1,1] = 1
     
-    # Set the ancestry object
+    # Set the ancestry object ----------------------------
     anc = matrix(NA,nr = Smax, nc = 3)
     
     # Set the extinctions object
@@ -196,27 +212,27 @@ sim_model_bif = function(seed, pars, nsteps) {
             traits_mat[esp,] <- c(n_tmp, o_tmp, r_tmp)
             
             # Recompute the interactions
-            I = get_L_vec(pars, traits_mat, traits_mut)
+            I = get_L_vec(basal, pars, traits_mat, traits_mut)
             
             # Compute the number of interactions among present species
-            sum_I = sum(I*pres[step,]) + Bspe
+            sum_I = sum(I*c(rep(1,Sbasal),pres[step,]))	
             
             # Compute the probability of successful establishment #---------------------- P(establishment)
-
             
             
-              
-              estab_prob = (u_0 + u_1*exp(-a_u*sum_I))#/(1 + exp(pars$d * (sum_I - pars$I_max)))
-              ##print(paste("estab prob =",spec_prob, " sum of interactions =", sum_I))
-              
-              
-          
-         
-
-    
-              
-              
-
+            
+            
+            estab_prob = (u_0 + u_1*exp(-a_u*sum_I))#/(1 + exp(d * (sum_I - I_max)))
+            ##print(paste("estab prob =",spec_prob, " sum of interactions =", sum_I))
+            
+            
+            
+            
+            
+            
+            
+            
+            
             
             # Test if there is establishment of the two new species
             
@@ -246,19 +262,19 @@ sim_model_bif = function(seed, pars, nsteps) {
             traits_mut <- c(n_tmp, o_tmp, r_tmp)
             
             # Recompute the interactions
-            I = get_L_vec(pars, traits_mat, traits_mut)
+            I = get_L_vec(basal, pars, traits_mat, traits_mut)
             
             # Compute the number of interactions among present species
-            sum_I = sum(I*pres[step,]) + Bspe
+            sum_I = sum(I*c(rep(1,Sbasal),pres[step,])) 
             
             # Compute the probability of successful establishment #---------------------- P(establishment)
             
-       
             
-           
-              estab_prob = (u_0 + u_1*exp(-a_u*sum_I))#/(1 + exp(pars$d * (sum_I - pars$I_max)))
-              ##print(paste("estab prob =",spec_prob, " sum of interactions =", sum_I))
-       
+            
+            
+            estab_prob = (u_0 + u_1*exp(-a_u*sum_I))#/(1 + exp(d * (sum_I - I_max)))
+            ##print(paste("estab prob =",spec_prob, " sum of interactions =", sum_I))
+            
             
             # Test if there is establishment of the second	species
             if(runif(1) < estab_prob) {
@@ -286,35 +302,35 @@ sim_model_bif = function(seed, pars, nsteps) {
       pres_vec = pres[step,]
       cooc = matrix(pres_vec, nr=Smax, nc=Smax, byrow=TRUE)*
         matrix(pres_vec, nr=Smax, nc=Smax, byrow=FALSE)
-      L = get_L_mat(pars, traits_mat)
-      L = L*cooc
+      L = get_L_mat(basal, pars, traits_mat) 
+      L[c((Sbasal+1):(Sbasal+Smax)),]= L[c((Sbasal+1):(Sbasal+Smax)),]*cooc
       L_list[[step]] = L                            #---------------------- List of networks/time-step
       
       # Test for extinction                         #---------------------- P(extinction)
-
+      
+      
+      in_I = colSums(L)
+      out_I = rowSums(L)[(Sbasal+1):(Sbasal+Smax)] 	
+      
+      # compute vector of shared preys
+      
+    #  vec_shared_prey <- c()
+      
+    #  for (i in 1:ncol(L)) {
         
-        in_I = colSums(L) + Bext*pres_vec
-        out_I = rowSums(L) 	
+    #    vec_shared_prey[i] <- mean(rowSums(L)*L[,i])
         
-        # compute vector of shared preys
-        
-        vec_shared_prey <- c()
-        
-        for (i in 1:ncol(L)) {
-          
-          vec_shared_prey[i] <- mean(rowSums(L)*L[,i])
-          
-        }
-        
-        ext_prob = e_0neg * (1 - exp(-a_eneg*out_I)) + e_0pos + e_1pos*exp(-a_epos*in_I) +
-          e_0neg * (1 - exp(-a_eneg*vec_shared_prey))
-
-
+    #  }
+      
+      ext_prob = e_0neg * (1 - exp(-a_eneg*out_I)) + e_0pos + e_1pos*exp(-a_epos*in_I) #+
+        #e_0neg * (1 - exp(-a_eneg*vec_shared_prey))
+      
+      
       
       
       # Perform extinctions
       #test_extprob = runif(S,0,1)
-      #test_extprob = c(test_extprob, rep(0,pars$Smax - S))
+      #test_extprob = c(test_extprob, rep(0,Smax - S))
       ##print(paste("random number for the extinction prob = ", test_extprob[1]))
       present_spe <- grep(1,pres[step,])
       test_extprob <- rep(0,Smax)
@@ -349,6 +365,7 @@ sim_model_bif = function(seed, pars, nsteps) {
          L = L, 
          L_list = L_list,
          dist_anc = dist_anc,
-         list_dist_anc = list_dist_anc)
+         list_dist_anc = list_dist_anc,
+         basal = basal)
   })
 }

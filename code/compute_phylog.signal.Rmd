@@ -1,0 +1,168 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+#source("../Original_code/functions/tree_functions.R")
+#source("../Original_code/functions/phylo_functions.R")
+source("functions/functions_phylo_signal.R")
+library(ape)
+library(apTreeshape)
+library(aricode)
+library(igraph)
+library(ggplot2)
+library("vegan")
+library(ggpubr)
+library(praznik)
+```
+
+
+```{r}
+
+my.theme<-theme(axis.text=element_text(size=12),
+                axis.title = element_text(size = 14),
+                legend.position = "top",
+                legend.text=element_text(size=10),
+                legend.title = element_text(size=12),
+                plot.title = element_text(face="bold",size=14,margin=margin(0,0,20,0),hjust = 0.5),
+                axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0)),
+                axis.title.x = element_text(margin = margin(t = 15, r = 0, b = 0, l = 0)))
+
+
+fac_df <- compute_df_signal_time_v3(path = "../data/selection_evolution/facilitation/list_res_pos_2.rds")
+
+comp_df <- compute_df_signal_time_v3(path = "../data/selection_evolution/competition/list_res_neg_2.rds")
+
+n_df <- compute_df_signal_time_v3(path = "../data/neutral/sims/list_res_n_2.rds")
+
+fw_df <- compute_df_signal_time_v3(path = "../data/selection_evolution/foodweb/list_res_fw_2.rds")
+
+
+#saveRDS(fac_df, file = "fac_df.rds")
+#saveRDS(comp_df, file = "comp_df.rds")
+#saveRDS(fw_df, file = "fw_df.rds")
+#saveRDS(n_df, file = "n_df.rds")
+
+
+```
+
+```{r}
+
+
+ggarrange(
+  
+  plot_phylo.sign_time(fac_df[[1]])[[1]],
+  plot_phylo.sign_time(fac_df[[1]])[[2]],
+  plot_phylo.sign_time(fac_df[[1]])[[3]],
+  fac_df[[2]],
+ ncol = 4,
+ nrow = 1
+)
+
+
+ggarrange(
+  
+  plot_phylo.sign_time(fac_df[[1]])[[1]],
+  plot_phylo.sign_time(fac_df[[1]])[[2]],
+  plot_phylo.sign_time(fac_df[[1]])[[3]],
+  fac_df[[2]],
+  
+  plot_phylo.sign_time(comp_df[[1]])[[1]],
+  plot_phylo.sign_time(comp_df[[1]])[[2]],
+  plot_phylo.sign_time(comp_df[[1]])[[3]],
+   comp_df[[2]],
+  
+  plot_phylo.sign_time(fw_df[[1]])[[1]],
+  plot_phylo.sign_time(fw_df[[1]])[[2]],
+  plot_phylo.sign_time(fw_df[[1]])[[3]],
+  fw_df[[2]],
+  
+  plot_phylo.sign_time(n_df[[1]])[[1]],
+  plot_phylo.sign_time(n_df[[1]])[[2]],
+  plot_phylo.sign_time(n_df[[1]])[[3]],
+  n_df[[2]],
+  
+  nrow = 4,
+  ncol = 4
+  
+)
+
+ggsave("../figures/plot_phylo.sign_time.png", height = 15, width = 17)
+
+```
+
+```{r}
+
+cor_fac <- cor(fac_df$protest_corr_mean, fac_df$timesteps)
+
+cor_comp <- cor(comp_df[[1]]$protest_corr_mean, comp_df[[1]]$timesteps)
+
+cor_fw <- cor(fw_df$protest_corr_mean, fw_df$timesteps)
+
+cor_n <- cor(n_df$protest_corr_mean, n_df$timesteps)
+
+```
+
+plotting significance
+
+```{r}
+
+ggarrange(
+  
+  plot_phylo.sign_time_sign(fac_df[[1]])[[1]],
+  plot_phylo.sign_time_sign(fac_df[[1]])[[2]],
+  plot_phylo.sign_time_sign(fac_df[[1]])[[3]],
+  fac_df[[2]],
+  
+  plot_phylo.sign_time_sign(comp_df[[1]])[[1]],
+  plot_phylo.sign_time_sign(comp_df[[1]])[[2]],
+  plot_phylo.sign_time_sign(comp_df[[1]])[[3]],
+   comp_df[[2]],
+  
+  plot_phylo.sign_time_sign(fw_df[[1]])[[1]],
+  plot_phylo.sign_time_sign(fw_df[[1]])[[2]],
+  plot_phylo.sign_time_sign(fw_df[[1]])[[3]],
+  fw_df[[2]],
+  
+  plot_phylo.sign_time_sign(n_df[[1]])[[1]],
+  plot_phylo.sign_time_sign(n_df[[1]])[[2]],
+  plot_phylo.sign_time_sign(n_df[[1]])[[3]],
+  n_df[[2]],
+  
+  nrow = 4,
+  ncol = 4
+  
+)
+
+ggsave("../figures/plot_phylo.sign_time_sign.png", height = 15, width = 15)
+
+```
+
+
+
+## inspections
+
+timestep 19 and 20 in facilitation, crazy difference in signal. Why?
+
+
+```{r}
+list_interact_distances_pred_corrected <- fac_df1[[2]]
+
+list_dist.phylo_pres <- fac_df1[[3]]
+
+fac_df1[[1]]
+
+list_interact_distances_pred_corrected[20]
+
+list_interact_distances_pred_corrected[[15]]
+
+
+protest(list_interact_distances_pred_corrected[[16]], 
+        list_dist.phylo_pres[[16]])
+
+
+comp_df[[1]]
+
+```
+

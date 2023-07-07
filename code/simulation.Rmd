@@ -59,6 +59,7 @@ pars$d = 0.5 # Decrease speed of the establishment probability
 pars$Bspe = 4 # Constant minimal number of interaction per species (extablishment prob)
 pars$Bext = 4 # Constant minimal number of interaction per species (extinction prob)
 pars$I_max = 40 # Maximal number of interactioning species
+
 ```
 
 
@@ -75,7 +76,7 @@ source("functions/functions_sim_comp.fac.R")
 
 ```{r}
 nsteps = 350 # Set the maximum timestep per simulation
-nsim = 10 # Set the number of simulations
+nsim = 3 # Set the number of simulations
 
 # Vector to record number of simulation needed to reach 100 valid simulations
 needed_sim_pos <- c(rep(NA, nsim))
@@ -236,7 +237,7 @@ Pass distances data to Netweek format.
 ### set general parameters
 
 ```{r}
-rm(list = ls())
+
 
 pars = list()
 
@@ -271,15 +272,17 @@ pars$u_0 = 1 # Asymptotic establishment probability with infinite facilitation i
 pars$u_1 = -1 # Establishment probability with absence of facilitation interactions
 pars$d = 0.5 # Decrease speed of the establishment probability
 
-# Extinction and establishment probabilitie for both, positive and negative interactions communities
-pars$Bspe = 4 # Constant minimal number of interaction per species (extablishment prob)
-pars$Bext = 4 # Constant minimal number of interaction per species (extinction prob)
+
 pars$I_max = 40 # Maximal number of interactioning species
 ```
 
 
 ```{r}
 pars$e_0neg = 0.1 # Asymptotic extinction probability with infinite negative interactions
+
+pars$av_r = 0.2 # range of the niche
+pars$beta_n = 1 # parameter of the beta distribution 
+pars$Sbasal = 25 # number of basal species
 ```
 
 
@@ -287,7 +290,7 @@ pars$e_0neg = 0.1 # Asymptotic extinction probability with infinite negative int
 
 ```{r}
 
-source("functions/functions_sim_foodweb.R")
+source("functions/functions_fw_new.R")
 
 ```
 
@@ -297,7 +300,7 @@ source("functions/functions_sim_foodweb.R")
 
 ```{r}
 nsteps = 350 # Set the maximum timestep per simulation
-nsim = 10 # Set the number of simulations
+nsim = 1 # Set the number of simulations
 
 # Vector to record number of simulation needed to reach 100 valid simulations
 needed_sim_fw <- c(rep(NA, nsim))
@@ -352,10 +355,10 @@ while(successful_sim < nsim+1){
   total_nb_sim <- total_nb_sim +1 # Count the total amount of simulations
   
   # Test if we have enough species at the timestep 150 in the simulation
-  success <- sum(simulation$pres[150,])
+  success <- sum(simulation$pres[40,])
   #print(paste0("Success = ", success))
   
-  if(success >= 1){
+  if(success >= 2){
     #print("the simulation has more than 19 species at the time step 150")
     seed_record[successful_sim] <- seed # Record seed which alows us to have "good" simulation
     res_sim <- list(simulation_number = paste0("simulation", successful_sim), 
@@ -367,14 +370,15 @@ while(successful_sim < nsim+1){
                     extinxction_matrix = simulation$extinct, 
                     network_list = simulation$L_list, 
                     anc_dist_table = simulation$dist_anc, 
-                    list_anc_dist = simulation$list_dist_anc) # Record results from the simulation
+                    list_anc_dist = simulation$list_dist_anc,
+                    basal = simulation$basal) # Record results from the simulation
     
    # list_res <- list_append(list_res, res_sim)
     
     print(paste("simulation ", successful_sim, "sur", nsim))
     successful_sim <- successful_sim + 1 # Count the amount of "good" simulations
     
-      path <- paste0("../data/selection_evolution/foodweb/list_res_fw_", successful_sim, ".rds")
+      path <- paste0("../data/selection_evolution/foodweb1/list_res_fw_", successful_sim, ".rds")
 	  	saveRDS(res_sim, file = path)  
 	  	
 	  	rm(res_sim)
@@ -395,7 +399,10 @@ while(successful_sim < nsim+1){
   
 
   
+
+
 ```
+
 
 
 ### save data

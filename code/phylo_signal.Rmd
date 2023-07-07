@@ -25,17 +25,24 @@ FOODWEB
 
 ```{r}
 
-load("./list_res_fw2_1.Rdata")
+list_res <- readRDS("../data/selection_evolution/foodweb1/fw.rds")
+
+
 
 
 #names(list_res) = c("simulation1", "simulation2")
 
-list_simulation1 <- list_res$simulation1
+list_simulation1 <- list_res
+
+names(list_simulation1)[1] <- "presence_matrix"
+names(list_simulation1)[7] <- "network_list"
+names(list_simulation1)[9] <- "list_anc_dist"
 
 
 # count number of timesteps where there were spp
 
 n_steps <- length(list_simulation1$network_list)
+
 
 ```
 
@@ -43,13 +50,12 @@ COMPETITION
 
 ```{r}
 
-load("./Data/Negative_interactions/list_res_neg_2.Rdata")
+list_res <- readRDS("../Data/selection_evolution/competition/list_res_neg_2.rds")
 
-names(list_res) = c("simulation1", "simulation2")
-
-list_simulation1 <- list_res$simulation1
 
 # count number of timesteps where there were spp
+
+list_simulation1 <- list_res
 
 n_steps <- length(list_simulation1$network_list)
 
@@ -60,15 +66,15 @@ FACILITATION
 
 ```{r}
 
-load("./Data/Positive_interactions/list_res_pos_2.Rdata")
+list_res <- readRDS("../Data/selection_evolution/facilitation/list_res_pos_2.rds")
 
-names(list_res) = c("simulation1", "simulation2")
-
-list_simulation1 <- list_res$simulation1
 
 # count number of timesteps where there were spp
 
+list_simulation1 <- list_res
+
 n_steps <- length(list_simulation1$network_list)
+
 
 ```
 
@@ -106,7 +112,7 @@ presence_matrix <- presence_matrix[1:n_steps,]
 
 
 
-#### Discard timesteps where phylogenetic distances cant be calculated
+#### Identify timesteps where phylogenetic distances cant be calculated
 
 It requires at leas 3 species to compute the phylogenetic distances.
 Check the timestep from which we can make the calculations by looking at the presence_matrix and see which matrices (or timesteps) have less than 3 spp.
@@ -115,7 +121,11 @@ Check the timestep from which we can make the calculations by looking at the pre
 
 non.valid_timesteps_phylo_distance <- c(which(rowSums(presence_matrix) < 3))
 
-print(paste("timesteps 1 to", length(non.valid_timesteps_phylo_distance), "will be discarted as they have less than 3 spp"))
+# until what timestep need to discard:
+
+final.discarded_timestep <- non.valid_timesteps_phylo_distance[length(non.valid_timesteps_phylo_distance)]
+
+print(paste("timesteps 1 to", final.discarded_timestep, "will be discarted as they have less than 3 spp"))
 
 ```
 
@@ -130,13 +140,13 @@ Discard those timesteps with less than 3 spp in both the list_anc_dist table (an
 
 # ancestry-distances table
 
-list_anc_dist <- list_simulation1$list_anc_dist[-non.valid_timesteps_phylo_distance]
+list_anc_dist <- list_simulation1$list_anc_dist[(final.discarded_timestep+1):length(list_simulation1$list_anc_dist)]
 
 
 
 # Network list
 
-network_list <- list_simulation1$network_list[-non.valid_timesteps_phylo_distance]
+network_list <- list_simulation1$network_list[(final.discarded_timestep+1):length(list_simulation1$list_anc_dist)]
 
 
 
@@ -165,6 +175,19 @@ if(length(list_anc_dist) == length(network_list)){
 
 ```
 
+ELIMINATE BASALS (foodweb)
+
+```{r}
+
+# discard basals in interaction matrixes
+
+Sbasals <- length(list_simulation1$basal)
+
+network_list <- lapply(network_list, eliminate_basals, nbasals = Sbasals)
+
+
+```
+
 
 
 ## Convert spp names from numbers to letters
@@ -180,6 +203,7 @@ list_anc_dist_letters <- lapply(list_anc_dist, change_sppnames_letters_ancdist.t
 
 
 ## Network list 
+
 
 list_networks_sppnames_numbers <- lapply(network_list, set_sppNames_numbers)
 
@@ -202,6 +226,8 @@ if(length(list_anc_dist_letters) == length(list_networks_sppnames_letters)){
   
   print("PROBLEM")
 }
+
+
 ```
 
 
@@ -310,7 +336,7 @@ if(length(which(colnames(presence_matrix) != colnames(list_networks_sppnames_let
 
 # Discard same timesteps (rows) than the discarted phylogenetic distance matrices
 
-presence_matrix <- presence_matrix[-non.valid_timesteps_phylo_distance,]
+presence_matrix <- presence_matrix[(final.discarded_timestep+1):length(list_simulation1$list_anc_dist),]
 
 
 
@@ -326,6 +352,8 @@ if(nrow(presence_matrix) == length(list_networks_sppnames_letters) &
   
   print("PROBLEM")
 }
+
+
 
 
 ```
@@ -344,6 +372,7 @@ for (i in 1:length(list_networks_sppnames_letters)) {
  list_net_present_spp.letters[[i]] <- list_networks_sppnames_letters[[i]][names(which(presence_matrix[i,] == 1)), names(which(presence_matrix[i,] == 1))]
   
 }
+
 
 
 ```
@@ -365,11 +394,16 @@ I will use the function **compute_nmi_aricode_pred()** for predators and **compu
 ## DISTANCES AS PREDATORS (columns)
 
 
+#list_interact_distances_pred <- lapply(list_net_present_spp.letters, FUN = compute_nmi_cols)
 list_interact_distances_pred <- lapply(list_net_present_spp.letters, FUN = compute_nmi_aricode_pred)
+
+
+# thosa that are all 0 will have NaN - I need to convert them into 0
 
 
 ## DISTANCES AS PREYS (rows)
 
+#list_interact_distances_prey <- lapply(list_net_present_spp.letters, FUN = compute_nmi_rows)
 list_interact_distances_prey <- lapply(list_net_present_spp.letters, FUN = compute_nmi_aricode_prey)
 
 
@@ -673,7 +707,7 @@ protest_mean <- list()
 procrustes_mean <- list()
 
 
-for (i in 1:length(list_dist.phylo_pres1)) {
+for (i in 1:length(list_dist.phylo_pres)) {
   
   protest_pred[[i]] <- protest(list_mds.int_pred[[i]], list_mds.phy[[i]])
   
@@ -682,7 +716,7 @@ for (i in 1:length(list_dist.phylo_pres1)) {
   
 }
 
-for (i in 1:length(list_dist.phylo_pres1)) {
+for (i in 1:length(list_dist.phylo_pres)) {
   
   protest_prey[[i]] <- protest(list_mds.int_prey[[i]], list_mds.phy[[i]])
   
@@ -691,7 +725,7 @@ for (i in 1:length(list_dist.phylo_pres1)) {
   
 }
 
-for (i in 1:length(list_dist.phylo_pres1)) {
+for (i in 1:length(list_dist.phylo_pres)) {
   
   protest_mean[[i]] <- protest(list_mds.int_mean[[i]], list_mds.phy[[i]])
   
@@ -699,8 +733,6 @@ for (i in 1:length(list_dist.phylo_pres1)) {
   
   
 }
-
-
 
 
 ```
@@ -790,11 +822,11 @@ df_signal_time
 
 ```{r}
 
-#save(df_signal_time, file = "../foodweb_test/df_signal_time_facilitation.RData")
+#save(df_signal_time, file = "../data/selection_evolution/foodweb1/df_signal_time.Rdata")
 
-load("../foodweb_test/df_signal_time_facilitation.RData")
+#load("../foodweb_test/df_signal_time_facilitation.RData")
 
-df_signal_time
+#df_signal_time
 
 ```
 
@@ -844,20 +876,20 @@ p_prey <- ggplot(df_signal_time, aes(x=timesteps, y=protest_t_mean)) +
 xlab("timesteps")+
   ylab("Phylogenetic signal")
 
-p_mean <- ggplot(df_signal_time, aes(x=timesteps, y=protest_t_mean)) +
+p_mean <- ggplot(df_signal_time, aes(x=timesteps, y=protest_corr_mean)) +
        geom_line(color="black", linetype="twodash")+
   #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
   theme_bw()+
     my.theme+
     scale_colour_manual(values = c("black", "red"))+
-    ggtitle("neutral")+
+    ggtitle("foodweb")+
 xlab("timesteps")+
   ylab("Phylogenetic signal")
 
 
 
 
-
+cor(df_signal_time$timesteps, df_signal_time$protest_corr_mean )
 
 ```
 
@@ -877,7 +909,7 @@ for (i in 1:nrow(presence_matrix)) {
   
 }
 
-df_signal_time$nspp <- n_spp_time[-c(1:4)]
+df_signal_time$nspp <- n_spp_time
 
 
 p.spp <- ggplot(df_signal_time, aes(x=timesteps, y = nspp)) +
@@ -903,10 +935,46 @@ ggarrange(p_mean + rremove("xlab"), p.spp,
              ncol = 1, nrow = 2
              )
 
-ggsave("neutral_result_phylo.time_1sim.png", 
+ggsave("foodweb_result_phylo.time_1sim.png", 
        height = 7,
        width = 7)
 
+#ggarrange(p_prey + rremove("xlab"),
+         # p_pred + rremove("xlab"),
+#  p_mean + rremove("xlab"), p.spp, 
+       #      ncol = 1, nrow = 4)
+
+#ggsave("figures/foodweb_all_result_phylo.time_1sim.png", 
+       #height = 14,
+       #width = 7)
+
 ```
 
+
+#### Trying something - relationship between spp degree and phylogenetic signal
+
+
+```{r}
+
+trial <- procrustes(list_mds.int_mean[[length(list_mds.int_mean)]], list_mds.phy[[length(list_mds.phy)]])
+
+
+vec_residuals <- residuals(trial, kind = 2)
+
+
+test_mat <- list_net_present_spp.letters[[length(list_net_present_spp.letters)]]
+
+graph <- graph_from_adjacency_matrix(adjmatrix = test_mat,
+                                         mode = "directed")
+
+vec_degree <- degree(graph)
+
+
+df <- as.data.frame(vec_degree,vec_residuals)
+
+
+p_timestep_f <- ggplot(df, aes(x=vec_degree, y=vec_residuals)) + geom_point()
+
+p_timestep_f
+```
 

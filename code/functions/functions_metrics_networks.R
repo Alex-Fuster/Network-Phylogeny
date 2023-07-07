@@ -655,3 +655,44 @@ reshape_df_motifs <- function(df_motifs, interaction) {
   return(df_mean_motifs)
   
 }
+
+
+
+# Plot metric from summary mean metrics table
+
+
+
+plot_metric <- function(metric, y_axis) {
+  
+  df <- df_metrics[df_metrics$metric == metric,]
+  
+  df_plot <- df[,c("metric","facilitation", "competition", "foodweb.x","foodweb.y", "neutral", "empirical")]
+  
+  df_se <- df[1,c("metric","se_ facilitation", "se_ competition", "se_ foodweb.x","se_ foodweb.y", "se_ neutral", "se_ empirical")]
+  
+  df_plot <- melt(df_plot, id = "metric")
+  
+  df_se_plot <- melt(df_se, id = "metric")
+  
+  colnames(df_se_plot)[colnames(df_se_plot) == "value"] <- "se"
+  
+  df_plot$se <- df_se_plot$se
+  
+  p <- ggplot(df_plot) +
+    geom_bar( aes(x=variable, y=value, fill = variable), stat="identity", position = position_dodge(width = 0.2)) +
+    geom_errorbar( aes(x=variable, ymin=value-se, ymax=value+se), width=0.1, alpha=0.9, size=1) +
+    ggtitle(paste("metric:",  metric))+
+    scale_fill_manual(values = c("gray50", "gray50", "gray50", "gray50","gray50", "gray82"))+
+    xlab("")+
+    ylab(y_axis)+
+    theme_bw()+
+    my.theme+
+    theme(legend.position = "none")
+  
+  return(p)
+  
+  
+  
+  
+  
+}
