@@ -38,7 +38,7 @@ curve(0.075 + 5.19 * exp(-10 * x),
       ylab = "p(extinction)")
 
 
-curve(0.1 * (1 - exp(-5*x)), 
+curve(0.001 * (1 - exp(-5*x)), 
       xlab = "Out I",
       ylab = "p(extinction)")
 ```

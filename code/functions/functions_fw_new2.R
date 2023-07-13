@@ -87,6 +87,32 @@ get_L_vec = function(basal, pars, traits_mat, traits_mut) {
   })
 }
 
+
+########################################
+# Function to compute competition vector between predators (shared preys)
+
+compute_vec_comp_pred <- function(matrix) {
+  
+  npred = ncol(matrix)
+  
+  mat.new <- matrix(0, nrow = nrow(matrix), ncol = ncol(matrix))
+  
+  for(i in 1:ncol(matrix)) {
+    
+    for (j in 1:nrow(matrix)) {
+      
+      mat.new[j,i] <- matrix[j,i]*(sum(matrix[j,])/npred)
+    }
+  }
+  
+  vec_competition_pred <- colSums(mat.new)
+  
+  return(vec_competition_pred)
+  
+}
+
+
+
 ########################################
 sim_model_bif = function(seed, pars, nsteps) {
   
@@ -278,9 +304,15 @@ sim_model_bif = function(seed, pars, nsteps) {
       L_list[[step]] = L                     #---------------------- List of networks/time-step
       
       # Test for extinction                         #---------------------- P(extinction)
-      in_I = colSums(L)
-      out_I = rowSums(L)[(Sbasal+1):(Sbasal+Smax)] 	
-      ext_prob = e_0neg + e_1neg*exp(-a_eneg*out_I) + e_0pos + e_1pos*exp(-a_epos*in_I)
+      in_I = colSums(L) # links as predator
+      out_I = rowSums(L)[(Sbasal+1):(Sbasal+Smax)] 	# links as prey
+      
+      ## compute vector of shared preys
+      #vec_competition_pred <- compute_vec_comp_pred(L)
+  
+      
+      ext_prob = e_0neg + e_1neg*exp(-a_eneg*out_I) #+  # e_0pos + e_1pos*exp(-a_epos*in_I) 
+        #e_0neg_s * (1 - exp(-a_eneg_s*vec_competition_pred))
       
       # Perform extinctions
       #test_extprob = runif(S,0,1)

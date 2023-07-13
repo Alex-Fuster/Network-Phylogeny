@@ -44,6 +44,129 @@ get_adjancency_from_simulation.objects <- function(file_path) {
 
 
 
+
+get_adjancency_from_simulation.objects_fw <- function(file_path) {
+  
+  
+  adj_matrix_list <- list()
+  
+  
+  
+  for (i in 1:length(file_path)) {
+    
+    list_files <- readRDS(file_path[[i]])
+    
+    mat_f <- list_files$network_list[[length(list_files$network_list)]]
+    
+    nbasals <- length(list_files$basal)
+    
+    # create the columns for basals (all 0)
+    
+    mat_basals_colums <- matrix(0, nrow = nrow(mat_f), ncol = nbasals)
+    
+    # Add basal spp as columns to the interaction matrix
+    
+    mat <- cbind(mat_basals_colums, mat_f)
+    
+    ## spp names from numbers to letters
+    
+    net_numbers <- set_sppNames_numbers(mat)
+    
+    net_letters <- convert_sppnames_toletters(net_numbers)
+    
+    
+    
+    # add basals to presence matrix (all 1)
+    
+    pres_mat <- list_files$presence_matrix
+    
+    mat_basals_colums_pres <- matrix(1, nrow = nrow(pres_mat), ncol =  nbasals)
+    
+    mat_press <- cbind(mat_basals_colums_pres, pres_mat)
+    
+    colnames(mat_press) <- seq(1:ncol(mat_press))
+    
+    colnames(mat_press) <- chartr("0123456789", "ABCDEFGHIJ", colnames(mat_press))
+    
+    
+    
+    # crop interaction network with present species at last timestep
+    
+    mat_press <- mat_press[length(list_files$network_list),]
+    
+    
+    adj_matrix_list[[i]] <- net_letters[names(which(mat_press == 1)),
+                                names(which(mat_press == 1))]
+    
+    
+    
+  }
+  
+  return(adj_matrix_list)
+  
+} 
+
+
+
+get_adjancency_from_simulation.fw_single <- function(list_networks, nbasals, pres_mat) {
+  
+
+    
+    mat_f <- list_networks[[length(list_networks)]]
+
+    # create the columns for basals (all 0)
+    
+    mat_basals_colums <- matrix(0, nrow = nrow(mat_f), ncol = nbasals)
+    
+    # Add basal spp as columns to the interaction matrix
+    
+    mat <- cbind(mat_basals_colums, mat_f)
+    
+    ## spp names from numbers to letters
+    
+    net_numbers <- set_sppNames_numbers(mat)
+    
+    net_letters <- convert_sppnames_toletters(net_numbers)
+    
+    
+    
+    # add basals to presence matrix (all 1)
+    
+    mat_basals_colums_pres <- matrix(1, nrow = nrow(pres_mat), ncol =  nbasals)
+    
+    mat_press <- cbind(mat_basals_colums_pres, pres_mat)
+    
+    colnames(mat_press) <- seq(1:ncol(mat_press))
+    
+    colnames(mat_press) <- chartr("0123456789", "ABCDEFGHIJ", colnames(mat_press))
+    
+    
+    
+    # crop interaction network with present species at last timestep
+    
+    mat_press <- mat_press[length(list_networks),]
+    
+    
+    adjacency_f <- net_letters[names(which(mat_press == 1)),
+                                        names(which(mat_press == 1))]
+    
+    
+
+  
+  return(adjacency_f)
+  
+} 
+
+
+
+
+
+
+
+
+
+
+
 # For simulated networks for FACILITATION or COMPETITION scenarios, that come as adjacency matrices:
 
 get_network_measures_from_adjacency <- function(list_adj_matrix) {
@@ -73,7 +196,7 @@ get_network_measures_from_adjacency <- function(list_adj_matrix) {
     
     # 1. Number of species within the foodweb (S)
     
-    S <- gorder(graph)
+    S <- vcount(graph)
     
     df[i, "S"] <- S
     
@@ -82,7 +205,7 @@ get_network_measures_from_adjacency <- function(list_adj_matrix) {
     
     # 2. links density (L/S)
     
-    L <- gsize(graph)
+    L <- ecount(graph)
     
     df[i, "Link_density"] <- L/S
     
@@ -91,9 +214,10 @@ get_network_measures_from_adjacency <- function(list_adj_matrix) {
     
     # 3. connectance (C = L/S2)
     
-    df[i, "C"] <- L/(S*(S-1)/2)
+    df[i, "C"] <- C <- L/S^2
     
     
+
     
     
     # 4. %T (Top species that have resource species but lack any consumer species)
@@ -666,9 +790,9 @@ plot_metric <- function(metric, y_axis) {
   
   df <- df_metrics[df_metrics$metric == metric,]
   
-  df_plot <- df[,c("metric","facilitation", "competition", "foodweb.x","foodweb.y", "neutral", "empirical")]
+  df_plot <- df[,c("metric","facilitation", "competition", "foodweb", "neutral", "empirical")]
   
-  df_se <- df[1,c("metric","se_ facilitation", "se_ competition", "se_ foodweb.x","se_ foodweb.y", "se_ neutral", "se_ empirical")]
+  df_se <- df[1,c("metric","se_ facilitation", "se_ competition", "se_ foodweb", "se_ neutral", "se_ empirical")]
   
   df_plot <- melt(df_plot, id = "metric")
   
@@ -683,6 +807,44 @@ plot_metric <- function(metric, y_axis) {
     geom_errorbar( aes(x=variable, ymin=value-se, ymax=value+se), width=0.1, alpha=0.9, size=1) +
     ggtitle(paste("metric:",  metric))+
     scale_fill_manual(values = c("gray50", "gray50", "gray50", "gray50","gray50", "gray82"))+
+    xlab("")+
+    ylab(y_axis)+
+    theme_bw()+
+    my.theme+
+    theme(legend.position = "none")
+  
+  return(p)
+  
+  
+  
+  
+  
+}
+
+
+
+
+plot_metric_foodweb <- function(df, metric, y_axis) {
+  
+  df <- df[df$metric == metric,]
+  
+  df_plot <- df[,c("metric","foodweb", "empirical")]
+  
+  df_se <- df[1,c("metric","se_ foodweb", "se_ empirical")]
+  
+  df_plot <- melt(df_plot, id = "metric")
+  
+  df_se_plot <- melt(df_se, id = "metric")
+  
+  colnames(df_se_plot)[colnames(df_se_plot) == "value"] <- "se"
+  
+  df_plot$se <- df_se_plot$se
+  
+  p <- ggplot(df_plot) +
+    geom_bar( aes(x=variable, y=value, fill = variable), stat="identity", position = position_dodge(width = 0.2)) +
+    geom_errorbar( aes(x=variable, ymin=value-se, ymax=value+se), width=0.1, alpha=0.9, size=1) +
+    ggtitle(paste("metric:",  metric))+
+    scale_fill_manual(values = c("gray50", "gray82"))+
     xlab("")+
     ylab(y_axis)+
     theme_bw()+

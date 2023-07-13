@@ -141,11 +141,18 @@ par(mar = c(5,5,2,1))
 plot(c(1:nsteps),nL/S/S, type = "l", xlab = "Time", ylab = "Connectance",cex.axis = 1.25, cex.lab = 1.5,lwd = 1.5)
 
 
+
+
+
+
+
+
+names(test)[1] <- "presence_matrix"
+names(test)[7] <- "network_list"
+names(test)[9] <- "list_anc_dist"
+
+
 saveRDS(test, file = "C:/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/foodweb1/fw.rds")
 #test <- readRDS(file = "C:/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/foodweb1/fw.rds")
-
-
-
-
 
 

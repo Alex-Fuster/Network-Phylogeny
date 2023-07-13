@@ -329,9 +329,7 @@ file_paths_fac <- list.files(path = here::here("data/selection_evolution/facilit
 
 file_paths_comp <- list.files(path = here::here("data/selection_evolution/competition/"), pattern = ".rds", full.names = TRUE)
 
-file_paths_fw <- list.files(path = here::here("data/selection_evolution/foodweb/"), pattern = ".rds", full.names = TRUE)
-
-file_paths_fw1 <- list.files(path = here::here("data/selection_evolution/foodweb1/"), pattern = ".rds", full.names = TRUE)
+file_paths_fw <- list.files(path = here::here("data/selection_evolution/foodweb1/"), pattern = ".rds", full.names = TRUE)
 
 file_paths_n <- list.files(path = here::here("data/neutral/sims/"), pattern = ".rds", full.names = TRUE)
 
@@ -344,8 +342,6 @@ file_names_fac <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_p
 file_names_comp <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_paths_comp))
 
 file_names_fw <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_paths_fw))
-
-file_names_fw1 <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_paths_fw1))
 
 file_names_n <-  gsub(pattern = ".rds$", replacement = "", x = basename(file_paths_n))
 
@@ -366,9 +362,7 @@ adj_matrix_list_fac <-  get_adjancency_from_simulation.objects(file_path = file_
 
 adj_matrix_list_comp <-  get_adjancency_from_simulation.objects(file_path = file_paths_comp)
 
-adj_matrix_list_fw <-  get_adjancency_from_simulation.objects(file_path = file_paths_fw)
-
-adj_matrix_list_fw1 <-  get_adjancency_from_simulation.objects(file_path = file_paths_fw1)
+adj_matrix_list_fw <-  get_adjancency_from_simulation.objects_fw(file_path = file_paths_fw)
 
 adj_matrix_list_n <-  get_adjancency_from_simulation.objects(file_path = file_paths_n)
 
@@ -381,67 +375,9 @@ net_metr_comp.sim <- get_network_measures_from_adjacency(list_adj_matrix = adj_m
 
 net_metr_fw.sim <- get_network_measures_from_adjacency(list_adj_matrix = adj_matrix_list_fw)
 
-net_metr_fw.sim1 <- get_network_measures_from_adjacency(list_adj_matrix = adj_matrix_list_fw1)
-
 net_metr_n.sim <- get_network_measures_from_adjacency(list_adj_matrix = adj_matrix_list_n)
 
 
-
-list_files <- readRDS(file_paths_fw1[[3]])
-
-net <- list_files$network_list[[length(list_files$network_list)]]
-
-mat_b_col <- matrix(0,1025,25)
-
-net1 <- cbind(mat_b_col, net)
-
-net_numbers <- set_sppNames_numbers(net1)
-
-net_letters <- convert_sppnames_toletters(net_numbers)
-
-
- ## Crop network for present spp
-    
-    
-    colnames(list_files$presence_matrix) <- seq(1:1000)
-    
-    colnames(list_files$presence_matrix) <- as.character(as.numeric(colnames(list_files$presence_matrix)) + 
-                                                           rep(25, times = ncol(list_files$presence_matrix)))
-        
-    colnames(list_files$presence_matrix) <- chartr("0123456789", "ABCDEFGHIJ", colnames(list_files$presence_matrix))
-    
-    list_files$presence_matrix <- list_files$presence_matrix[length(list_files$network_list),]
-    
-    
-vec_names_rows <- c(rownames(net_letters[1:25, ]), names(which(list_files$presence_matrix == 1))) 
-
-vec_names_cols <- c(colnames(net_letters[,1:25]), names(which(list_files$presence_matrix == 1)))
-
-    
-adj_matrix <- net_letters[names(which(list_files$presence_matrix == 1)),names(which(list_files$presence_matrix == 1))]
-
-adj_matrix <- net_letters[vec_names_rows, vec_names_cols]
-
-cbind(net_letters[,1:25], adj_matrix)
-
-## check spp diversity over time
-
-n_spp_timestep <- c()
-
-for(i in 1:nrow(list_files$presence_matrix)){
-  
-  n_spp_timestep[i] <- length(which(list_files$presence_matrix[i,] == 1))
-  
-}
-
-timesteps <- c(1:length(n_spp_timestep))
-
-plot(timesteps, n_spp_timestep)
-
-
-list_files$traits_df
-
-plot(list_files$traits_df[,1], list_files$traits_df[,3])
 ```
 
 
@@ -463,9 +399,6 @@ df_metrics_comp <- reshape_df_net.metrics(df_metrics = net_metr_comp.sim,
 df_metrics_fw <- reshape_df_net.metrics(df_metrics = net_metr_fw.sim,
                        interaction = "foodweb")
 
-df_metrics_fw1 <- reshape_df_net.metrics(df_metrics = net_metr_fw.sim1,
-                       interaction = "foodweb")
-
 df_metrics_n <- reshape_df_net.metrics(df_metrics = net_metr_n.sim,
                        interaction = "neutral")
 
@@ -478,10 +411,6 @@ df_metrics <- merge(df_metrics_fac,
 
 df_metrics <- merge(df_metrics,
                     df_metrics_fw,
-                    by = "metric")
-
-df_metrics <- merge(df_metrics,
-                    df_metrics_fw1,
                     by = "metric")
 
 df_metrics <- merge(df_metrics,
@@ -640,12 +569,204 @@ ggplot(df_melted, aes(x = motif, y = value)) +
 
 
 
+# Comparing foodweb simulated vs empirical
+
+
+```{r}
+test <- readRDS(file = "C:/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/foodweb1/fw.rds")
+
+```
 
 
 
+```{r}
+adj_matrix <- test$network_list[[length(test$network_list)]]
+
+nbasals <- length(test$basal)
+
+
+# create the columns for basals (all 0)
+    
+    mat_basals_colums <- matrix(0, nrow = nrow(adj_matrix), ncol =  nbasals)
+    
+    # Add basal spp as columns to the interaction matrix
+    
+    mat <- cbind(mat_basals_colums, adj_matrix) # 1025 x 1025
+    
+    ## spp names from numbers to letters
+    
+    net_numbers <- set_sppNames_numbers(mat)
+    
+    net_letters <- convert_sppnames_toletters(net_numbers)
+    
+    
+# add basals to presence matrix (all 1)
+    
+    pres_mat <- test$presence_matrix
+    
+    mat_basals_colums_pres <- matrix(1, nrow = nrow(pres_mat), ncol =  nbasals)
+    
+    mat_press <- cbind(mat_basals_colums_pres, pres_mat)
+    
+    colnames(mat_press) <- seq(1:ncol(mat_press))
+    
+    colnames(mat_press) <- chartr("0123456789", "ABCDEFGHIJ", colnames(mat_press))
+    
+    
+# crop interaction network with present species at last timestep
+    
+    mat_press <- mat_press[length(test$network_list),]
+    
+    
+    adj_matrix_f <- net_letters[names(which(mat_press == 1)),
+                                names(which(mat_press == 1))]
+    
+    
+
+```
 
 
 
+```{r}
+ columns <- c("S",
+               "Link_density",
+               "C",
+               "perc_tops",
+               "perc_int",
+               "perc_basals",
+               "perc_cannibals",
+               "omnivory",
+               "mean_gen",
+               "sd_gen",
+               "mean_vul",
+               "sd_vul")
+  
+  df = data.frame(matrix(nrow = 0, ncol = length(columns))) 
+  colnames(df) = columns
+  
+
+    
+    graph <- graph_from_adjacency_matrix(adjmatrix = adj_matrix_f,
+                                         mode = "directed")
+    
+    
+    # 1. Number of species within the foodweb (S)
+    
+    S <- gorder(graph)
+    
+    df[i, "S"] <- S
+    
+    
+    
+    
+    # 2. links density (L/S)
+    
+    L <- gsize(graph)
+    
+    df[i, "Link_density"] <- L/S
+    
+    
+    
+    
+    # 3. connectance (C = L/S2)
+    
+    df[i, "C"] <- L/(S*(S-1)/2)
+    
+    
+
+    
+    
+    # 4. %T (Top species that have resource species but lack any consumer species)
+    
+    n_tops <- length(V(graph)[degree(graph, mode = 'in')>0 & degree(graph, mode = 'out') == 0])
+    
+    df[i, "perc_tops"] <- n_tops/S*100
+    
+    
+    
+    
+    
+    #5. % I (Intermediate species that have both resource and consumer species)
+    
+    n_int <- length(V(graph)[degree(graph, mode = 'out')>0 & degree(graph, mode = 'in') > 0])
+    
+    df[i, "perc_int"] <- n_int/S*100
+    
+    
+    
+    
+    #6. % B (Basal species that have consumer species but lack resources species)
+    
+    n_basals <- length(V(graph)[degree(graph, mode = 'out')>0 & degree(graph, mode = 'in') == 0])
+    
+    df[i, "perc_basals"] <- n_basals/S*100
+    
+    
+    
+    
+    # 7. %C (Cannibal species that eat themselves)
+    
+    edge_list <- as_edgelist(graph, names = TRUE)
+    
+    n_cannibals <- length(which(edge_list[,1] == edge_list[,2]))
+    
+    df[i, "perc_cannibals"] <- n_cannibals/S*100
+    
+    
+    
+    
+    
+    #8. %Omn (species that eat species at different trophic levels) -> changed for omnivory (general omnivory of the foodweb)
+    
+    # Compute the trophic level for each node  
+    tlnodes <- neighborhood.size(graph,mode="out")
+    
+    # Calculate the average trophic level of the food web
+    TL <- mean(tlnodes)
+    
+    #Omnivory is based on the calculation of trophic levels, and corresponds to the standard deviation of the trophic levels of a species' prey.
+    
+    netmatrix <- get.adjacency(graph, sparse=F)
+    # Link the trophic level to the interactions
+    webtl <- netmatrix*as.vector(tlnodes)
+    # Remove the trophic level when no interactions
+    webtl[webtl==0] <- NA
+    
+    #Compute the standard of the trophic levels of prey 
+    omninodes <- apply(webtl,2,sd, na.rm=TRUE)
+    
+    # Average the standard deviation over all taxa (with more than 2 preys)  
+    df[i, "omnivory"] <- mean(omninodes, na.rm=TRUE)
+    
+    
+    
+    
+    
+    
+    #9. Standard deviation of mean generality (GenSD)
+    # Generality
+    
+    pred <- degree(graph, mode="in")>0 # Identify predator nodes, i.e. taxa with at least one prey
+    
+    mean_gen <- mean(degree(graph, mode="in")[pred])
+    
+    df[i, "mean_gen"] <- mean(degree(graph, mode="in")[pred])
+    df[i, "sd_gen"] <- sd(degree(graph, mode="in")[pred])
+    
+    
+    
+    
+    
+    # 10. Standard deviation of mean vulnerability (VulSD)
+    # Generality
+    
+    prey <- degree(graph, mode="out")>0 
+    
+    df[i, "mean_vul"] <- mean(degree(graph, mode="out")[prey])
+    df[i, "sd_vul"] <- sd(degree(graph, mode="out")[prey])
+    
+    
+```
 
 
 
