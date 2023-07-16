@@ -308,7 +308,7 @@ sim_model_bif = function(seed, pars, nsteps) {
       out_I = rowSums(L)[(Sbasal+1):(Sbasal+Smax)] 	# links as prey
       
       ## compute vector of shared preys
-      #vec_competition_pred <- compute_vec_comp_pred(L)
+     # vec_competition_pred <- compute_vec_comp_pred(L)
   
       
       ext_prob = e_0neg + e_1neg*exp(-a_eneg*out_I) #+  # e_0pos + e_1pos*exp(-a_epos*in_I) 

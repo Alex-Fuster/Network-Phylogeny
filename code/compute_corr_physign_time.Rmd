@@ -1,0 +1,48 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+
+
+```{r}
+source("functions/functions_phylo_signal.R")
+library(ape)
+library(apTreeshape)
+library(aricode)
+library(igraph)
+library(ggplot2)
+library("vegan")
+```
+
+
+
+
+
+### get paths simulations results
+
+```{r}
+path_sim_fac <- "/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/facilitation"
+file_paths_fac <- list.files(path = path_sim_fac, pattern = ".rds", full.names = TRUE)
+
+
+
+path_sim_comp <- "/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition"
+file_paths_comp <- list.files(path = path_sim_comp, pattern = ".rds", full.names = TRUE)
+```
+
+
+
+
+# Compute correlation phylogenetic signal - time for each simulation
+
+
+```{r}
+cor_fac <- compute_cor_phylosig_time_comp.fac(list_sim = file_paths_fac)
+
+cor_comp <- compute_cor_phylosig_time_comp.fac(list_sim = file_paths_comp)
+
+```
+

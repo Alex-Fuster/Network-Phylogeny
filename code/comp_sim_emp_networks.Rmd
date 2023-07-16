@@ -102,7 +102,25 @@ net_metr_n.sim$simulation <- NULL
 
 
 
+# degree distribution
 
+plot_list <- list()
+
+
+
+for (i in 1:length(adj_matrix_list_n)) {
+  
+  graph <- graph_from_adjacency_matrix(adjmatrix = adj_matrix_list_n[[i]],
+                                       mode = "directed")
+  
+  degree <- degree(graph, mode="all")
+  
+  deg.dist <- degree_distribution(graph, cumulative=T, mode="all")
+  
+ plot( x=0:max(degree), y=1-deg.dist, pch=19, cex=1.2,
+                          xlab="Degree", ylab="Cumulative Frequency")
+  
+}
 
 
 ```

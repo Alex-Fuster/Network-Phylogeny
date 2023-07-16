@@ -214,10 +214,10 @@ get_network_measures_from_adjacency <- function(list_adj_matrix) {
     
     # 3. connectance (C = L/S2)
     
-    df[i, "C"] <- C <- L/S^2
+    df[i, "C"] <- L/S^2
     
     
-
+    
     
     
     # 4. %T (Top species that have resource species but lack any consumer species)
@@ -321,6 +321,17 @@ get_network_measures_from_adjacency <- function(list_adj_matrix) {
   return(df)
   
 }
+
+
+
+
+# Degree distribution
+
+graph <- graph_from_adjacency_matrix(adjmatrix = list_adj_matrix[[i]],
+                                     mode = "directed")
+
+
+
 
 
 

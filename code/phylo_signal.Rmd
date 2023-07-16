@@ -251,7 +251,7 @@ list_dist.phylo <- list()
 for (i in 1:length(list_anc_dist_letters)) {
   
   
-  print(sprintf("step %s", i))
+  #print(sprintf("step %s", i))
   
   list_newick[[i]] <- ToPhylo(list_anc_dist_letters[[i]])
   
@@ -405,7 +405,6 @@ list_interact_distances_pred <- lapply(list_net_present_spp.letters, FUN = compu
 
 #list_interact_distances_prey <- lapply(list_net_present_spp.letters, FUN = compute_nmi_rows)
 list_interact_distances_prey <- lapply(list_net_present_spp.letters, FUN = compute_nmi_aricode_prey)
-
 
 
 ```
@@ -588,11 +587,15 @@ list_interact_distances_mean_corrected <- list()
 
 for (i in 1:length(list_interact_distances_pred_corrected)) {
   
- pair_mat <- list(list_interact_distances_pred_corrected[[i]], list_interact_distances_prey_corrected[[i]])
+ #pair_mat <- list(list_interact_distances_pred_corrected[[i]], list_interact_distances_prey_corrected[[i]])
   
- list_interact_distances_mean_corrected[[i]] <- compute_mean_two_mat_from_list(list = pair_mat)
+ #list_interact_distances_mean_corrected[[i]] <- compute_mean_two_mat_from_list(list = pair_mat)
+  
+  list_interact_distances_mean_corrected[[i]] <- (list_interact_distances_pred_corrected[[i]] + list_interact_distances_prey_corrected[[i]]) / 2
   
 }
+
+
 
 
 if(length(list_interact_distances_mean_corrected) == length(list_dist.phylo_pres)){
@@ -684,6 +687,9 @@ list_mds.int_mean[[i]] <- monoMDS(list_interact_distances_mean_corrected1[[i]], 
 
   
 }
+
+
+
 ```
 
 
@@ -855,7 +861,7 @@ my.theme<-theme(axis.text=element_text(size=12),
                 axis.title.x = element_text(margin = margin(t = 15, r = 0, b = 0, l = 0)))
 
 
-p_pred <- ggplot(df_signal_time, aes(x=timesteps, y=protest_t_mean)) +
+p_pred <- ggplot(df_signal_time, aes(x=timesteps, y=protest_corr_pred)) +
        geom_line(color="black", linetype="twodash")+
   #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
   theme_bw()+
@@ -866,7 +872,7 @@ xlab("timesteps")+
   ylab("Phylogenetic signal")
 
 
-p_prey <- ggplot(df_signal_time, aes(x=timesteps, y=protest_t_mean)) +
+p_prey <- ggplot(df_signal_time, aes(x=timesteps, y=protest_corr_prey)) +
        geom_line(color="black", linetype="twodash")+
   #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
   theme_bw()+
@@ -935,18 +941,18 @@ ggarrange(p_mean + rremove("xlab"), p.spp,
              ncol = 1, nrow = 2
              )
 
-ggsave("foodweb_result_phylo.time_1sim.png", 
+ggsave("figures/foodweb_result_phylo.time_1sim.png", 
        height = 7,
        width = 7)
 
-#ggarrange(p_prey + rremove("xlab"),
-         # p_pred + rremove("xlab"),
-#  p_mean + rremove("xlab"), p.spp, 
-       #      ncol = 1, nrow = 4)
+ggarrange(p_prey + rremove("xlab"),
+          p_pred + rremove("xlab"),
+  p_mean + rremove("xlab"), p.spp, 
+             ncol = 1, nrow = 4)
 
-#ggsave("figures/foodweb_all_result_phylo.time_1sim.png", 
-       #height = 14,
-       #width = 7)
+ggsave("figures/foodweb_all_result_phylo.time_1sim.png", 
+       height = 14,
+       width = 7)
 
 ```
 
@@ -956,13 +962,13 @@ ggsave("foodweb_result_phylo.time_1sim.png",
 
 ```{r}
 
-trial <- procrustes(list_mds.int_mean[[length(list_mds.int_mean)]], list_mds.phy[[length(list_mds.phy)]])
+trial <- procrustes(list_mds.int_mean[[48]], list_mds.phy[[48]])
 
 
 vec_residuals <- residuals(trial, kind = 2)
 
 
-test_mat <- list_net_present_spp.letters[[length(list_net_present_spp.letters)]]
+test_mat <- list_net_present_spp.letters[[48]]
 
 graph <- graph_from_adjacency_matrix(adjmatrix = test_mat,
                                          mode = "directed")

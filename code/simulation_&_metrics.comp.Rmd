@@ -57,16 +57,16 @@ pars$e_1pos = 1 - pars$e_0pos # 1 - e0
 pars$a_u = 0.5 # shape of the exponential decay of the colonization - interaction relationship	
 pars$a_eneg = 0.025 # shape of the exponential decay of the negative extinction - interaction relationship 
 pars$a_epos = 0.5  # shape of the exponential decay of the positive extinction - interaction relationship 
-pars$av_r = 0.209 # range of the niche
+pars$av_r = 0.209 # range of the niche --------------------------------------
 pars$beta_n = 1 # parameter of the beta distribution 
 
-pars$Sbasal = 30 # number of basal species
+pars$Sbasal = 30 # number of basal species --------------------------------------
 pars$Smax = 1000 # Maximal number of species allowed
 
 ## pars added from Mathilde's
 
 pars$d = 0.5 # Decrease speed of the establishment probability
-pars$I_max = 60 # Maximal number of interactioning species
+pars$I_max = 60 # Maximal number of interactioning species --------------------------------------
 
 
 pars$a_eneg_s = 0.005
@@ -163,182 +163,72 @@ plot_metrics_comparison_sim_emp
 
 ```
 
-```{r}
 
-
-
-graph <- graph_from_adjacency_matrix(adjmatrix = list_adj_matrix.f[[1]],
-                                         mode = "directed")
-
-degree <- degree(graph)
- 
-    
-    S <- vcount(graph)
-    
-    df[i, "S"] <- S
-    
-    
-    
-    
-    # 2. links density (L/S)
-    
-    L <- ecount(graph)
-    
-    df[i, "Link_density"] <- L/S
-    
-    
-    
-    
-    # 3. connectance (C = L/S2)
-    
-    df[i, "C"] <- C <- L/S^2
-    
-    
-
-    
-    
-    # 4. %T (Top species that have resource species but lack any consumer species)
-    
-    n_tops <- length(V(graph)[degree(graph, mode = 'in')>0 & degree(graph, mode = 'out') == 0])
-    
-    df[i, "perc_tops"] <- n_tops/S*100
-    
-    
-    
-    
-    
-    #5. % I (Intermediate species that have both resource and consumer species)
-    
-    n_int <- length(V(graph)[degree(graph, mode = 'out')>0 & degree(graph, mode = 'in') > 0])
-    
-    df[i, "perc_int"] <- n_int/S*100
-    
-    
-    
-    
-    #6. % B (Basal species that have consumer species but lack resources species)
-    
-    n_basals <- length(V(graph)[degree(graph, mode = 'out')>0 & degree(graph, mode = 'in') == 0])
-    
-    df[i, "perc_basals"] <- n_basals/S*100
-    
-    
-    
-    
-    # 7. %C (Cannibal species that eat themselves)
-    
-    edge_list <- as_edgelist(graph, names = TRUE)
-    
-    n_cannibals <- length(which(edge_list[,1] == edge_list[,2]))
-    
-    df[i, "perc_cannibals"] <- n_cannibals/S*100
-    
-    
-    
-    
-    
-    #8. %Omn (species that eat species at different trophic levels) -> changed for omnivory (general omnivory of the foodweb)
-    
-    # Compute the trophic level for each node  
-    tlnodes <- neighborhood.size(graph,mode="out")
-    
-    # Calculate the average trophic level of the food web
-    TL <- mean(tlnodes)
-    
-    #Omnivory is based on the calculation of trophic levels, and corresponds to the standard deviation of the trophic levels of a species' prey.
-    
-    netmatrix <- get.adjacency(graph, sparse=F)
-    # Link the trophic level to the interactions
-    webtl <- netmatrix*as.vector(tlnodes)
-    # Remove the trophic level when no interactions
-    webtl[webtl==0] <- NA
-    
-    #Compute the standard of the trophic levels of prey 
-    omninodes <- apply(webtl,2,sd, na.rm=TRUE)
-    
-    # Average the standard deviation over all taxa (with more than 2 preys)  
-    df[i, "omnivory"] <- mean(omninodes, na.rm=TRUE)
-    
-    
-    
-    
-    
-    
-    #9. Standard deviation of mean generality (GenSD)
-    # Generality
-    
-    pred <- degree(graph, mode="in")>0 # Identify predator nodes, i.e. taxa with at least one prey
-    
-    df[i, "mean_gen"] <- mean(degree(graph, mode="in")[pred])
-    df[i, "sd_gen"] <- sd(degree(graph, mode="in")[pred])
-    
-    
-    
-    
-    
-    # 10. Standard deviation of mean vulnerability (VulSD)
-    # Generality
-    
-    prey <- degree(graph, mode="out")>0 
-    
-    df[i, "mean_vul"] <- mean(degree(graph, mode="out")[prey])
-    df[i, "sd_vul"] <- sd(degree(graph, mode="out")[prey])
-    
-    
-    # frequency distribution
-    
-    
-    
-    
-    
-```
+### Degree distribution - empirical
 
 ```{r}
 
-mat_test <- list_adj_matrix.f[[1]]
+# Make a vector of all your file paths
 
-     vec_shared_prey <- c()
-      
-      for (i in 1:ncol(m)) {
-        
-            vec_shared_prey[i] <- mean(rowSums(m)*m[,i])
-        
-      }
-     
-     
-     
-m <- matrix(0, 10, 5)
-m <-apply(m, c(1, 2), function(x) sample(c(0, 1), 1))
-     
+file_paths_n <- list.files(path = here::here("data/neutral/"), pattern = ".rds", full.names = TRUE)
 
+# Get adjacency matrix from each simulation object stored in our folder
+         
+adj_matrix_list_n <-  get_adjancency_from_simulation.objects(file_path = file_paths_n)
+
+
+# Compute network metrics
+
+net_metr_n.sim <- get_network_measures_from_adjacency(list_adj_matrix = adj_matrix_list_n)
+
+net_metr_n.sim$simulation <- NULL
 
 
 
+# degree distribution
 
-
-
-  npred = ncol(m)
+for (i in 1:length(adj_matrix_list_n)) {
   
-  mat.new <- matrix(0, nrow = nrow(m), ncol = ncol(m))
-
-for(i in 1:ncol(m)) {
+  graph <- graph_from_adjacency_matrix(adjmatrix = adj_matrix_list_n[[i]],
+                                       mode = "directed")
   
+  degree <- degree(graph, mode="all")
   
-  for (j in 1:nrow(m)) {
-    
-    
-    
-    mat.new[j,i] <- m[j,i]*(sum(m[j,])/npred)
-    
-  }
+  deg.dist <- degree_distribution(graph, cumulative=T, mode="all")
+  
+ plot( x=0:max(degree), y=1-deg.dist, pch=19, cex=1.2,
+                          xlab="Degree", ylab="Cumulative Frequency")
   
 }
+
+    
+```
+
+
+
+### Degree distribution - simulation
+
+```{r}
+
+for (i in 1:length(list_adj_matrix.f)) {
   
- vec_competition_pred <- colSums(mat.new)
+  graph <- graph_from_adjacency_matrix(adjmatrix = list_adj_matrix.f[[i]],
+                                       mode = "directed")
+  
+  degree <- degree(graph, mode="all")
+  
+  deg.dist <- degree_distribution(graph, cumulative=T, mode="all")
+  
+ plot( x=0:max(degree), y=1-deg.dist, pch=19, cex=1.2,
+                          xlab="Degree", ylab="Cumulative Frequency")
+  
+}
 
-
-
-compute_vec_comp_pred(m)
 
 ```
+
+
+
+
+
 
