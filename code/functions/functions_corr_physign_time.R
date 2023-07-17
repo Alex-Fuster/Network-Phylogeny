@@ -33,6 +33,15 @@ check_matrix.with.values <- function(matrix) {
 compute_cor_phylosig_time_comp.fac <- function(list_sim) {
   
   
+  res=data.frame(matrix(ncol=8,nrow=0, dimnames=list(NULL, c("timesteps",
+                                                             "phylo cor mean",
+                                                             "phylo sign mean",
+                                                             "phylo cor pred",
+                                                             "phylo sign pred",
+                                                             "phylo cor prey",
+                                                             "phylo sign prey",
+                                                              "sim")))) #makes an empty dataframe
+  
   
   
   cor_signal_time <- numeric(length(list_sim))
@@ -41,12 +50,14 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
   
   
   
-  for (i in 1:length(list_sim)) {
+  for (sim in 1:length(list_sim)) {
     
     
-    print(paste("simulation", i, "of", length(list_sim)))
+    print(paste("simulation", sim, "of", length(list_sim)))
     
-    path <- list_sim[i]
+    
+    
+    path <- list_sim[sim]
     
     list_res <- readRDS(path)
     
@@ -65,7 +76,7 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     
     
     
-    #### Identify timesteps where phylogenetic distances cant be calculated
+    #### Identify timesteps where phylogenetic distances cant be calculated (those with less than 3 spp)
     
     
     non.valid_timesteps_phylo_distance <- c(which(rowSums(presence_matrix) < 3))
@@ -426,31 +437,62 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
       
     }
     
-    discarted_timesteps <- length(list_simulation1$network_list) - length(protest_mean)
     
-    timesteps = (discarted_timesteps+1):length(list_simulation1$network_list)
+    # create timesteps variable discarting discarted timesteps
     
+    #non.valid_timesteps_phylo_distance: discarted for <3spp
+    #vec_timesteps_with_alldist_0: discarted for all distances being 0
+    
+    total_timesteps = 1:n_steps
+
+    
+    if(length(vec_timesteps_with_alldist_0) > 0){
+      
+      # step1 - eliminate timesteps until the max. for final.discarded_timesteps (>3spp)
+      
+      timesteps <- total_timesteps[(final.discarded_timestep+1):length(total_timesteps)]
+      
+      # step2 - eliminate timesteps where all distances are 0
+      
+      timesteps <- timesteps[-vec_timesteps_with_alldist_0]
+      
+      
+    } else {
+      
+      
+      timesteps <- total_timesteps[(final.discarded_timestep+1):length(total_timesteps)]
+      
+      
+    }
+    
+    
+    
+    
+    # Save results
     
     df_signal_time <- data.frame(timesteps,
                                  protest_pval_pred,protest_corr_pred,protest_t_pred,
                                  protest_pval_prey,protest_corr_prey,protest_t_prey,
                                  protest_pval_mean,protest_corr_mean,protest_t_mean)
     
-    df_signal_time$sign_pred <- with(df_signal_time, ifelse(protest_pval_pred < 0.051, 'sign', 'non.sign'))
-    df_signal_time$sign_prey <- with(df_signal_time, ifelse(protest_pval_prey < 0.051, 'sign', 'non.sign'))
-    df_signal_time$sign_mean <- with(df_signal_time, ifelse(protest_pval_mean < 0.051, 'sign', 'non.sign'))
+    sign_pred <- with(df_signal_time, ifelse(protest_pval_pred < 0.051, 'sign', 'non.sign'))
+    sign_prey <- with(df_signal_time, ifelse(protest_pval_prey < 0.051, 'sign', 'non.sign'))
+    sign_mean <- with(df_signal_time, ifelse(protest_pval_mean < 0.051, 'sign', 'non.sign'))
     
     
+    res.add <- data.frame("timesteps" = timesteps,
+                          "phylo cor mean" = protest_corr_mean,
+                          "phylo sign mean" = sign_mean,
+                          "phylo cor pred" = protest_corr_pred,
+                          "phylo sign pred" = sign_pred,
+                          "phylo cor prey" = protest_corr_prey,
+                          "phylo sign prey" = sign_prey,
+                          "sim" = rep(sim, times = length(timesteps))
+                          
+    )
     
-    # Get the correlation between phylo signal and time
     
-    cor_signal_time[i] <- cor(df_signal_time$timesteps, df_signal_time$protest_corr_mean)
-    
-    
-    
-    
-    
-
+    res<-rbind(res,res.add)
     
     
     
@@ -458,7 +500,7 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
   }
   
   
-  return(cor_signal_time)
+  return(res)
   
   
 }

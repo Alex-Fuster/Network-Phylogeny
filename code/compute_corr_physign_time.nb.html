@@ -1763,37 +1763,97 @@ pre code {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiZnVuY3Rpb25zL2Z1bmN0aW9uc19waHlsb19zaWduYWwuUlwiKVxubGlicmFyeShhcGUpXG5saWJyYXJ5KGFwVHJlZXNoYXBlKVxubGlicmFyeShhcmljb2RlKVxubGlicmFyeShpZ3JhcGgpXG5saWJyYXJ5KGdncGxvdDIpXG5saWJyYXJ5KFwidmVnYW5cIilcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiZnVuY3Rpb25zL2Z1bmN0aW9uc19waHlsb19zaWduYWwuUlwiKVxubGlicmFyeShhcGUpXG5gYGAifQ== -->
 <pre class="r"><code>source(&quot;functions/functions_phylo_signal.R&quot;)
-library(ape)
-library(apTreeshape)
-library(aricode)
-library(igraph)
-library(ggplot2)
-library(&quot;vegan&quot;)</code></pre>
+library(ape)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhhcGXigJkgd2FzIGJ1aWx0IHVuZGVyIFIgdmVyc2lvbiA0LjEuM1xuIn0= -->
+<pre><code>Warning: package ‘ape’ was built under R version 4.1.3</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShhcFRyZWVzaGFwZSlcbmBgYCJ9 -->
+<pre class="r"><code>library(apTreeshape)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhhcFRyZWVzaGFwZeKAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMS4zXG5SZWdpc3RlcmVkIFMzIG1ldGhvZCBvdmVyd3JpdHRlbiBieSAnYXBUcmVlc2hhcGUnOlxuICBtZXRob2QgICAgICAgICAgZnJvbVxuICBpcy5iaW5hcnkucGh5bG8gYXBlIFxuXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYYXBUcmVlc2hhcGXigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3QgaXMgbWFza2VkIGZyb20g4oCYcGFja2FnZTphcGXigJk6XG5cbiAgICBpcy5iaW5hcnkucGh5bG9cbiJ9 -->
+<pre><code>Warning: package ‘apTreeshape’ was built under R version 4.1.3
+Registered S3 method overwritten by &#39;apTreeshape&#39;:
+  method          from
+  is.binary.phylo ape 
+
+Attaching package: ‘apTreeshape’
+
+The following object is masked from ‘package:ape’:
+
+    is.binary.phylo</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShhcmljb2RlKVxuYGBgIn0= -->
+<pre class="r"><code>library(aricode)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhhcmljb2Rl4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4xLjNcbiJ9 -->
+<pre><code>Warning: package ‘aricode’ was built under R version 4.1.3</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShpZ3JhcGgpXG5gYGAifQ== -->
+<pre class="r"><code>library(igraph)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYaWdyYXBo4oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0cyBhcmUgbWFza2VkIGZyb20g4oCYcGFja2FnZTphcGXigJk6XG5cbiAgICBkZWdyZWUsIGVkZ2VzLCBtc3QsIHJpbmdcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOnN0YXRz4oCZOlxuXG4gICAgZGVjb21wb3NlLCBzcGVjdHJ1bVxuXG5UaGUgZm9sbG93aW5nIG9iamVjdCBpcyBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOmJhc2XigJk6XG5cbiAgICB1bmlvblxuIn0= -->
+<pre><code>
+Attaching package: ‘igraph’
+
+The following objects are masked from ‘package:ape’:
+
+    degree, edges, mst, ring
+
+The following objects are masked from ‘package:stats’:
+
+    decompose, spectrum
+
+The following object is masked from ‘package:base’:
+
+    union</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShnZ3Bsb3QyKVxuYGBgIn0= -->
+<pre class="r"><code>library(ggplot2)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhnZ3Bsb3Qy4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4xLjNcbiJ9 -->
+<pre><code>Warning: package ‘ggplot2’ was built under R version 4.1.3</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShcInZlZ2FuXCIpXG5gYGAifQ== -->
+<pre class="r"><code>library(&quot;vegan&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJh2ZWdhbuKAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMS4zXG5Mb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IHBlcm11dGVcbldhcm5pbmc6IHBhY2thZ2Ug4oCYcGVybXV0ZeKAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMS4zXG5cbkF0dGFjaGluZyBwYWNrYWdlOiDigJhwZXJtdXRl4oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0IGlzIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6aWdyYXBo4oCZOlxuXG4gICAgcGVybXV0ZVxuXG5Mb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IGxhdHRpY2VcblRoaXMgaXMgdmVnYW4gMi42LTRcblxuQXR0YWNoaW5nIHBhY2thZ2U6IOKAmHZlZ2Fu4oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0IGlzIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6aWdyYXBo4oCZOlxuXG4gICAgZGl2ZXJzaXR5XG4ifQ== -->
+<pre><code>Warning: package ‘vegan’ was built under R version 4.1.3
+Loading required package: permute
+Warning: package ‘permute’ was built under R version 4.1.3
+
+Attaching package: ‘permute’
+
+The following object is masked from ‘package:igraph’:
+
+    permute
+
+Loading required package: lattice
+This is vegan 2.6-4
+
+Attaching package: ‘vegan’
+
+The following object is masked from ‘package:igraph’:
+
+    diversity</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <div id="get-paths-simulations-results" class="section level3">
 <h3>get paths simulations results</h3>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmlsZV9wYXRoc19jb21wXG5cbmBgYCJ9 -->
-<pre class="r"><code>file_paths_comp
-</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGF0aF9zaW1fZmFjIDwtIFwiL1VzZXJzL2FsZXhmL0Rlc2t0b3AvUGhEX0Z1c3Rlci1DYWx2by9DaGFwdGVyIDIgLSBOZXR3b3JrX3BoeWxvZ2VueS9OZXR3b3JrLVBoeWxvZ2VueS9kYXRhL3NlbGVjdGlvbl9ldm9sdXRpb24vZmFjaWxpdGF0aW9uXCJcbmZpbGVfcGF0aHNfZmFjIDwtIGxpc3QuZmlsZXMocGF0aCA9IHBhdGhfc2ltX2ZhYywgcGF0dGVybiA9IFwiLnJkc1wiLCBmdWxsLm5hbWVzID0gVFJVRSlcblxuXG5cbnBhdGhfc2ltX2NvbXAgPC0gXCIvVXNlcnMvYWxleGYvRGVza3RvcC9QaERfRnVzdGVyLUNhbHZvL0NoYXB0ZXIgMiAtIE5ldHdvcmtfcGh5bG9nZW55L05ldHdvcmstUGh5bG9nZW55L2RhdGEvc2VsZWN0aW9uX2V2b2x1dGlvbi9jb21wZXRpdGlvblwiXG5maWxlX3BhdGhzX2NvbXAgPC0gbGlzdC5maWxlcyhwYXRoID0gcGF0aF9zaW1fY29tcCwgcGF0dGVybiA9IFwiLnJkc1wiLCBmdWxsLm5hbWVzID0gVFJVRSlcbmBgYCJ9 -->
+<pre class="r"><code>path_sim_fac &lt;- &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/facilitation&quot;
+file_paths_fac &lt;- list.files(path = path_sim_fac, pattern = &quot;.rds&quot;, full.names = TRUE)
+
+
+
+path_sim_comp &lt;- &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition&quot;
+file_paths_comp &lt;- list.files(path = path_sim_comp, pattern = &quot;.rds&quot;, full.names = TRUE)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcIi9Vc2Vycy9hbGV4Zi9EZXNrdG9wL1BoRF9GdXN0ZXItQ2Fsdm8vQ2hhcHRlciAyIC0gTmV0d29ya19waHlsb2dlbnkvTmV0d29yay1QaHlsb2dlbnkvZGF0YS9zZWxlY3Rpb25fZXZvbHV0aW9uL2NvbXBldGl0aW9uL2xpc3RfcmVzX25lZ18xMC5yZHNcIlxuIFsyXSBcIi9Vc2Vycy9hbGV4Zi9EZXNrdG9wL1BoRF9GdXN0ZXItQ2Fsdm8vQ2hhcHRlciAyIC0gTmV0d29ya19waHlsb2dlbnkvTmV0d29yay1QaHlsb2dlbnkvZGF0YS9zZWxlY3Rpb25fZXZvbHV0aW9uL2NvbXBldGl0aW9uL2xpc3RfcmVzX25lZ18xMS5yZHNcIlxuIFszXSBcIi9Vc2Vycy9hbGV4Zi9EZXNrdG9wL1BoRF9GdXN0ZXItQ2Fsdm8vQ2hhcHRlciAyIC0gTmV0d29ya19waHlsb2dlbnkvTmV0d29yay1QaHlsb2dlbnkvZGF0YS9zZWxlY3Rpb25fZXZvbHV0aW9uL2NvbXBldGl0aW9uL2xpc3RfcmVzX25lZ18yLnJkc1wiIFxuIFs0XSBcIi9Vc2Vycy9hbGV4Zi9EZXNrdG9wL1BoRF9GdXN0ZXItQ2Fsdm8vQ2hhcHRlciAyIC0gTmV0d29ya19waHlsb2dlbnkvTmV0d29yay1QaHlsb2dlbnkvZGF0YS9zZWxlY3Rpb25fZXZvbHV0aW9uL2NvbXBldGl0aW9uL2xpc3RfcmVzX25lZ18zLnJkc1wiIFxuIFs1XSBcIi9Vc2Vycy9hbGV4Zi9EZXNrdG9wL1BoRF9GdXN0ZXItQ2Fsdm8vQ2hhcHRlciAyIC0gTmV0d29ya19waHlsb2dlbnkvTmV0d29yay1QaHlsb2dlbnkvZGF0YS9zZWxlY3Rpb25fZXZvbHV0aW9uL2NvbXBldGl0aW9uL2xpc3RfcmVzX25lZ180LnJkc1wiIFxuIFs2XSBcIi9Vc2Vycy9hbGV4Zi9EZXNrdG9wL1BoRF9GdXN0ZXItQ2Fsdm8vQ2hhcHRlciAyIC0gTmV0d29ya19waHlsb2dlbnkvTmV0d29yay1QaHlsb2dlbnkvZGF0YS9zZWxlY3Rpb25fZXZvbHV0aW9uL2NvbXBldGl0aW9uL2xpc3RfcmVzX25lZ181LnJkc1wiIFxuIFs3XSBcIi9Vc2Vycy9hbGV4Zi9EZXNrdG9wL1BoRF9GdXN0ZXItQ2Fsdm8vQ2hhcHRlciAyIC0gTmV0d29ya19waHlsb2dlbnkvTmV0d29yay1QaHlsb2dlbnkvZGF0YS9zZWxlY3Rpb25fZXZvbHV0aW9uL2NvbXBldGl0aW9uL2xpc3RfcmVzX25lZ182LnJkc1wiIFxuIFs4XSBcIi9Vc2Vycy9hbGV4Zi9EZXNrdG9wL1BoRF9GdXN0ZXItQ2Fsdm8vQ2hhcHRlciAyIC0gTmV0d29ya19waHlsb2dlbnkvTmV0d29yay1QaHlsb2dlbnkvZGF0YS9zZWxlY3Rpb25fZXZvbHV0aW9uL2NvbXBldGl0aW9uL2xpc3RfcmVzX25lZ183LnJkc1wiIFxuIFs5XSBcIi9Vc2Vycy9hbGV4Zi9EZXNrdG9wL1BoRF9GdXN0ZXItQ2Fsdm8vQ2hhcHRlciAyIC0gTmV0d29ya19waHlsb2dlbnkvTmV0d29yay1QaHlsb2dlbnkvZGF0YS9zZWxlY3Rpb25fZXZvbHV0aW9uL2NvbXBldGl0aW9uL2xpc3RfcmVzX25lZ184LnJkc1wiIFxuWzEwXSBcIi9Vc2Vycy9hbGV4Zi9EZXNrdG9wL1BoRF9GdXN0ZXItQ2Fsdm8vQ2hhcHRlciAyIC0gTmV0d29ya19waHlsb2dlbnkvTmV0d29yay1QaHlsb2dlbnkvZGF0YS9zZWxlY3Rpb25fZXZvbHV0aW9uL2NvbXBldGl0aW9uL2xpc3RfcmVzX25lZ185LnJkc1wiIFxuIn0= -->
-<pre><code> [1] &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition/list_res_neg_10.rds&quot;
- [2] &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition/list_res_neg_11.rds&quot;
- [3] &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition/list_res_neg_2.rds&quot; 
- [4] &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition/list_res_neg_3.rds&quot; 
- [5] &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition/list_res_neg_4.rds&quot; 
- [6] &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition/list_res_neg_5.rds&quot; 
- [7] &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition/list_res_neg_6.rds&quot; 
- [8] &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition/list_res_neg_7.rds&quot; 
- [9] &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition/list_res_neg_8.rds&quot; 
-[10] &quot;/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/competition/list_res_neg_9.rds&quot; </code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -1802,41 +1862,21 @@ library(&quot;vegan&quot;)</code></pre>
 simulation</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29yX2ZhY1xuXG5gYGAifQ== -->
-<pre class="r"><code>cor_fac
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29yX2NvbXBbd2hpY2goIWlzLm5hKGNvcl9jb21wKSldXG5cbmBgYCJ9 -->
+<pre class="r"><code>cor_comp[which(!is.na(cor_comp))]
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICBbMV0gIDAuMDAwMDAwMDAgIDAuMDAwMDAwMDAgIDAuMDAwMDAwMDAgIDAuMDAwMDAwMDAgIDAuMDAwMDAwMDAgIDAuMDAwMDAwMDAgIDAuMDAwMDAwMDAgIDAuMDAwMDAwMDAgIDAuMDAwMDAwMDBcbiBbMTBdICAwLjAwMDAwMDAwICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BXG4gWzE5XSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQVxuIFsyOF0gICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkFcbiBbMzddICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BXG4gWzQ2XSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQVxuIFs1NV0gICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkFcbiBbNjRdICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BXG4gWzczXSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQVxuIFs4Ml0gICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkFcbiBbOTFdICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BXG5bMTAwXSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQVxuWzEwOV0gICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkFcblsxMThdICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BXG5bMTI3XSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQVxuWzEzNl0gICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkFcblsxNDVdICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BXG5bMTU0XSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQVxuWzE2M10gICAgICAgICAgTkEgICAgICAgICAgTkEgLTAuMTc5NzAzMjUgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgLTAuMTk4ODU2NjAgICAgICAgICAgTkEgICAgICAgICAgTkFcblsxNzJdICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BIC0wLjI4MzA5MTY0ICAgICAgICAgIE5BIC0wLjI5MjcwNDA2ICAgICAgICAgIE5BICAgICAgICAgIE5BICAgICAgICAgIE5BXG5bMTgxXSAgICAgICAgICBOQSAgICAgICAgICBOQSAtMC4yNDA2NDQ0NCAgICAgICAgICBOQSAgICAgICAgICBOQSAgICAgICAgICBOQSAtMC4wODUzNzk3OSAgICAgICAgICBOQSAgICAgICAgICBOQVxuWzE5MF0gICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgICAgICAgICAgTkEgLTAuNjIxMTUwNDQgICAgICAgICAgTkEgICAgICAgICAgTkFcblsxOTldIC0wLjUwNzcxNzg2ICAgICAgICAgIE5BIC0wLjY2MTM2OTEwXG4ifQ== -->
-<pre><code>  [1]  0.00000000  0.00000000  0.00000000  0.00000000  0.00000000  0.00000000  0.00000000  0.00000000  0.00000000
- [10]  0.00000000          NA          NA          NA          NA          NA          NA          NA          NA
- [19]          NA          NA          NA          NA          NA          NA          NA          NA          NA
- [28]          NA          NA          NA          NA          NA          NA          NA          NA          NA
- [37]          NA          NA          NA          NA          NA          NA          NA          NA          NA
- [46]          NA          NA          NA          NA          NA          NA          NA          NA          NA
- [55]          NA          NA          NA          NA          NA          NA          NA          NA          NA
- [64]          NA          NA          NA          NA          NA          NA          NA          NA          NA
- [73]          NA          NA          NA          NA          NA          NA          NA          NA          NA
- [82]          NA          NA          NA          NA          NA          NA          NA          NA          NA
- [91]          NA          NA          NA          NA          NA          NA          NA          NA          NA
-[100]          NA          NA          NA          NA          NA          NA          NA          NA          NA
-[109]          NA          NA          NA          NA          NA          NA          NA          NA          NA
-[118]          NA          NA          NA          NA          NA          NA          NA          NA          NA
-[127]          NA          NA          NA          NA          NA          NA          NA          NA          NA
-[136]          NA          NA          NA          NA          NA          NA          NA          NA          NA
-[145]          NA          NA          NA          NA          NA          NA          NA          NA          NA
-[154]          NA          NA          NA          NA          NA          NA          NA          NA          NA
-[163]          NA          NA -0.17970325          NA          NA          NA -0.19885660          NA          NA
-[172]          NA          NA          NA -0.28309164          NA -0.29270406          NA          NA          NA
-[181]          NA          NA -0.24064444          NA          NA          NA -0.08537979          NA          NA
-[190]          NA          NA          NA          NA          NA          NA -0.62115044          NA          NA
-[199] -0.50771786          NA -0.66136910</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSAgMC4wMDAwMDAwICAwLjAwMDAwMDAgIDAuMDAwMDAwMCAgMC4wMDAwMDAwICAwLjAwMDAwMDAgIDAuMDAwMDAwMCAgMC4wMDAwMDAwXG4gWzhdICAwLjAwMDAwMDAgIDAuMDAwMDAwMCAgMC4wMDAwMDAwIC0wLjI5ODcxNTggLTAuNTAyODY3MCAtMC4xNzk1MzUxIC0wLjI5NDM4NDBcblsxNV0gLTAuNTMwNTg1NyAtMC4yNDMyMjEwIC0wLjQ0NDYyMzMgLTAuMjgxNTY3OCAtMC42MTgzNzI2XG4ifQ== -->
+<pre><code> [1]  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000
+ [8]  0.0000000  0.0000000  0.0000000 -0.2987158 -0.5028670 -0.1795351 -0.2943840
+[15] -0.5305857 -0.2432210 -0.4446233 -0.2815678 -0.6183726</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQoNCg0KDQoNCmBgYHtyfQ0Kc291cmNlKCJmdW5jdGlvbnMvZnVuY3Rpb25zX3BoeWxvX3NpZ25hbC5SIikNCmxpYnJhcnkoYXBlKQ0KbGlicmFyeShhcFRyZWVzaGFwZSkNCmxpYnJhcnkoYXJpY29kZSkNCmxpYnJhcnkoaWdyYXBoKQ0KbGlicmFyeShnZ3Bsb3QyKQ0KbGlicmFyeSgidmVnYW4iKQ0KYGBgDQoNCg0KDQoNCg0KIyMjIGdldCBwYXRocyBzaW11bGF0aW9ucyByZXN1bHRzDQoNCmBgYHtyfQ0KcGF0aF9zaW1fZmFjIDwtICIvVXNlcnMvYWxleGYvRGVza3RvcC9QaERfRnVzdGVyLUNhbHZvL0NoYXB0ZXIgMiAtIE5ldHdvcmtfcGh5bG9nZW55L05ldHdvcmstUGh5bG9nZW55L2RhdGEvc2VsZWN0aW9uX2V2b2x1dGlvbi9mYWNpbGl0YXRpb24iDQpmaWxlX3BhdGhzX2ZhYyA8LSBsaXN0LmZpbGVzKHBhdGggPSBwYXRoX3NpbV9mYWMsIHBhdHRlcm4gPSAiLnJkcyIsIGZ1bGwubmFtZXMgPSBUUlVFKQ0KDQoNCg0KcGF0aF9zaW1fY29tcCA8LSAiL1VzZXJzL2FsZXhmL0Rlc2t0b3AvUGhEX0Z1c3Rlci1DYWx2by9DaGFwdGVyIDIgLSBOZXR3b3JrX3BoeWxvZ2VueS9OZXR3b3JrLVBoeWxvZ2VueS9kYXRhL3NlbGVjdGlvbl9ldm9sdXRpb24vY29tcGV0aXRpb24iDQpmaWxlX3BhdGhzX2NvbXAgPC0gbGlzdC5maWxlcyhwYXRoID0gcGF0aF9zaW1fY29tcCwgcGF0dGVybiA9ICIucmRzIiwgZnVsbC5uYW1lcyA9IFRSVUUpDQpgYGANCg0KDQoNCg0KIyBDb21wdXRlIGNvcnJlbGF0aW9uIHBoeWxvZ2VuZXRpYyBzaWduYWwgLSB0aW1lIGZvciBlYWNoIHNpbXVsYXRpb24NCg0KDQpgYGB7cn0NCmNvcl9mYWMgPC0gY29tcHV0ZV9jb3JfcGh5bG9zaWdfdGltZV9jb21wLmZhYyhsaXN0X3NpbSA9IGZpbGVfcGF0aHNfZmFjKQ0KDQpjb3JfY29tcCA8LSBjb21wdXRlX2Nvcl9waHlsb3NpZ190aW1lX2NvbXAuZmFjKGxpc3Rfc2ltID0gZmlsZV9wYXRoc19jb21wKQ0KDQpgYGANCg0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQoNCg0KDQoNCmBgYHtyfQ0Kc291cmNlKCJmdW5jdGlvbnMvZnVuY3Rpb25zX3BoeWxvX3NpZ25hbC5SIikNCmxpYnJhcnkoYXBlKQ0KbGlicmFyeShhcFRyZWVzaGFwZSkNCmxpYnJhcnkoYXJpY29kZSkNCmxpYnJhcnkoaWdyYXBoKQ0KbGlicmFyeShnZ3Bsb3QyKQ0KbGlicmFyeSgidmVnYW4iKQ0KYGBgDQoNCg0KDQoNCg0KIyMjIGdldCBwYXRocyBzaW11bGF0aW9ucyByZXN1bHRzDQoNCmBgYHtyfQ0KcGF0aF9zaW1fZmFjIDwtICIvVXNlcnMvYWxleGYvRGVza3RvcC9QaERfRnVzdGVyLUNhbHZvL0NoYXB0ZXIgMiAtIE5ldHdvcmtfcGh5bG9nZW55L05ldHdvcmstUGh5bG9nZW55L2RhdGEvc2VsZWN0aW9uX2V2b2x1dGlvbi9mYWNpbGl0YXRpb24iDQpmaWxlX3BhdGhzX2ZhYyA8LSBsaXN0LmZpbGVzKHBhdGggPSBwYXRoX3NpbV9mYWMsIHBhdHRlcm4gPSAiLnJkcyIsIGZ1bGwubmFtZXMgPSBUUlVFKQ0KDQoNCg0KcGF0aF9zaW1fY29tcCA8LSAiL1VzZXJzL2FsZXhmL0Rlc2t0b3AvUGhEX0Z1c3Rlci1DYWx2by9DaGFwdGVyIDIgLSBOZXR3b3JrX3BoeWxvZ2VueS9OZXR3b3JrLVBoeWxvZ2VueS9kYXRhL3NlbGVjdGlvbl9ldm9sdXRpb24vY29tcGV0aXRpb24iDQpmaWxlX3BhdGhzX2NvbXAgPC0gbGlzdC5maWxlcyhwYXRoID0gcGF0aF9zaW1fY29tcCwgcGF0dGVybiA9ICIucmRzIiwgZnVsbC5uYW1lcyA9IFRSVUUpDQpgYGANCg0KDQoNCg0KIyBDb21wdXRlIGNvcnJlbGF0aW9uIHBoeWxvZ2VuZXRpYyBzaWduYWwgLSB0aW1lIGZvciBlYWNoIHNpbXVsYXRpb24NCg0KDQpgYGB7cn0NCmNvcl9mYWMgPC0gY29tcHV0ZV9jb3JfcGh5bG9zaWdfdGltZV9jb21wLmZhYyhsaXN0X3NpbSA9IGZpbGVfcGF0aHNfZmFjKQ0KDQpjb3JfY29tcCA8LSBjb21wdXRlX2Nvcl9waHlsb3NpZ190aW1lX2NvbXAuZmFjKGxpc3Rfc2ltID0gZmlsZV9wYXRoc19jb21wKQ0KDQpjb3JfY29tcCA8LSBjb3JfY29tcFt3aGljaCghaXMubmEoY29yX2NvbXApKV0NCg0KYGBgDQoNCg==</div>
 
 
 

@@ -44,5 +44,7 @@ cor_fac <- compute_cor_phylosig_time_comp.fac(list_sim = file_paths_fac)
 
 cor_comp <- compute_cor_phylosig_time_comp.fac(list_sim = file_paths_comp)
 
+cor_comp <- cor_comp[which(!is.na(cor_comp))]
+
 ```
 
