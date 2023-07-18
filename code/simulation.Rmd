@@ -238,59 +238,41 @@ Pass distances data to Netweek format.
 
 ```{r}
 
-
 pars = list()
-
-# General parameters
-#pars$int = 0 # 0 for competition, 1 for facilitation, 2 for predation
-pars$Smax = 1000 # Maximal number of species in the system
-
-# Related to interaction range trait
-pars$av_r = 0.1 # Half range of the niche of the first species
-pars$sd = 0.5*pars$av_r + 0.0001 # Standard deviation of the normal distribution used to calculate the niche optimum trait of a new species
-
-pars$u_max = 0.15 # Speciation probability
-
-# Extinction probability, negative interactions communities
-pars$a_eneg = 0.025 # Shape of the exponential decay of the negative extinction - interaction relationship
-pars$e_0neg = 0.5 # Asymptotic extinction probability with infinite negative interactions
-pars$e_1neg = 1  # Extinction probability with absence of interactions
-
-# Extinction probability, positive interactions communities
-pars$a_epos = 1.2  # Shape of the exponential decay of the positive extinction - interaction relationship
-pars$e_0pos = 0.075 # Asymptotic extinction probability with infinite positive interactions
-pars$e_1pos = 5.19 # 1 - pars$e_0pos
-
-# Establishment probability, negative interactions communities
-pars$a_uneg = 0.075 # Shape of the exponential decay of the colonization - interaction relationship
-pars$u_0neg = 0.075 # Asymptotic establishment probability with infinite competition interactions
-pars$u_1neg = 2 # Establishment probability with absence of competition interaction
-
-# Establishment probability, positive interactions communities
-pars$a_u = 0.45 # Shape of the exponential decay of the colonization - interaction relationship
-pars$u_0 = 1 # Asymptotic establishment probability with infinite facilitation interactions
-pars$u_1 = -1 # Establishment probability with absence of facilitation interactions
-pars$d = 0.5 # Decrease speed of the establishment probability
-
-
-pars$I_max = 40 # Maximal number of interactioning species
-```
-
-
-```{r}
-pars$e_0neg = 0.1 # Asymptotic extinction probability with infinite negative interactions
-
-pars$av_r = 0.2 # range of the niche
+pars$u_max = 0.075 # mutation probability
+pars$u_0 = 1  # 1 for predation & mutualism, 0 for competition
+pars$u_1 = -1 # -1 for predation & mutualism, 1 for competition
+pars$e_0neg = 0.15 # asymptotic extinction probability with infinite negative interactions
+pars$e_1neg = -pars$e_0neg  # Extinction probability with absence of interactions
+pars$e_0pos = 0.01 # asymptotic extinction probability with infinite positive interactions
+pars$e_1pos = 1 - pars$e_0pos # 1 - e0
+pars$a_u = 0.5 # shape of the exponential decay of the colonization - interaction relationship	
+pars$a_eneg = 0.025 # shape of the exponential decay of the negative extinction - interaction relationship 
+pars$a_epos = 0.5  # shape of the exponential decay of the positive extinction - interaction relationship 
+pars$av_r = 0.209 # range of the niche --------------------------------------
 pars$beta_n = 1 # parameter of the beta distribution 
-pars$Sbasal = 25 # number of basal species
+
+pars$Sbasal = 30 # number of basal species --------------------------------------
+pars$Smax = 1000 # Maximal number of species allowed
+
+## pars added from Mathilde's
+
+pars$d = 0.5 # Decrease speed of the establishment probability
+pars$I_max = 40 # Maximal number of interactioning species --------------------------------------
+
+
+pars$a_eneg_s = 0.005
+pars$e_0neg_s = 0.00015 # asymptotic extinction probability with infinite negative interactions
 ```
+
+
 
 
 
 
 ```{r}
 
-source("functions/functions_fw_new.R")
+source("../code/functions/functions_fw_new2.R")
 
 ```
 
@@ -299,11 +281,9 @@ source("functions/functions_fw_new.R")
 ### set parameters simulation
 
 ```{r}
-nsteps = 350 # Set the maximum timestep per simulation
-nsim = 1 # Set the number of simulations
+nsteps =  250
+nsim = 10
 
-# Vector to record number of simulation needed to reach 100 valid simulations
-needed_sim_fw <- c(rep(NA, nsim))
 ```
 
 ### Seeds record matrix
@@ -348,7 +328,7 @@ while(successful_sim < nsim+1){
   seed_list <- c(seed_list, seed) # Add the seed
   
   # SIMULATION ; from the file code/functions/functions_M-C_bifurcation.R
-  simulation <- sim_model_bif(seed = seed, pars, nsteps = nsteps)  
+  simulation <- sim_model_bif(seed = runif(1), pars, nsteps = nsteps)  
   
   #---------------------- stored: pres, traits_mat, anc, extinct, Stotact, L, L_list
   
@@ -492,7 +472,7 @@ df_scenarios
 
 ```{r}
 
-source("functions/functions_sim_neutral.R")
+source("functions/functions_sim_n.R")
 
 ```
 
@@ -571,9 +551,9 @@ while(successful_sim < nsim+1 & trials != 40){
   seed_list <- c(seed_list, seed) # Add the seed
   
   # SIMULATION ; from the file code/functions/functions_M-C_bifurcation.R
-  simulation <- sim_model_bif(seed = seed, pars, nsteps = nsteps, 
-                              pes = df_scenarios[sc, "p_est"],
-                              pex = df_scenarios[sc, "p_ext"])  
+  simulation <- sim_model_bif_n(seed = seed, pars, nsteps = nsteps, 
+                              pestablishment = df_scenarios[sc, "p_est"],
+                              pextinction = df_scenarios[sc, "p_ext"])  
   
   #---------------------- stored: pres, traits_mat, anc, extinct, Stotact, L, L_list
   
@@ -582,7 +562,7 @@ while(successful_sim < nsim+1 & trials != 40){
   success <- sum(simulation$pres[100,])
   #print(paste0("Success = ", success))
   
-  if(success >= 20){
+  if(success >= 10){
     #print("the simulation has more than 19 species at the time step 150")
     seed_record[successful_sim] <- seed # Record seed which alows us to have "good" simulation
     res_sim <- list(simulation_number = paste0("simulation", successful_sim), 

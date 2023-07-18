@@ -57,10 +57,10 @@ pars$e_1pos = 1 - pars$e_0pos # 1 - e0
 pars$a_u = 0.5 # shape of the exponential decay of the colonization - interaction relationship	
 pars$a_eneg = 0.025 # shape of the exponential decay of the negative extinction - interaction relationship 
 pars$a_epos = 0.5  # shape of the exponential decay of the positive extinction - interaction relationship 
-pars$av_r = 0.209 # range of the niche --------------------------------------
+pars$av_r = 0.272 # range of the niche -------------------------------------- 0.27
 pars$beta_n = 1 # parameter of the beta distribution 
 
-pars$Sbasal = 30 # number of basal species --------------------------------------
+pars$Sbasal = 25 # number of basal species --------------------------------------
 pars$Smax = 1000 # Maximal number of species allowed
 
 ## pars added from Mathilde's
@@ -70,7 +70,14 @@ pars$I_max = 60 # Maximal number of interactioning species ---------------------
 
 
 pars$a_eneg_s = 0.005
-pars$e_0neg_s = 0.00015 # asymptotic extinction probability with infinite negative interactions
+pars$e_0neg_s = 0.00015  # asymptotic extinction probability with infinite negative interactions
+
+#--------------------------------------
+# NEUTRAL
+
+#p_est <- 0.5
+#p_ext <- 0.0003
+  
 
 ```
 
@@ -164,6 +171,7 @@ plot_metrics_comparison_sim_emp
 ```
 
 
+
 ### Degree distribution - empirical
 
 ```{r}
@@ -231,4 +239,103 @@ for (i in 1:length(list_adj_matrix.f)) {
 
 
 
+
+# Neutral
+
+
+```{r}
+##############################
+# Run the model
+# attach(pars)
+#seed = 1
+nsteps =  250
+n_sims = 2
+list_adj_matrix.f <- list()
+
+
+
+for (i in 1:n_sims) {
+  
+  results <- sim_model_bif_n(seed = runif(1), pars, nsteps = nsteps, pestablishment = p_est, pextinction = p_ext)
+  
+  names(results)[1] <- "presence_matrix"
+  names(results)[7] <- "network_list"
+  names(results)[9] <- "list_anc_dist"
+  
+  list_adj_matrix.f[[i]] <- get_adjancency_from_simulation.fw_single(list_networks = results$network_list,
+                                           nbasals = length(results$basal),
+                                           pres_mat = results$presence_matrix)
+  
+}
+
+
+# calculate metrics for each simulation
+
+net_metr_sim <- get_network_measures_from_adjacency(list_adj_matrix = list_adj_matrix.f)
+
+# compute table with mean metrics
+
+df_metrics_fw <- reshape_df_net.metrics(df_metrics = net_metr_sim,
+                       interaction = "foodweb")
+
+
+# join with table of empirical networks
+
+# Joining the empirical networks here
+
+df_metrics <- merge(df_metrics_fw,
+                    df_metrics_emp,
+                    by = "metric")
+
+
+# plot the results
+
+p_S <- plot_metric_foodweb(df = df_metrics, metric = "S", y_axis = "N species")
+p_link.dens <- plot_metric_foodweb(df = df_metrics, metric = "Link_density", y_axis = "L/S")
+p_C <- plot_metric_foodweb(df = df_metrics, metric = "C", y_axis = "Connectance")
+p_top <- plot_metric_foodweb(df = df_metrics, metric = "perc_tops", y_axis = "% top species")
+p_int <- plot_metric_foodweb(df = df_metrics, metric = "perc_int", y_axis = "% intermediate species")
+p_basal <- plot_metric_foodweb(df = df_metrics, metric = "perc_basals", y_axis = "% basal species")
+p_cannibals <- plot_metric_foodweb(df = df_metrics, metric = "perc_cannibals", y_axis = "% cannibal species")
+p_omnivory <- plot_metric_foodweb(df = df_metrics, metric = "omnivory", y_axis = "omnivory")
+p_sd_gen <- plot_metric_foodweb(df = df_metrics, metric = "sd_gen", y_axis = "SD generality")
+p_sd_vul <- plot_metric_foodweb(df = df_metrics, metric = "sd_vul", y_axis = "SD vulnerability")
+
+plot_metrics_comparison_sim_emp <- ggarrange(
+  p_S,
+  p_link.dens,
+  p_C,
+  p_top,
+  p_int,
+  p_basal,
+  p_cannibals,
+  p_omnivory,
+  p_sd_gen,
+  p_sd_vul,
+  
+  nrow = 5,
+  ncol = 2
+  
+)
+
+plot_metrics_comparison_sim_emp
+
+
+```
+
+```{r}
+for (i in 1:length(list_adj_matrix.f)) {
+  
+  graph <- graph_from_adjacency_matrix(adjmatrix = list_adj_matrix.f[[i]],
+                                       mode = "directed")
+  
+  degree <- degree(graph, mode="all")
+  
+  deg.dist <- degree_distribution(graph, cumulative=T, mode="all")
+  
+ plot( x=0:max(degree), y=1-deg.dist, pch=19, cex=1.2,
+                          xlab="Degree", ylab="Cumulative Frequency")
+  
+}
+```
 

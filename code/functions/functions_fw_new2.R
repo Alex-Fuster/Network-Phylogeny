@@ -114,11 +114,18 @@ compute_vec_comp_pred <- function(matrix) {
 
 
 ########################################
+
+
+
 sim_model_bif = function(seed, pars, nsteps) {
   
   with(pars,{
     
     set.seed(seed)
+    
+    
+    #vec_est_prob <- c()
+    #mat_ext_prob <- matrix(0, 1000,1000)
     
     # Draw the traits of the producers
     #	basal = runif(pars$Sbasal, 0, 1)
@@ -234,6 +241,7 @@ sim_model_bif = function(seed, pars, nsteps) {
             # Compute the probability of successful establishment #---------------------- P(establishment)
 
             estab_prob = u_0 + u_1*exp(-a_u*sum_I)
+            #vec_est_prob[esp] <- estab_prob
             
             # Test if there is establishment of the two new species
             
@@ -270,8 +278,8 @@ sim_model_bif = function(seed, pars, nsteps) {
             
             # Compute the probability of successful establishment #---------------------- P(establishment)
             
-            spec_prob = u_0 + u_1*exp(-a_u*sum_I)
-            
+            estab_prob = u_0 + u_1*exp(-a_u*sum_I)
+            #vec_est_prob2[esp] <- estab_prob
             
             # Test if there is establishment of the second	species
             if(runif(1) < estab_prob) {
@@ -308,11 +316,13 @@ sim_model_bif = function(seed, pars, nsteps) {
       out_I = rowSums(L)[(Sbasal+1):(Sbasal+Smax)] 	# links as prey
       
       ## compute vector of shared preys
-     # vec_competition_pred <- compute_vec_comp_pred(L)
+      #vec_competition_pred <- compute_vec_comp_pred(L)
   
       
       ext_prob = e_0neg + e_1neg*exp(-a_eneg*out_I) #+  # e_0pos + e_1pos*exp(-a_epos*in_I) 
         #e_0neg_s * (1 - exp(-a_eneg_s*vec_competition_pred))
+      
+      #mat_ext_prob[esp,] <- c(ext_prob, rep(0,times = ncol(mat_ext_prob)-length(ext_prob))
       
       # Perform extinctions
       #test_extprob = runif(S,0,1)

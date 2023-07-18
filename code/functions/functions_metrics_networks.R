@@ -325,11 +325,6 @@ get_network_measures_from_adjacency <- function(list_adj_matrix) {
 
 
 
-# Degree distribution
-
-graph <- graph_from_adjacency_matrix(adjmatrix = list_adj_matrix[[i]],
-                                     mode = "directed")
-
 
 
 
