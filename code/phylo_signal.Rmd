@@ -27,21 +27,18 @@ FOODWEB
 
 list_res <- readRDS("../data/selection_evolution/foodweb1/fw.rds")
 
-
+list_res <- list_res_fw_11
 
 
 #names(list_res) = c("simulation1", "simulation2")
 
 list_simulation1 <- list_res
 
-names(list_simulation1)[1] <- "presence_matrix"
-names(list_simulation1)[7] <- "network_list"
-names(list_simulation1)[9] <- "list_anc_dist"
-
 
 # count number of timesteps where there were spp
 
 n_steps <- length(list_simulation1$network_list)
+
 
 
 ```
