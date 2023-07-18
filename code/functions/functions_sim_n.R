@@ -232,7 +232,15 @@ sim_model_bif_n = function(seed, pars, nsteps, pestablishment, pextinction) {
             
             # Compute the probability of successful establishment #---------------------- P(establishment)
             
-            estab_prob = pestablishment
+            if(sum_I > 0){
+              
+              estab_prob = pestablishment
+              
+            } else if (sum_I == 0) {
+              
+              estab_prob = 0
+              
+            }
             
             # Test if there is establishment of the two new species
             
@@ -269,7 +277,16 @@ sim_model_bif_n = function(seed, pars, nsteps, pestablishment, pextinction) {
             
             # Compute the probability of successful establishment #---------------------- P(establishment)
             
-            spec_prob = pestablishment
+            if(sum_I > 0){
+              
+              estab_prob = pestablishment
+              
+            } else if (sum_I == 0) {
+              
+              estab_prob = 0
+              
+            }
+            
             
             
             # Test if there is establishment of the second	species
