@@ -274,7 +274,6 @@ for (i in 1:length(list_adj_matrix.f)) {
 
 
 
-
 # Neutral
 
 Define parameters
@@ -304,14 +303,11 @@ pars$d = 0.5 # Decrease speed of the establishment probability
 pars$I_max = 60 # Maximal number of interactioning species --------------------------------------
 
 
-pars$a_eneg_s = 0.005
-pars$e_0neg_s = 0.00015  # asymptotic extinction probability with infinite negative interactions
-
 #--------------------------------------
 # NEUTRAL
 
 p_est <- 0.5
-p_ext <- 0.005
+p_ext <- 0.0001
   
 
 ```
@@ -400,6 +396,21 @@ plot_metrics_comparison_sim_emp
 
 
 ```
+
+
+### plot species richness over time
+
+```{r}
+p1 <- plot_spp_richness(net_list = results$network_list, pres_mat = results$presence_matrix)
+plot_spp_richness(net_list = results$network_list, pres_mat = results$presence_matrix)
+```
+
+
+
+
+
+
+
 
 ```{r}
 for (i in 1:length(list_adj_matrix.f)) {
