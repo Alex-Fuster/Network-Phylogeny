@@ -235,7 +235,7 @@ seed_list <- NULL
 
 ```{r}
 
-plot_spp_richness(steps = nsteps, pres_mat = list_results_fac[[2]]$presence_matrix)
+plot_spp_richness(steps = nsteps, pres_mat = list_results_comp[[2]]$presence_matrix)
 
 ```
 

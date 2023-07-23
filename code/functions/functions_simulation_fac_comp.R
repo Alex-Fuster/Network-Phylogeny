@@ -26,23 +26,17 @@ rand_traits_mut = function(traits_anc, pars) {
 
 	with(as.list(c(traits_anc, pars)),{
 
-		if(int == 0) {
-			#n_m = -1
-			#while((n_m < 0) || (n_m > 1)){n_m = n + rnorm(1, mean = 0, sd = pars$sd)}
-			n_m = EnvStats::rnormTrunc(1, mean = n, sd = pars$sd, min = 0, max = 1)
-			r_m = -1
-			while((r_m < 0) || (r_m > 1)){r_m = r + rnorm(1, mean = 0, sd = 0.02)}
-			traits_mut = c(n = n_m, r = r_m, o = n)
-		}
-
-		if(int == 1) {
-			#n_m = -1
-			#while((n_m < 0) || (n_m > 1)){n_m = n + rnorm(1, mean = 0, sd = pars$sd)}
-			n_m = EnvStats::rnormTrunc(1, mean = n, sd = pars$sd, min = 0, max = 1)
-			r_m = -1
-			while((r_m < 0) || (r_m > 1)){r_m = r + rnorm(1, mean = 0, sd = 0.02)}
-			traits_mut = c(n = n_m, r = r_m, o = n)
-		}
+	  if(int == 0) {
+	    a = beta_n*n/(1-n)
+	    n_m = rbeta(1, shape1 = a, shape2 = beta_n)
+	    traits_mut = c(n = n_m, r = r, o = n)
+	  }
+	  
+	  if(int == 1) {
+	    a = beta_n*n/(1-n)
+	    n_m = rbeta(1, shape1 = a, shape2 = beta_n)
+	    traits_mut = c(n = n_m, r = r, o = n)
+	  }
 		traits_mut
 	})
 }
@@ -194,9 +188,12 @@ sim_model_bif_fc = function(seed, pars, nsteps) {
 					}
 
 					# niche avlue is different from the other new species, but the optimum and the interaction range are the same
-					n_tmp <- EnvStats::rnormTrunc(1, mean = as.numeric(traits_anc[1]), sd = sd, min = limit_inf, max = limit_sup)
-					o_tmp <- traits_mut[2]
-					r_tmp <- traits_mut[3]
+					
+					
+					a_tmp = beta_n*traits_mat[esp,"n"]/(1-traits_mat[esp,"n"])
+					n_tmp <- rbeta(1, shape1 = a_tmp, shape2 = beta_n)
+					o_tmp <- traits_mat[esp,"n"]
+					r_tmp <- traits_mat[esp,"r"]
 
 					# Asign new traits to the ancestor to fake the new second species
 					traits_mat[esp,] <- c(n_tmp, o_tmp, r_tmp)
