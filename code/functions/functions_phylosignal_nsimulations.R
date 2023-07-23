@@ -1,0 +1,508 @@
+################### Compute phylogenetic signal for a list of simulation results
+
+
+
+
+
+
+
+
+### Check what matrices of interactions have all 0 and discard them
+
+
+check_matrix.with.values <- function(matrix) {
+  
+  result <- any(matrix != 0)
+  
+  return(result)
+  
+}
+
+
+
+
+
+
+
+
+
+############## FACILIATION AND COMPETITION #################
+
+
+
+compute_cor_phylosig_time_comp.fac <- function(list_sim) {
+  
+  
+  res=data.frame(matrix(ncol=8,nrow=0, dimnames=list(NULL, c("timesteps",
+                                                             "phylo cor mean",
+                                                             "phylo sign mean",
+                                                             "phylo cor pred",
+                                                             "phylo sign pred",
+                                                             "phylo cor prey",
+                                                             "phylo sign prey",
+                                                              "sim")))) #makes an empty dataframe
+  
+  
+  
+  cor_signal_time <- numeric(length(list_sim))
+  
+  
+  
+  
+  
+  for (sim in 1:length(list_sim)) {
+    
+    
+    print(paste("simulation", sim, "of", length(list_sim)))
+    
+    
+    
+    path <- list_sim[sim]
+    
+    list_res <- readRDS(path)
+    
+    
+    # count number of timesteps where there were spp
+    
+    list_simulation1 <- list_res
+    
+    n_steps <- length(list_simulation1$network_list)
+    
+    
+    presence_matrix <- list_simulation1$presence_matrix
+    
+    presence_matrix <- presence_matrix[1:n_steps,]
+    
+    
+    
+    
+    #### Identify timesteps where phylogenetic distances cant be calculated (those with less than 3 spp)
+    
+    
+    non.valid_timesteps_phylo_distance <- c(which(rowSums(presence_matrix) < 3))
+    
+    # until what timestep need to discard:
+    
+    final.discarded_timestep <- non.valid_timesteps_phylo_distance[length(non.valid_timesteps_phylo_distance)]
+    
+    
+    
+    
+    
+    
+    #### homogenize elements to start from valid timesteps
+    
+    
+    # ancestry-distances table
+    
+    list_anc_dist <- list_simulation1$list_anc_dist[(final.discarded_timestep+1):length(list_simulation1$list_anc_dist)]
+    
+    
+    # Network list
+    
+    network_list <- list_simulation1$network_list[(final.discarded_timestep+1):length(list_simulation1$list_anc_dist)]
+    
+    
+    
+    
+    
+    
+    
+    ## Convert spp names from numbers to letters
+    
+  
+    ## ancestry-distances table
+    
+    list_anc_dist_letters <- lapply(list_anc_dist, change_sppnames_letters_ancdist.table)
+    
+    
+    ## Network list 
+    
+    
+    list_networks_sppnames_numbers <- lapply(network_list, set_sppNames_numbers)
+    
+    
+    #### convert numbers to letters
+    
+    list_networks_sppnames_letters <- lapply(list_networks_sppnames_numbers, convert_sppnames_toletters)
+    
+    
+    
+    
+    
+    
+    
+    ## Loop for obtaining phylogenetic distances:
+    
+    
+    list_newick <- list()
+    list_trees <- list()
+    list_newick_tails <- list()
+    list_dist.phylo <- list()
+    
+    
+    
+    
+    for (i in 1:length(list_anc_dist_letters)) {
+      
+      
+      list_newick[[i]] <- ToPhylo(list_anc_dist_letters[[i]])
+      
+      list_newick_tails[[i]] <- paste(list_newick[[i]], "root")
+      
+      list_trees[[i]] <- read.tree(text = sub("A root",";",list_newick_tails[[i]]))
+      
+      list_dist.phylo[[i]] <- cophenetic.phylo(list_trees[[i]])
+      
+      
+    }
+    
+    
+    
+    
+    
+    ## Retain only present species in network matrices
+    
+    
+    
+    # Set the same spp names for the presence_matrix than for the interacion matrices
+    
+    
+    colnames(presence_matrix) <- seq(1:1000)
+    
+    colnames(presence_matrix) <- chartr("0123456789", "ABCDEFGHIJ", colnames(presence_matrix))
+    
+    
+    # Discard same timesteps (rows) than the discarted phylogenetic distance matrices
+    
+    presence_matrix <- presence_matrix[(final.discarded_timestep+1):length(list_simulation1$list_anc_dist),]
+    
+    
+    
+    
+    ## crop the interaction matrix with present spp
+    
+    list_net_present_spp.letters <- list()
+    
+    for (i in 1:length(list_networks_sppnames_letters)) {
+      
+      list_net_present_spp.letters[[i]] <- list_networks_sppnames_letters[[i]][names(which(presence_matrix[i,] == 1)), names(which(presence_matrix[i,] == 1))]
+      
+    }
+    
+    
+    
+    
+    
+    ## Compute interaction distances (NMI)
+    
+    
+    ## DISTANCES IN DONNORS (columns)
+    
+    
+    #list_interact_distances_pred <- lapply(list_net_present_spp.letters, FUN = compute_nmi_cols)
+    list_interact_distances_pred <- lapply(list_net_present_spp.letters, FUN = compute_nmi_aricode_pred)
+    
+    
+    # thosa that are all 0 will have NaN - I need to convert them into 0
+    
+    
+    ## DISTANCES AS RECEPTORS (rows)
+    
+    #list_interact_distances_prey <- lapply(list_net_present_spp.letters, FUN = compute_nmi_rows)
+    list_interact_distances_prey <- lapply(list_net_present_spp.letters, FUN = compute_nmi_aricode_prey)
+    
+    
+    
+    # Set matrix diagonals to 0
+    
+    list_interact_distances_pred <- lapply(list_interact_distances_pred, FUN = diag_to0)
+    
+    list_interact_distances_prey <- lapply(list_interact_distances_prey, FUN = diag_to0)
+    
+    
+    
+    
+    
+    ## For phylogenetic distance matrices, retain only those species present
+    
+    
+    
+    list_dist.phylo_pres <- list()
+    
+    for (i in 1:length(list_dist.phylo)) {
+      
+      spp_present <- colnames(list_interact_distances_pred[[i]])
+      list_dist.phylo_pres[[i]] <- list_dist.phylo[[i]][spp_present ,spp_present] 
+      
+      
+    }
+    
+    
+    
+    
+    
+    # set all Na to 0 (spp that compared vectors with all 0)
+    
+    
+    list_interact_distances_pred_corrected <- list()
+    
+    for (i in 1:length(list_interact_distances_pred)) {
+      
+      list_interact_distances_pred_corrected[[i]] <- convet_nan_to_0_matrix(matrix = list_interact_distances_pred[[i]],
+                                                                            marg = 2) # 1 (rows), 2 (col), or c(1,2)
+      
+    }
+    
+    
+    list_interact_distances_prey_corrected <- list()
+    
+    for (i in 1:length(list_interact_distances_prey)) {
+      
+      list_interact_distances_prey_corrected[[i]] <- convet_nan_to_0_matrix(matrix = list_interact_distances_prey[[i]],
+                                                                            marg = 1) # 1 (rows), 2 (col), or c(1,2)
+      
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    # compute mean distances
+    
+    list_interact_distances_mean_corrected <- list()
+    
+    
+    for (i in 1:length(list_interact_distances_pred_corrected)) {
+      
+      #pair_mat <- list(list_interact_distances_pred_corrected[[i]], list_interact_distances_prey_corrected[[i]])
+      
+      #list_interact_distances_mean_corrected[[i]] <- compute_mean_two_mat_from_list(list = pair_mat)
+      
+      list_interact_distances_mean_corrected[[i]] <- (list_interact_distances_pred_corrected[[i]] + list_interact_distances_prey_corrected[[i]]) / 2
+      
+    }
+    
+    
+    
+    
+    
+    # compute MDS
+    
+    
+    list_mds.phy <- list()
+    list_mds.int_pred <- list()
+    list_mds.int_prey <- list()
+    list_mds.int_mean <- list()
+    
+    vec_timesteps_with_alldist_0 <- unique(c(which(lapply(list_interact_distances_pred_corrected,check_matrix.with.values) != TRUE), 
+                                            which(lapply(list_interact_distances_prey_corrected,check_matrix.with.values) != TRUE),
+                                                  which(lapply(list_interact_distances_mean_corrected,check_matrix.with.values) != TRUE)))
+    
+    if(length(vec_timesteps_with_alldist_0) > 0){
+    
+    list_interact_distances_pred_corrected1 <- list_interact_distances_pred_corrected[-vec_timesteps_with_alldist_0]
+    
+    list_interact_distances_prey_corrected1 <- list_interact_distances_prey_corrected[-vec_timesteps_with_alldist_0]
+    
+    list_interact_distances_mean_corrected1 <- list_interact_distances_mean_corrected[-vec_timesteps_with_alldist_0]
+    
+    list_dist.phylo_pres1 <- list_dist.phylo_pres[-vec_timesteps_with_alldist_0]
+    
+    
+    
+    
+    } else {
+      
+      
+      list_interact_distances_pred_corrected1 <- list_interact_distances_pred_corrected
+      
+      list_interact_distances_prey_corrected1 <- list_interact_distances_prey_corrected
+      
+      list_interact_distances_mean_corrected1 <- list_interact_distances_mean_corrected
+      
+      list_dist.phylo_pres1 <- list_dist.phylo_pres
+      
+    }
+    
+    
+    
+    
+    for (i in 1:length(list_dist.phylo_pres1)) {
+      
+      list_mds.phy[[i]] <- monoMDS(list_dist.phylo_pres1[[i]], y = cmdscale(list_dist.phylo_pres1[[i]])) 
+      
+      list_mds.int_pred[[i]] <- monoMDS(list_interact_distances_pred_corrected1[[i]], y = cmdscale(list_interact_distances_pred_corrected1[[i]]))
+      
+      list_mds.int_prey[[i]] <- monoMDS(list_interact_distances_prey_corrected1[[i]], y = cmdscale(list_interact_distances_prey_corrected1[[i]]))
+      
+      list_mds.int_mean[[i]] <- monoMDS(list_interact_distances_mean_corrected1[[i]], y = cmdscale(list_interact_distances_mean_corrected1[[i]]))
+      
+      
+      
+    }
+    
+    
+    
+    
+    
+    
+    # Compute correlation - Procrustes test
+    
+    
+    
+    protest_pred <- list()
+    procrustes_pred <- list()
+    
+    protest_prey <- list()
+    procrustes_prey <- list()
+    
+    protest_mean <- list()
+    procrustes_mean <- list()
+    
+    
+    for (i in 1:length(list_mds.phy)) {
+      
+      protest_pred[[i]] <- protest(list_mds.int_pred[[i]], list_mds.phy[[i]])
+      
+      procrustes_pred[[i]] <- procrustes(list_mds.int_pred[[i]],list_mds.phy[[i]])
+      
+      
+    }
+    
+    for (i in 1:length(list_mds.phy)) {
+      
+      protest_prey[[i]] <- protest(list_mds.int_prey[[i]], list_mds.phy[[i]])
+      
+      procrustes_prey[[i]] <- procrustes(list_mds.int_prey[[i]],list_mds.phy[[i]])
+      
+      
+    }
+    
+    for (i in 1:length(list_mds.phy)) {
+      
+      protest_mean[[i]] <- protest(list_mds.int_mean[[i]], list_mds.phy[[i]])
+      
+      procrustes_mean[[i]] <- procrustes(list_mds.int_mean[[i]],list_mds.phy[[i]])
+      
+      
+    }
+    
+    
+    
+    ## Create dataframe results
+    
+    
+    
+    
+    
+    
+    protest_pval_pred <- c()
+    protest_corr_pred <- c()
+    protest_t_pred <- c()
+    
+    protest_pval_prey <- c()
+    protest_corr_prey <- c()
+    protest_t_prey <- c()
+    
+    protest_pval_mean <- c()
+    protest_corr_mean <- c()
+    protest_t_mean <- c()
+    
+    for (i in 1:length(protest_mean)) {
+      
+      protest_pval_pred[i] <- protest_pred[[i]]$signif
+      
+      protest_corr_pred[i] <-protest_pred[[i]]$t0
+      
+      protest_t_pred[i] <-mean(protest_pred[[i]]$t)
+      
+      
+      protest_pval_prey[i] <- protest_prey[[i]]$signif
+      
+      protest_corr_prey[i] <-protest_prey[[i]]$t0
+      
+      protest_t_prey[i] <-mean(protest_prey[[i]]$t)
+      
+      
+      protest_pval_mean[i] <- protest_mean[[i]]$signif
+      
+      protest_corr_mean[i] <-protest_mean[[i]]$t0
+      
+      protest_t_mean[i] <-mean(protest_mean[[i]]$t)
+      
+      
+    }
+    
+    
+    # create timesteps variable discarting discarted timesteps
+    
+    #non.valid_timesteps_phylo_distance: discarted for <3spp
+    #vec_timesteps_with_alldist_0: discarted for all distances being 0
+    
+    total_timesteps = 1:n_steps
+
+    
+    if(length(vec_timesteps_with_alldist_0) > 0){
+      
+      # step1 - eliminate timesteps until the max. for final.discarded_timesteps (>3spp)
+      
+      timesteps <- total_timesteps[(final.discarded_timestep+1):length(total_timesteps)]
+      
+      # step2 - eliminate timesteps where all distances are 0
+      
+      timesteps <- timesteps[-vec_timesteps_with_alldist_0]
+      
+      
+    } else {
+      
+      
+      timesteps <- total_timesteps[(final.discarded_timestep+1):length(total_timesteps)]
+      
+      
+    }
+    
+    
+    
+    
+    # Save results
+    
+    df_signal_time <- data.frame(timesteps,
+                                 protest_pval_pred,protest_corr_pred,protest_t_pred,
+                                 protest_pval_prey,protest_corr_prey,protest_t_prey,
+                                 protest_pval_mean,protest_corr_mean,protest_t_mean)
+    
+    sign_pred <- with(df_signal_time, ifelse(protest_pval_pred < 0.051, 'sign', 'non.sign'))
+    sign_prey <- with(df_signal_time, ifelse(protest_pval_prey < 0.051, 'sign', 'non.sign'))
+    sign_mean <- with(df_signal_time, ifelse(protest_pval_mean < 0.051, 'sign', 'non.sign'))
+    
+    
+    res.add <- data.frame("timesteps" = timesteps,
+                          "phylo cor mean" = protest_corr_mean,
+                          "phylo sign mean" = sign_mean,
+                          "phylo cor pred" = protest_corr_pred,
+                          "phylo sign pred" = sign_pred,
+                          "phylo cor prey" = protest_corr_prey,
+                          "phylo sign prey" = sign_prey,
+                          "sim" = rep(sim, times = length(timesteps))
+                          
+    )
+    
+    
+    res<-rbind(res,res.add)
+    
+    
+    
+    
+  }
+  
+  
+  return(res)
+  
+  
+}
+
+
