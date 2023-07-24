@@ -249,11 +249,11 @@ sim_model_bif_fc = function(seed, pars, nsteps) {
 
 					# Compute the probability of successful establishment #---------------------- P(establishment)
 					if(int == 0){
-						spec_prob = u_0neg + u_1neg*exp(-a_uneg * sum_I)
+					  estab_prob = u_0neg + u_1neg*exp(-a_uneg * sum_I)
 					}
 
 					if(int == 1){
-						spec_prob = (u_0 + u_1*exp(-a_u*sum_I))#/(1 + exp(pars$d * (sum_I - pars$I_max)))
+					  estab_prob = (u_0 + u_1*exp(-a_u*sum_I))#/(1 + exp(pars$d * (sum_I - pars$I_max)))
 						##print(paste("estab prob =",spec_prob, " sum of interactions =", sum_I))
 					}
 

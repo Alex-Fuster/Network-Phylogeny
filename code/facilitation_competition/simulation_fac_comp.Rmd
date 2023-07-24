@@ -59,6 +59,8 @@ pars$Bspe = 4 # Constant minimal number of interaction per species (extablishmen
 pars$Bext = 4 # Constant minimal number of interaction per species (extinction prob)
 pars$I_max = 40 # Maximal number of interactioning species
 
+pars$beta_n = 1 # parameter of the beta distribution
+
 ```
 
 # set parameters simulation

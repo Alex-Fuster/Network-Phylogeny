@@ -16,9 +16,9 @@ library(ggplot2)
 library(ggpubr)
 
 
-source("../code/functions/functions_simulation_foodweb.R")
-source("../code/functions/functions_metrics_networks.R")
-source("../code/functions/functions_phylo_signal.R")
+source("../../code/functions/functions_simulation_foodweb.R")
+source("../../code/functions/functions_metrics_networks.R")
+source("../../code/functions/functions_phylosignal.R")
 
 
 ```
@@ -83,7 +83,7 @@ https://digitalcommons.rockefeller.edu/cohen_joel_laboratory/1/
 
 ```{r}
 
-net_metr_empirical <- readRDS("../data/net_metrics_empirical.rds")
+net_metr_empirical <- readRDS("../../data/net_metrics_empirical.rds")
 
 net_metr_empirical$id <- NULL
 
@@ -125,6 +125,8 @@ pars$Sbasal = 25 # number of basal species
 pars$Smax = 1000 # Maximal number of species allowed
 
 pars$d = 0.5 # Decrease speed of the establishment probability
+pars$I_max = 60 # Maximal number of interactioning species
+
 
 ```
 
@@ -133,7 +135,7 @@ pars$d = 0.5 # Decrease speed of the establishment probability
 
 ```{r}
 nsteps =  250
-n_sims = 2
+n_sims = 10
 list_adj_matrix.f <- list()
 
 ```
@@ -218,7 +220,7 @@ plot_metrics_comparison_sim_emp <- ggarrange(
 
 plot_metrics_comparison_sim_emp
 
-
+#ggsave("../../figures/example_plot_metrics_comparison_sim_emp.png", height = 13, width = 9)
 
 ```
 

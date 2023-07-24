@@ -12,6 +12,7 @@ I haven't found empirical network data for facilitation and competition so far. 
 ```{r}
 library(EnvStats)
 library(foreach)
+library(ggplot2)
 
 source("../functions/functions_simulation_fac_comp.R")
 
@@ -113,6 +114,9 @@ pars$d = 0.5 # Decrease speed of the establishment probability
 pars$Bspe = 4 # Constant minimal number of interaction per species (extablishment prob)
 pars$Bext = 4 # Constant minimal number of interaction per species (extinction prob)
 pars$I_max = 40 # Maximal number of interactioning species
+
+
+pars$beta_n = 1 # parameter of the beta distribution
 
 ```
 

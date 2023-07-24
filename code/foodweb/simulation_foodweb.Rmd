@@ -8,7 +8,7 @@ output: html_notebook
 library(EnvStats)
 library(foreach)
 
-source("../code/functions/functions_fw_new2.R")
+source("../code/functions/functions_simulation_foodweb.R")
 
 ```
 
@@ -37,6 +37,7 @@ pars$Sbasal = 25 # number of basal species
 pars$Smax = 1000 # Maximal number of species allowed
 
 pars$d = 0.5 # Decrease speed of the establishment probability
+pars$I_max = 60 # Maximal number of interactioning species
 
 ```
 
@@ -65,7 +66,7 @@ for (i in 1:n_sims) {
   names(results)[7] <- "network_list"
   names(results)[9] <- "list_anc_dist"
   
-    path <- paste0("../data/selection_evolution/foodweb/list_res_fw_", i, ".rds")
+    path <- paste0("../../data/selection_evolution/foodweb/list_res_fw_", i, ".rds")
 	  saveRDS(results, file = path) 
   
 }
