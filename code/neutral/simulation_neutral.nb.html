@@ -1755,50 +1755,32 @@ NEUTRAL</h1>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxubGlicmFyeShFbnZTdGF0cylcbmxpYnJhcnkoZm9yZWFjaClcblxuc291cmNlKFxcZnVuY3Rpb25zL2Z1bmN0aW9uc19zaW1fbi5SXFwpXG5cbmBgYFxuYGBgIn0= -->
-<pre class="r"><code>```r
-library(EnvStats)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShFbnZTdGF0cylcbmxpYnJhcnkoZm9yZWFjaClcblxuc291cmNlKFwiLi4vZnVuY3Rpb25zL2Z1bmN0aW9uc19zaW11bGF0aW9uX25ldXRyYWwuUlwiKVxuXG5gYGAifQ== -->
+<pre class="r"><code>library(EnvStats)
 library(foreach)
 
-source(\functions/functions_sim_n.R\)
+source(&quot;../functions/functions_simulation_neutral.R&quot;)
 </code></pre>
-<pre><code>
-&lt;!-- rnb-source-end --&gt;
-
-&lt;!-- rnb-chunk-end --&gt;
-
-
-&lt;!-- rnb-text-begin --&gt;
-
-
-
-
-### set general parameters
-
-
-&lt;!-- rnb-text-end --&gt;
-
-
-&lt;!-- rnb-chunk-begin --&gt;
-
-
-&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuXG5wYXJzID0gbGlzdCgpXG5wYXJzJHVfbWF4ID0gMC4wNzUgIyBtdXRhdGlvbiBwcm9iYWJpbGl0eVxucGFycyR1XzAgPSAxICAjIDEgZm9yIHByZWRhdGlvbiAmIG11dHVhbGlzbSwgMCBmb3IgY29tcGV0aXRpb25cbnBhcnMkdV8xID0gLTEgIyAtMSBmb3IgcHJlZGF0aW9uICYgbXV0dWFsaXNtLCAxIGZvciBjb21wZXRpdGlvblxucGFycyRlXzBuZWcgPSAwLjE1ICMgYXN5bXB0b3RpYyBleHRpbmN0aW9uIHByb2JhYmlsaXR5IHdpdGggaW5maW5pdGUgbmVnYXRpdmUgaW50ZXJhY3Rpb25zXG5wYXJzJGVfMW5lZyA9IC1wYXJzJGVfMG5lZyAgIyBFeHRpbmN0aW9uIHByb2JhYmlsaXR5IHdpdGggYWJzZW5jZSBvZiBpbnRlcmFjdGlvbnNcbnBhcnMkZV8wcG9zID0gMC4wMSAjIGFzeW1wdG90aWMgZXh0aW5jdGlvbiBwcm9iYWJpbGl0eSB3aXRoIGluZmluaXRlIHBvc2l0aXZlIGludGVyYWN0aW9uc1xucGFycyRlXzFwb3MgPSAxIC0gcGFycyRlXzBwb3MgIyAxIC0gZTBcbnBhcnMkYV91ID0gMC41ICMgc2hhcGUgb2YgdGhlIGV4cG9uZW50aWFsIGRlY2F5IG9mIHRoZSBjb2xvbml6YXRpb24gLSBpbnRlcmFjdGlvbiByZWxhdGlvbnNoaXBcdFxucGFycyRhX2VuZWcgPSAwLjAyNSAjIHNoYXBlIG9mIHRoZSBleHBvbmVudGlhbCBkZWNheSBvZiB0aGUgbmVnYXRpdmUgZXh0aW5jdGlvbiAtIGludGVyYWN0aW9uIHJlbGF0aW9uc2hpcCBcbnBhcnMkYV9lcG9zID0gMC41ICAjIHNoYXBlIG9mIHRoZSBleHBvbmVudGlhbCBkZWNheSBvZiB0aGUgcG9zaXRpdmUgZXh0aW5jdGlvbiAtIGludGVyYWN0aW9uIHJlbGF0aW9uc2hpcCBcbnBhcnMkYXZfciA9IDAuMjcgIyByYW5nZSBvZiB0aGUgbmljaGUgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gMC4yN1xucGFycyRiZXRhX24gPSAxICMgcGFyYW1ldGVyIG9mIHRoZSBiZXRhIGRpc3RyaWJ1dGlvbiBcblxucGFycyRTYmFzYWwgPSAyNSAjIG51bWJlciBvZiBiYXNhbCBzcGVjaWVzIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG5wYXJzJFNtYXggPSAxMDAwICMgTWF4aW1hbCBudW1iZXIgb2Ygc3BlY2llcyBhbGxvd2VkXG5cbiMjIHBhcnMgYWRkZWQgZnJvbSBNYXRoaWxkZSdzXG5cbnBhcnMkZCA9IDAuNSAjIERlY3JlYXNlIHNwZWVkIG9mIHRoZSBlc3RhYmxpc2htZW50IHByb2JhYmlsaXR5XG5wYXJzJElfbWF4ID0gNjAgIyBNYXhpbWFsIG51bWJlciBvZiBpbnRlcmFjdGlvbmluZyBzcGVjaWVzIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG5cblxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG4jIE5FVVRSQUxcblxucF9lc3QgPC0gMC41XG5wX2V4dCA8LSAwLjAwMDFcblxuYGBgXG5gYGAifQ== --&gt;
-
-```r
-```r
-
-pars = list()
-pars$u_max = 0.075 # mutation probability
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="set-general-parameters" class="section level3">
+<h3>set general parameters</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGFycyA9IGxpc3QoKVxucGFycyR1X21heCA9IDAuMSAjIG11dGF0aW9uIHByb2JhYmlsaXR5XG5wYXJzJHVfMCA9IDEgICMgMSBmb3IgcHJlZGF0aW9uICYgbXV0dWFsaXNtLCAwIGZvciBjb21wZXRpdGlvblxucGFycyR1XzEgPSAtMSAjIC0xIGZvciBwcmVkYXRpb24gJiBtdXR1YWxpc20sIDEgZm9yIGNvbXBldGl0aW9uXG5wYXJzJGVfMG5lZyA9IDAuMSAjIGFzeW1wdG90aWMgZXh0aW5jdGlvbiBwcm9iYWJpbGl0eSB3aXRoIGluZmluaXRlIG5lZ2F0aXZlIGludGVyYWN0aW9uc1xucGFycyRlXzFuZWcgPSAtcGFycyRlXzBuZWcgICMgRXh0aW5jdGlvbiBwcm9iYWJpbGl0eSB3aXRoIGFic2VuY2Ugb2YgaW50ZXJhY3Rpb25zXG5wYXJzJGVfMHBvcyA9IDAuMDEgIyBhc3ltcHRvdGljIGV4dGluY3Rpb24gcHJvYmFiaWxpdHkgd2l0aCBpbmZpbml0ZSBwb3NpdGl2ZSBpbnRlcmFjdGlvbnNcbnBhcnMkZV8xcG9zID0gMSAtIHBhcnMkZV8wcG9zICMgMSAtIGUwXG5wYXJzJGFfdSA9IDAuNSAjIHNoYXBlIG9mIHRoZSBleHBvbmVudGlhbCBkZWNheSBvZiB0aGUgY29sb25pemF0aW9uIC0gaW50ZXJhY3Rpb24gcmVsYXRpb25zaGlwXHRcbnBhcnMkYV9lbmVnID0gMC4wMjUgIyBzaGFwZSBvZiB0aGUgZXhwb25lbnRpYWwgZGVjYXkgb2YgdGhlIG5lZ2F0aXZlIGV4dGluY3Rpb24gLSBpbnRlcmFjdGlvbiByZWxhdGlvbnNoaXAgXG5wYXJzJGFfZXBvcyA9IDAuNSAgIyBzaGFwZSBvZiB0aGUgZXhwb25lbnRpYWwgZGVjYXkgb2YgdGhlIHBvc2l0aXZlIGV4dGluY3Rpb24gLSBpbnRlcmFjdGlvbiByZWxhdGlvbnNoaXAgXG5wYXJzJGF2X3IgPSAwLjI0ICMgcmFuZ2Ugb2YgdGhlIG5pY2hlIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIDAuMjdcbnBhcnMkYmV0YV9uID0gMSAjIHBhcmFtZXRlciBvZiB0aGUgYmV0YSBkaXN0cmlidXRpb24gXG5cbnBhcnMkU2Jhc2FsID0gMjUgIyBudW1iZXIgb2YgYmFzYWwgc3BlY2llcyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxucGFycyRTbWF4ID0gMTAwMCAjIE1heGltYWwgbnVtYmVyIG9mIHNwZWNpZXMgYWxsb3dlZFxuXG4jIyBwYXJzIGFkZGVkIGZyb20gTWF0aGlsZGUnc1xuXG5wYXJzJGQgPSAwLjUgIyBEZWNyZWFzZSBzcGVlZCBvZiB0aGUgZXN0YWJsaXNobWVudCBwcm9iYWJpbGl0eVxucGFycyRJX21heCA9IDYwICMgTWF4aW1hbCBudW1iZXIgb2YgaW50ZXJhY3Rpb25pbmcgc3BlY2llcyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuXG5cbiMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuIyBORVVUUkFMXG5cbnBfZXN0IDwtIDAuNVxucF9leHQgPC0gMC4wMDAzXG5cbmBgYCJ9 -->
+<pre class="r"><code>pars = list()
+pars$u_max = 0.1 # mutation probability
 pars$u_0 = 1  # 1 for predation &amp; mutualism, 0 for competition
 pars$u_1 = -1 # -1 for predation &amp; mutualism, 1 for competition
-pars$e_0neg = 0.15 # asymptotic extinction probability with infinite negative interactions
+pars$e_0neg = 0.1 # asymptotic extinction probability with infinite negative interactions
 pars$e_1neg = -pars$e_0neg  # Extinction probability with absence of interactions
 pars$e_0pos = 0.01 # asymptotic extinction probability with infinite positive interactions
 pars$e_1pos = 1 - pars$e_0pos # 1 - e0
 pars$a_u = 0.5 # shape of the exponential decay of the colonization - interaction relationship  
 pars$a_eneg = 0.025 # shape of the exponential decay of the negative extinction - interaction relationship 
 pars$a_epos = 0.5  # shape of the exponential decay of the positive extinction - interaction relationship 
-pars$av_r = 0.27 # range of the niche -------------------------------------- 0.27
+pars$av_r = 0.24 # range of the niche -------------------------------------- 0.27
 pars$beta_n = 1 # parameter of the beta distribution 
 
 pars$Sbasal = 25 # number of basal species --------------------------------------
@@ -1814,77 +1796,75 @@ pars$I_max = 60 # Maximal number of interactioning species ---------------------
 # NEUTRAL
 
 p_est &lt;- 0.5
-p_ext &lt;- 0.0001
+p_ext &lt;- 0.0003
 </code></pre>
-<pre><code>
-&lt;!-- rnb-source-end --&gt;
-
-&lt;!-- rnb-chunk-end --&gt;
-
-
-&lt;!-- rnb-text-begin --&gt;
-
-
-
-# parameters simulation
-
-
-&lt;!-- rnb-text-end --&gt;
-
-
-&lt;!-- rnb-chunk-begin --&gt;
-
-
-&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxubnN0ZXBzID0gIDI1MFxubl9zaW1zID0gMlxuXG5gYGBcbmBgYCJ9 --&gt;
-
-```r
-```r
-nsteps =  250
-n_sims = 2
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="parameters-simulation" class="section level1">
+<h1>parameters simulation</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubnN0ZXBzID0gIDI1MFxubl9zaW1zID0gMTBcblxuYGBgIn0= -->
+<pre class="r"><code>nsteps =  250
+n_sims = 10
 </code></pre>
-<pre><code>
-&lt;!-- rnb-source-end --&gt;
-
-&lt;!-- rnb-chunk-end --&gt;
-
-
-&lt;!-- rnb-text-begin --&gt;
-
-
-
-
-
-
-&lt;!-- rnb-text-end --&gt;
-
-
-&lt;!-- rnb-chunk-begin --&gt;
-
-
-&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuXG5mb3IgKGkgaW4gMTpuX3NpbXMpIHtcbiAgXG4gIHJlc3VsdHMgPC0gc2ltX21vZGVsX2JpZl9uKHNlZWQgPSBydW5pZigxKSwgcGFycywgbnN0ZXBzID0gbnN0ZXBzLCBwZXN0YWJsaXNobWVudCA9IHBfZXN0LCBwZXh0aW5jdGlvbiA9IHBfZXh0KVxuICBcbiAgbmFtZXMocmVzdWx0cylbMV0gPC0gXFxwcmVzZW5jZV9tYXRyaXhcXFxuICBuYW1lcyhyZXN1bHRzKVs3XSA8LSBcXG5ldHdvcmtfbGlzdFxcXG4gIG5hbWVzKHJlc3VsdHMpWzldIDwtIFxcbGlzdF9hbmNfZGlzdFxcXG4gIFxuICAgIHBhdGggPC0gcGFzdGUwKFxcLi4vZGF0YS9uZXV0cmFsL2xpc3RfcmVzX25fXFwsIGksIFxcLnJkc1xcKVxuXHQgIHNhdmVSRFMocmVzdWx0cywgZmlsZSA9IHBhdGgpXG4gIFxufVxuYGBgXG5gYGAifQ== --&gt;
-
-```r
-```r
-
-for (i in 1:n_sims) {
-  
-  results &lt;- sim_model_bif_n(seed = runif(1), pars, nsteps = nsteps, pestablishment = p_est, pextinction = p_ext)
-  
-  names(results)[1] &lt;- \presence_matrix\
-  names(results)[7] &lt;- \network_list\
-  names(results)[9] &lt;- \list_anc_dist\
-  
-    path &lt;- paste0(\../data/neutral/list_res_n_\, i, \.rds\)
-      saveRDS(results, file = path)
-  
-}</code></pre>
-<p>```</p>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5cbnN1Y2Nlc3NmdWxfc2ltIDwtIDFcblxud2hpbGUoc3VjY2Vzc2Z1bF9zaW0gPCBuX3NpbXMrMSl7XG4gIFxuICBzZWVkIDwtIHNhbXBsZS5pbnQoODAwMDAsIDEpXG4gIFxuICByZXN1bHRzIDwtIHNpbV9tb2RlbF9iaWZfbihzZWVkID0gc2VlZCwgcGFycywgbnN0ZXBzID0gbnN0ZXBzLCBwZXN0YWJsaXNobWVudCA9IHBfZXN0LCBwZXh0aW5jdGlvbiA9IHBfZXh0KVxuICBcbiAgIyBUZXN0IGlmIHdlIGhhdmUgZW5vdWdoIHNwZWNpZXMgYXQgdGhlIHRpbWVzdGVwIDE1MCBpbiB0aGUgc2ltdWxhdGlvblxuICBcdFx0c3VjY2VzcyA8LSBzdW0ocmVzdWx0cyRwcmVzWzE1MCxdKVxuICBcdFx0XG4gIFx0XHRpZihzdWNjZXNzID49IDIwKXtcbiAgXG4gIG5hbWVzKHJlc3VsdHMpWzFdIDwtIFwicHJlc2VuY2VfbWF0cml4XCJcbiAgbmFtZXMocmVzdWx0cylbN10gPC0gXCJuZXR3b3JrX2xpc3RcIlxuICBuYW1lcyhyZXN1bHRzKVs5XSA8LSBcImxpc3RfYW5jX2Rpc3RcIlxuICBcbiAgICBwYXRoIDwtIHBhc3RlMChcIi4uLy4uL2RhdGEvbmV1dHJhbC9saXN0X3Jlc19uX1wiLCBzdWNjZXNzZnVsX3NpbSwgXCIucmRzXCIpXG5cdCAgc2F2ZVJEUyhyZXN1bHRzLCBmaWxlID0gcGF0aCkgXG4gIFxuXHQgIHByaW50KHBhc3RlKFwic2ltdWxhdGlvbiBcIiwgc3VjY2Vzc2Z1bF9zaW0sIFwic3VyXCIsIG5fc2ltcykpXG5cdCAgc3VjY2Vzc2Z1bF9zaW0gPC0gc3VjY2Vzc2Z1bF9zaW0gKyAxXG5cdCAgXG5cdCAgcm0ocmVzdWx0cylcblxufVxuXG59XG5gYGAifQ== -->
+<pre class="r"><code>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlNpbXVsYXRpb24gY29tbXVudGl5IGV2b2x1dGlvbiBmb3IgRk9PRFdFQiBORVVUUkFMIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KDQoNCmBgYHtyfQ0KbGlicmFyeShFbnZTdGF0cykNCmxpYnJhcnkoZm9yZWFjaCkNCg0Kc291cmNlKCJmdW5jdGlvbnMvZnVuY3Rpb25zX3NpbV9uLlIiKQ0KDQpgYGANCg0KDQoNCiMjIyBzZXQgZ2VuZXJhbCBwYXJhbWV0ZXJzDQoNCmBgYHtyfQ0KDQpwYXJzID0gbGlzdCgpDQpwYXJzJHVfbWF4ID0gMC4wNzUgIyBtdXRhdGlvbiBwcm9iYWJpbGl0eQ0KcGFycyR1XzAgPSAxICAjIDEgZm9yIHByZWRhdGlvbiAmIG11dHVhbGlzbSwgMCBmb3IgY29tcGV0aXRpb24NCnBhcnMkdV8xID0gLTEgIyAtMSBmb3IgcHJlZGF0aW9uICYgbXV0dWFsaXNtLCAxIGZvciBjb21wZXRpdGlvbg0KcGFycyRlXzBuZWcgPSAwLjE1ICMgYXN5bXB0b3RpYyBleHRpbmN0aW9uIHByb2JhYmlsaXR5IHdpdGggaW5maW5pdGUgbmVnYXRpdmUgaW50ZXJhY3Rpb25zDQpwYXJzJGVfMW5lZyA9IC1wYXJzJGVfMG5lZyAgIyBFeHRpbmN0aW9uIHByb2JhYmlsaXR5IHdpdGggYWJzZW5jZSBvZiBpbnRlcmFjdGlvbnMNCnBhcnMkZV8wcG9zID0gMC4wMSAjIGFzeW1wdG90aWMgZXh0aW5jdGlvbiBwcm9iYWJpbGl0eSB3aXRoIGluZmluaXRlIHBvc2l0aXZlIGludGVyYWN0aW9ucw0KcGFycyRlXzFwb3MgPSAxIC0gcGFycyRlXzBwb3MgIyAxIC0gZTANCnBhcnMkYV91ID0gMC41ICMgc2hhcGUgb2YgdGhlIGV4cG9uZW50aWFsIGRlY2F5IG9mIHRoZSBjb2xvbml6YXRpb24gLSBpbnRlcmFjdGlvbiByZWxhdGlvbnNoaXAJDQpwYXJzJGFfZW5lZyA9IDAuMDI1ICMgc2hhcGUgb2YgdGhlIGV4cG9uZW50aWFsIGRlY2F5IG9mIHRoZSBuZWdhdGl2ZSBleHRpbmN0aW9uIC0gaW50ZXJhY3Rpb24gcmVsYXRpb25zaGlwIA0KcGFycyRhX2Vwb3MgPSAwLjUgICMgc2hhcGUgb2YgdGhlIGV4cG9uZW50aWFsIGRlY2F5IG9mIHRoZSBwb3NpdGl2ZSBleHRpbmN0aW9uIC0gaW50ZXJhY3Rpb24gcmVsYXRpb25zaGlwIA0KcGFycyRhdl9yID0gMC4yNyAjIHJhbmdlIG9mIHRoZSBuaWNoZSANCnBhcnMkYmV0YV9uID0gMSAjIHBhcmFtZXRlciBvZiB0aGUgYmV0YSBkaXN0cmlidXRpb24gDQoNCnBhcnMkU2Jhc2FsID0gMjUgIyBudW1iZXIgb2YgYmFzYWwgc3BlY2llcyANCnBhcnMkU21heCA9IDEwMDAgIyBNYXhpbWFsIG51bWJlciBvZiBzcGVjaWVzIGFsbG93ZWQNCg0KIyMgcGFycyBhZGRlZCBmcm9tIE1hdGhpbGRlJ3MNCg0KcGFycyRkID0gMC41ICMgRGVjcmVhc2Ugc3BlZWQgb2YgdGhlIGVzdGFibGlzaG1lbnQgcHJvYmFiaWxpdHkNCnBhcnMkSV9tYXggPSA2MCAjIE1heGltYWwgbnVtYmVyIG9mIGludGVyYWN0aW9uaW5nIHNwZWNpZXMgDQoNCg0KIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQojIE5FVVRSQUwNCg0KcF9lc3QgPC0gMC41DQpwX2V4dCA8LSAwLjAwMDENCg0KYGBgDQoNCg0KIyBwYXJhbWV0ZXJzIHNpbXVsYXRpb24NCg0KYGBge3J9DQpuc3RlcHMgPSAgMjUwDQpuX3NpbXMgPSAyDQoNCmBgYA0KDQoNCg0KDQpgYGB7cn0NCg0KZm9yIChpIGluIDE6bl9zaW1zKSB7DQogIA0KICByZXN1bHRzIDwtIHNpbV9tb2RlbF9iaWZfbihzZWVkID0gcnVuaWYoMSksIHBhcnMsIG5zdGVwcyA9IG5zdGVwcywgcGVzdGFibGlzaG1lbnQgPSBwX2VzdCwgcGV4dGluY3Rpb24gPSBwX2V4dCkNCiAgDQogIG5hbWVzKHJlc3VsdHMpWzFdIDwtICJwcmVzZW5jZV9tYXRyaXgiDQogIG5hbWVzKHJlc3VsdHMpWzddIDwtICJuZXR3b3JrX2xpc3QiDQogIG5hbWVzKHJlc3VsdHMpWzldIDwtICJsaXN0X2FuY19kaXN0Ig0KICANCiAgICBwYXRoIDwtIHBhc3RlMCgiLi4vZGF0YS9uZXV0cmFsL2xpc3RfcmVzX25fIiwgaSwgIi5yZHMiKQ0KCSAgc2F2ZVJEUyhyZXN1bHRzLCBmaWxlID0gcGF0aCkNCiAgDQp9DQpgYGANCg0K</div>
+successful_sim &lt;- 1
+
+while(successful_sim &lt; n_sims+1){
+  
+  seed &lt;- sample.int(80000, 1)
+  
+  results &lt;- sim_model_bif_n(seed = seed, pars, nsteps = nsteps, pestablishment = p_est, pextinction = p_ext)
+  
+  # Test if we have enough species at the timestep 150 in the simulation
+        success &lt;- sum(results$pres[150,])
+        
+        if(success &gt;= 20){
+  
+  names(results)[1] &lt;- &quot;presence_matrix&quot;
+  names(results)[7] &lt;- &quot;network_list&quot;
+  names(results)[9] &lt;- &quot;list_anc_dist&quot;
+  
+    path &lt;- paste0(&quot;../../data/neutral/list_res_n_&quot;, successful_sim, &quot;.rds&quot;)
+      saveRDS(results, file = path) 
+  
+      print(paste(&quot;simulation &quot;, successful_sim, &quot;sur&quot;, n_sims))
+      successful_sim &lt;- successful_sim + 1
+      
+      rm(results)
+
+}
+
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwic2ltdWxhdGlvbiAgMSBzdXIgMTBcIlxuWzFdIFwic2ltdWxhdGlvbiAgMiBzdXIgMTBcIlxuWzFdIFwic2ltdWxhdGlvbiAgMyBzdXIgMTBcIlxuWzFdIFwic2ltdWxhdGlvbiAgNCBzdXIgMTBcIlxuWzFdIFwic2ltdWxhdGlvbiAgNSBzdXIgMTBcIlxuWzFdIFwic2ltdWxhdGlvbiAgNiBzdXIgMTBcIlxuWzFdIFwic2ltdWxhdGlvbiAgNyBzdXIgMTBcIlxuWzFdIFwic2ltdWxhdGlvbiAgOCBzdXIgMTBcIlxuWzFdIFwic2ltdWxhdGlvbiAgOSBzdXIgMTBcIlxuWzFdIFwic2ltdWxhdGlvbiAgMTAgc3VyIDEwXCJcbiJ9 -->
+<pre><code>[1] &quot;simulation  1 sur 10&quot;
+[1] &quot;simulation  2 sur 10&quot;
+[1] &quot;simulation  3 sur 10&quot;
+[1] &quot;simulation  4 sur 10&quot;
+[1] &quot;simulation  5 sur 10&quot;
+[1] &quot;simulation  6 sur 10&quot;
+[1] &quot;simulation  7 sur 10&quot;
+[1] &quot;simulation  8 sur 10&quot;
+[1] &quot;simulation  9 sur 10&quot;
+[1] &quot;simulation  10 sur 10&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+</div>
+
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlNpbXVsYXRpb24gY29tbXVudGl5IGV2b2x1dGlvbiBmb3IgRk9PRFdFQiBORVVUUkFMIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KDQoNCmBgYHtyfQ0KbGlicmFyeShFbnZTdGF0cykNCmxpYnJhcnkoZm9yZWFjaCkNCg0Kc291cmNlKCIuLi9mdW5jdGlvbnMvZnVuY3Rpb25zX3NpbXVsYXRpb25fbmV1dHJhbC5SIikNCg0KYGBgDQoNCg0KDQojIyMgc2V0IGdlbmVyYWwgcGFyYW1ldGVycw0KDQpgYGB7cn0NCnBhcnMgPSBsaXN0KCkNCnBhcnMkdV9tYXggPSAwLjEgIyBtdXRhdGlvbiBwcm9iYWJpbGl0eQ0KcGFycyR1XzAgPSAxICAjIDEgZm9yIHByZWRhdGlvbiAmIG11dHVhbGlzbSwgMCBmb3IgY29tcGV0aXRpb24NCnBhcnMkdV8xID0gLTEgIyAtMSBmb3IgcHJlZGF0aW9uICYgbXV0dWFsaXNtLCAxIGZvciBjb21wZXRpdGlvbg0KcGFycyRlXzBuZWcgPSAwLjEgIyBhc3ltcHRvdGljIGV4dGluY3Rpb24gcHJvYmFiaWxpdHkgd2l0aCBpbmZpbml0ZSBuZWdhdGl2ZSBpbnRlcmFjdGlvbnMNCnBhcnMkZV8xbmVnID0gLXBhcnMkZV8wbmVnICAjIEV4dGluY3Rpb24gcHJvYmFiaWxpdHkgd2l0aCBhYnNlbmNlIG9mIGludGVyYWN0aW9ucw0KcGFycyRlXzBwb3MgPSAwLjAxICMgYXN5bXB0b3RpYyBleHRpbmN0aW9uIHByb2JhYmlsaXR5IHdpdGggaW5maW5pdGUgcG9zaXRpdmUgaW50ZXJhY3Rpb25zDQpwYXJzJGVfMXBvcyA9IDEgLSBwYXJzJGVfMHBvcyAjIDEgLSBlMA0KcGFycyRhX3UgPSAwLjUgIyBzaGFwZSBvZiB0aGUgZXhwb25lbnRpYWwgZGVjYXkgb2YgdGhlIGNvbG9uaXphdGlvbiAtIGludGVyYWN0aW9uIHJlbGF0aW9uc2hpcAkNCnBhcnMkYV9lbmVnID0gMC4wMjUgIyBzaGFwZSBvZiB0aGUgZXhwb25lbnRpYWwgZGVjYXkgb2YgdGhlIG5lZ2F0aXZlIGV4dGluY3Rpb24gLSBpbnRlcmFjdGlvbiByZWxhdGlvbnNoaXAgDQpwYXJzJGFfZXBvcyA9IDAuNSAgIyBzaGFwZSBvZiB0aGUgZXhwb25lbnRpYWwgZGVjYXkgb2YgdGhlIHBvc2l0aXZlIGV4dGluY3Rpb24gLSBpbnRlcmFjdGlvbiByZWxhdGlvbnNoaXAgDQpwYXJzJGF2X3IgPSAwLjI0ICMgcmFuZ2Ugb2YgdGhlIG5pY2hlIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIDAuMjcNCnBhcnMkYmV0YV9uID0gMSAjIHBhcmFtZXRlciBvZiB0aGUgYmV0YSBkaXN0cmlidXRpb24gDQoNCnBhcnMkU2Jhc2FsID0gMjUgIyBudW1iZXIgb2YgYmFzYWwgc3BlY2llcyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KcGFycyRTbWF4ID0gMTAwMCAjIE1heGltYWwgbnVtYmVyIG9mIHNwZWNpZXMgYWxsb3dlZA0KDQojIyBwYXJzIGFkZGVkIGZyb20gTWF0aGlsZGUncw0KDQpwYXJzJGQgPSAwLjUgIyBEZWNyZWFzZSBzcGVlZCBvZiB0aGUgZXN0YWJsaXNobWVudCBwcm9iYWJpbGl0eQ0KcGFycyRJX21heCA9IDYwICMgTWF4aW1hbCBudW1iZXIgb2YgaW50ZXJhY3Rpb25pbmcgc3BlY2llcyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KDQoNCiMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KIyBORVVUUkFMDQoNCnBfZXN0IDwtIDAuNQ0KcF9leHQgPC0gMC4wMDAzDQoNCmBgYA0KDQoNCiMgcGFyYW1ldGVycyBzaW11bGF0aW9uDQoNCmBgYHtyfQ0KbnN0ZXBzID0gIDI1MA0Kbl9zaW1zID0gMTANCg0KYGBgDQoNCg0KDQoNCmBgYHtyfQ0KDQoNCnN1Y2Nlc3NmdWxfc2ltIDwtIDENCg0Kd2hpbGUoc3VjY2Vzc2Z1bF9zaW0gPCBuX3NpbXMrMSl7DQogIA0KICBzZWVkIDwtIHNhbXBsZS5pbnQoODAwMDAsIDEpDQogIA0KICByZXN1bHRzIDwtIHNpbV9tb2RlbF9iaWZfbihzZWVkID0gc2VlZCwgcGFycywgbnN0ZXBzID0gbnN0ZXBzLCBwZXN0YWJsaXNobWVudCA9IHBfZXN0LCBwZXh0aW5jdGlvbiA9IHBfZXh0KQ0KICANCiAgIyBUZXN0IGlmIHdlIGhhdmUgZW5vdWdoIHNwZWNpZXMgYXQgdGhlIHRpbWVzdGVwIDE1MCBpbiB0aGUgc2ltdWxhdGlvbg0KICAJCXN1Y2Nlc3MgPC0gc3VtKHJlc3VsdHMkcHJlc1sxNTAsXSkNCiAgCQkNCiAgCQlpZihzdWNjZXNzID49IDIwKXsNCiAgDQogIG5hbWVzKHJlc3VsdHMpWzFdIDwtICJwcmVzZW5jZV9tYXRyaXgiDQogIG5hbWVzKHJlc3VsdHMpWzddIDwtICJuZXR3b3JrX2xpc3QiDQogIG5hbWVzKHJlc3VsdHMpWzldIDwtICJsaXN0X2FuY19kaXN0Ig0KICANCiAgICBwYXRoIDwtIHBhc3RlMCgiLi4vLi4vZGF0YS9uZXV0cmFsL2xpc3RfcmVzX25fIiwgc3VjY2Vzc2Z1bF9zaW0sICIucmRzIikNCgkgIHNhdmVSRFMocmVzdWx0cywgZmlsZSA9IHBhdGgpIA0KICANCgkgIHByaW50KHBhc3RlKCJzaW11bGF0aW9uICIsIHN1Y2Nlc3NmdWxfc2ltLCAic3VyIiwgbl9zaW1zKSkNCgkgIHN1Y2Nlc3NmdWxfc2ltIDwtIHN1Y2Nlc3NmdWxfc2ltICsgMQ0KCSAgDQoJICBybShyZXN1bHRzKQ0KDQp9DQoNCn0NCg0KDQoNCg0KDQpgYGANCg0K</div>
 
 
 

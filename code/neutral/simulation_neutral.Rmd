@@ -9,7 +9,7 @@ output: html_notebook
 library(EnvStats)
 library(foreach)
 
-source("functions/functions_sim_n.R")
+source("../functions/functions_simulation_neutral.R")
 
 ```
 
@@ -18,35 +18,34 @@ source("functions/functions_sim_n.R")
 ### set general parameters
 
 ```{r}
-
 pars = list()
-pars$u_max = 0.075 # mutation probability
+pars$u_max = 0.1 # mutation probability
 pars$u_0 = 1  # 1 for predation & mutualism, 0 for competition
 pars$u_1 = -1 # -1 for predation & mutualism, 1 for competition
-pars$e_0neg = 0.15 # asymptotic extinction probability with infinite negative interactions
+pars$e_0neg = 0.1 # asymptotic extinction probability with infinite negative interactions
 pars$e_1neg = -pars$e_0neg  # Extinction probability with absence of interactions
 pars$e_0pos = 0.01 # asymptotic extinction probability with infinite positive interactions
 pars$e_1pos = 1 - pars$e_0pos # 1 - e0
 pars$a_u = 0.5 # shape of the exponential decay of the colonization - interaction relationship	
 pars$a_eneg = 0.025 # shape of the exponential decay of the negative extinction - interaction relationship 
 pars$a_epos = 0.5  # shape of the exponential decay of the positive extinction - interaction relationship 
-pars$av_r = 0.27 # range of the niche 
+pars$av_r = 0.24 # range of the niche -------------------------------------- 0.27
 pars$beta_n = 1 # parameter of the beta distribution 
 
-pars$Sbasal = 25 # number of basal species 
+pars$Sbasal = 25 # number of basal species --------------------------------------
 pars$Smax = 1000 # Maximal number of species allowed
 
 ## pars added from Mathilde's
 
 pars$d = 0.5 # Decrease speed of the establishment probability
-pars$I_max = 60 # Maximal number of interactioning species 
+pars$I_max = 60 # Maximal number of interactioning species --------------------------------------
 
 
 #--------------------------------------
 # NEUTRAL
 
 p_est <- 0.5
-p_ext <- 0.0001
+p_ext <- 0.0003
 
 ```
 
@@ -55,7 +54,7 @@ p_ext <- 0.0001
 
 ```{r}
 nsteps =  250
-n_sims = 2
+n_sims = 10
 
 ```
 
@@ -64,17 +63,39 @@ n_sims = 2
 
 ```{r}
 
-for (i in 1:n_sims) {
+
+successful_sim <- 1
+
+while(successful_sim < n_sims+1){
   
-  results <- sim_model_bif_n(seed = runif(1), pars, nsteps = nsteps, pestablishment = p_est, pextinction = p_ext)
+  seed <- sample.int(80000, 1)
+  
+  results <- sim_model_bif_n(seed = seed, pars, nsteps = nsteps, pestablishment = p_est, pextinction = p_ext)
+  
+  # Test if we have enough species at the timestep 150 in the simulation
+  		success <- sum(results$pres[150,])
+  		
+  		if(success >= 20){
   
   names(results)[1] <- "presence_matrix"
   names(results)[7] <- "network_list"
   names(results)[9] <- "list_anc_dist"
   
-    path <- paste0("../data/neutral/list_res_n_", i, ".rds")
-	  saveRDS(results, file = path)
+    path <- paste0("../../data/neutral/list_res_n_", successful_sim, ".rds")
+	  saveRDS(results, file = path) 
   
+	  print(paste("simulation ", successful_sim, "sur", n_sims))
+	  successful_sim <- successful_sim + 1
+	  
+	  rm(results)
+
 }
+
+}
+
+
+
+
+
 ```
 

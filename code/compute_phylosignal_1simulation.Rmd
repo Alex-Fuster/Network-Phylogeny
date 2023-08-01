@@ -63,7 +63,7 @@ FOODWEB
 
 ```{r}
 
-list_res <- readRDS("../data/selection_evolution/foodweb/list_res_fw_2.rds")
+list_res <- readRDS("../data/selection_evolution/foodweb/list_res_fw_1.rds")
 
 
 list_simulation1 <- list_res
@@ -81,11 +81,9 @@ NEUTRAL
 
 ```{r}
 
-load("../data/neutral/list_res_neutral_1.Rdata")
+list_res <- readRDS("../data/neutral/list_res_n_1.rds")
 
-list <- list_objects_sc[[1]]
-
-list_simulation1 <- list[[1]]
+list_simulation1 <- list_res
 
 
 # count number of timesteps where there were spp
@@ -408,7 +406,7 @@ list_interact_distances_prey <- lapply(list_net_present_spp.letters, FUN = compu
 ```
 
 
-Some species have NAN in their diagonal. I make sure this doesnt happen by setting the diagonal to ones with the function **diag_to0()**:
+Some species have NAN in their diagonal. I make sure this doesnt happen by setting the diagonal to zeros with the function **diag_to0()**:
 
 
 ```{r}
@@ -458,7 +456,11 @@ To do this,
 
 
 
+**NOTE** sometimes one simulation may have a problem with the spp in the phylogeny and the spp present in maybe only 1 timestep. Not sure why. But it doesnt happen in the majority of simulations.
+
+
 ```{r}
+
 
 list_dist.phylo_pres <- list()
 
@@ -469,6 +471,7 @@ for (i in 1:length(list_dist.phylo)) {
   
   
 }
+
 
 
 ```
@@ -501,6 +504,7 @@ if (length(which(check_colnames_lists(list_dist.phylo_pres, list_interact_distan
   print("PROBLEM")
   
 }
+
 
 
 
@@ -592,7 +596,23 @@ if(length(list_interact_distances_mean_corrected) == length(list_dist.phylo_pres
   
 }
 
+
+list_interact_distances_pred_corrected[[15]]
 ```
+# make sure order of names are correct
+
+```{r}
+for (i in length(list_interact_distances_pred_corrected)) {
+  
+  colnames(list_interact_distances_pred_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_pred_corrected[[i]])))]
+  colnames(list_interact_distances_prey_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_prey_corrected[[i]])))]
+  colnames(list_interact_distances_mean_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_mean_corrected[[i]])))]
+  
+}
+
+```
+
+
 
 
 Now I can compute the MDS:
@@ -618,9 +638,10 @@ check_matrix.with.values <- function(matrix) {
 
 vec_timesteps_all0 <- which(lapply(list_interact_distances_pred_corrected,check_matrix.with.values) != TRUE)
 
-n_discard_timesteps_all0 <- vec_timesteps_all0[length(vec_timesteps_all0)]
 
 if(length(vec_timesteps_all0) > 0){
+  
+  n_discard_timesteps_all0 <- vec_timesteps_all0[length(vec_timesteps_all0)]
   
   list_interact_distances_pred_corrected <- list_interact_distances_pred_corrected[-(1:n_discard_timesteps_all0)]
   
@@ -632,27 +653,72 @@ if(length(vec_timesteps_all0) > 0){
   
 }
 
+list_dist_dist.phylo_pres <- list()
+list_dist_interact_distances_pred_corrected <- list()
+list_dist_interact_distances_prey_corrected <- list()
+list_dist_interact_distances_mean_corrected <- list()
 
-
-
-list_mds.phy <- list()
-list_mds.int_pred <- list()
-list_mds.int_prey <- list()
-list_mds.int_mean <- list()
-
+## Convert matrix to distance objects
 
 for (i in 1:length(list_dist.phylo_pres)) {
+  
+  list_dist_dist.phylo_pres[[i]] <- as.dist(list_dist.phylo_pres[[i]])
+  list_dist_interact_distances_pred_corrected[[i]] <- as.dist(list_interact_distances_pred_corrected[[i]])
+  list_dist_interact_distances_prey_corrected[[i]] <- as.dist(list_interact_distances_prey_corrected[[i]])
+  list_dist_interact_distances_mean_corrected[[i]] <- as.dist(list_interact_distances_mean_corrected[[i]])
+  
+}
 
-list_mds.phy[[i]] <- monoMDS(list_dist.phylo_pres[[i]], y = cmdscale(list_dist.phylo_pres[[i]])) 
 
-list_mds.int_pred[[i]] <- monoMDS(list_interact_distances_pred_corrected[[i]], y = cmdscale(list_interact_distances_pred_corrected[[i]]))
 
-list_mds.int_prey[[i]] <- monoMDS(list_interact_distances_prey_corrected[[i]], y = cmdscale(list_interact_distances_prey_corrected[[i]]))
 
-list_mds.int_mean[[i]] <- monoMDS(list_interact_distances_mean_corrected[[i]], y = cmdscale(list_interact_distances_mean_corrected[[i]]))
+list_pco.phy <- list()
+list_pco.int_pred <- list()
+list_pco.int_prey <- list()
+list_pco.int_mean <- list()
+
+
+for (i in 1:length(list_dist_dist.phylo_pres)) {
+
+pco_phy <- dudi.pco(list_dist_dist.phylo_pres[[i]], scannf = FALSE, full = TRUE) 
+
+list_pco.phy[[i]] <- pco_phy$li
+
+pco_pred <- dudi.pco(list_dist_interact_distances_pred_corrected[[i]], scannf = FALSE, full = TRUE)
+
+list_pco.int_pred[[i]] <- pco_pred$li
+
+pco_prey <- dudi.pco(list_dist_interact_distances_prey_corrected[[i]], scannf = FALSE, full = TRUE)
+
+list_pco.int_prey[[i]]  <- pco_prey$li
+
+pco_mean <- dudi.pco(list_dist_interact_distances_mean_corrected[[i]], scannf = FALSE, full = TRUE)
+
+list_pco.int_mean[[i]]  <- pco_mean$li
 
 
 }
+
+
+
+#list_mds.phy <- list()
+#list_mds.int_pred <- list()
+#list_mds.int_prey <- list()
+#list_mds.int_mean <- list()
+
+
+#for (i in 1:length(list_dist.phylo_pres)) {
+
+#list_mds.phy[[i]] <- monoMDS(list_dist.phylo_pres[[i]], y = cmdscale(list_dist.phylo_pres[[i]])) 
+
+#list_mds.int_pred[[i]] <- monoMDS(list_interact_distances_pred_corrected[[i]], y = cmdscale(list_interact_distances_pred_corrected[[i]]))
+
+#list_mds.int_prey[[i]] <- monoMDS(list_interact_distances_prey_corrected[[i]], y = cmdscale(list_interact_distances_prey_corrected[[i]]))
+
+#list_mds.int_mean[[i]] <- monoMDS(list_interact_distances_mean_corrected[[i]], y = cmdscale(list_interact_distances_mean_corrected[[i]]))
+
+
+#}
 
 ```
 
@@ -677,32 +743,33 @@ protest_mean <- list()
 procrustes_mean <- list()
 
 
-for (i in 1:length(list_dist.phylo_pres)) {
+for (i in 1:length(list_pco.phy)) {
   
-  protest_pred[[i]] <- protest(list_mds.int_pred[[i]], list_mds.phy[[i]])
+  protest_pred[[i]] <- protest(list_pco.int_pred[[i]], list_pco.phy[[i]])
   
-  procrustes_pred[[i]] <- procrustes(list_mds.int_pred[[i]],list_mds.phy[[i]])
-  
-  
-}
-
-for (i in 1:length(list_dist.phylo_pres)) {
-  
-  protest_prey[[i]] <- protest(list_mds.int_prey[[i]], list_mds.phy[[i]])
-  
-  procrustes_prey[[i]] <- procrustes(list_mds.int_prey[[i]],list_mds.phy[[i]])
+  procrustes_pred[[i]] <- procrustes(list_pco.int_pred[[i]],list_pco.phy[[i]])
   
   
 }
 
-for (i in 1:length(list_dist.phylo_pres)) {
+for (i in 1:length(list_pco.phy)) {
   
-  protest_mean[[i]] <- protest(list_mds.int_mean[[i]], list_mds.phy[[i]])
+  protest_prey[[i]] <- protest(list_pco.int_prey[[i]], list_pco.phy[[i]])
   
-  procrustes_mean[[i]] <- procrustes(list_mds.int_mean[[i]],list_mds.phy[[i]])
+  procrustes_prey[[i]] <- procrustes(list_pco.int_prey[[i]],list_pco.phy[[i]])
   
   
 }
+
+for (i in 1:length(list_pco.phy)) {
+  
+  protest_mean[[i]] <- protest(list_pco.int_mean[[i]], list_pco.phy[[i]])
+  
+  procrustes_mean[[i]] <- procrustes(list_pco.int_mean[[i]],list_pco.phy[[i]])
+  
+  
+}
+
 
 
 ```
@@ -755,9 +822,20 @@ for (i in 1:length(protest_mean)) {
 }
 
 
-n_max_step_discarded <- n_discard_timesteps_all0 + final.discarded_timestep
 
-timesteps <- (n_max_step_discarded+1):n_steps
+
+if(length(vec_timesteps_all0) > 0){
+  
+  n_max_step_discarded <- n_discard_timesteps_all0 + final.discarded_timestep
+  
+  timesteps <- (n_max_step_discarded+1):n_steps
+  
+}else{
+  
+  timesteps <- (final.discarded_timestep+1):n_steps
+}
+
+
 
 
 df_signal_time <- data.frame(timesteps,
@@ -862,6 +940,7 @@ p.spp <- ggplot(df_signal_time, aes(x=timesteps, y = nspp)) +
   xlab("timesteps")+
   ylab("N species")
 
+p.spp
 
 ```
 
@@ -878,8 +957,8 @@ ggarrange(p_prey + rremove("xlab"),
              ncol = 1, nrow = 4)
 
 #ggsave("figures/foodweb_all_result_phylo.time_1sim.png", 
-      # height = 14,
-       #width = 7)
+       height = 14,
+       width = 7)
 
 ```
 

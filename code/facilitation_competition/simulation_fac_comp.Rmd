@@ -13,13 +13,17 @@ Note that for facilitation and competition I keep a similar structure than the i
 library(EnvStats)
 library(foreach)
 
-source("functions/functions_sim_comp.fac.R")
+source("../functions/functions_simulation_fac_comp.R")
 
 ```
 
-# set general parameters
+### set general parameters
+
+
+#### VERSION with beta distrib and fixed range
 
 ```{r}
+
 
 pars = list()
 
@@ -59,7 +63,9 @@ pars$Bspe = 4 # Constant minimal number of interaction per species (extablishmen
 pars$Bext = 4 # Constant minimal number of interaction per species (extinction prob)
 pars$I_max = 40 # Maximal number of interactioning species
 
+
 pars$beta_n = 1 # parameter of the beta distribution
+
 
 ```
 
@@ -67,7 +73,7 @@ pars$beta_n = 1 # parameter of the beta distribution
 
 ```{r}
 nsteps = 250 # Set the maximum timestep per simulation
-nsim = 2 # Set the number of simulations
+nsim = 10 # Set the number of simulations
 
 # Vector to record number of simulation needed to reach 100 valid simulations
 needed_sim_pos <- c(rep(NA, nsim))
@@ -156,10 +162,10 @@ seed_list <- NULL # Set an object to record seed that will be used to launch sim
     		
     				# Save simulations results data
 		if(pars$int == 1){
-			path <- paste0("../data/selection_evolution/facilitation/list_res_pos_", successful_sim, ".rds")
+			path <- paste0("../../data/selection_evolution/facilitation/list_res_pos_", successful_sim, ".rds")
 	  	saveRDS(res_sim, file = path) #Change if interaction tyep = 0 (competition)
 		} else if(pars$int == 0){
-			path <- paste0("../data/selection_evolution/competition/list_res_neg_", successful_sim, ".rds")
+			path <- paste0("../../data/selection_evolution/competition/list_res_neg_", successful_sim, ".rds")
 	  	saveRDS(res_sim, file = path) #Change if interaction tyep = 0 (competition)
 		}
     		

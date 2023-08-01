@@ -14,9 +14,9 @@ library(ggplot2)
 library(ggpubr)
 
 
-source("../code/functions/functions_simulation_neutral.R")
-source("../code/functions/functions_metrics_networks.R")
-source("../code/functions/functions_phylo_signal.R")
+source("../../code/functions/functions_simulation_neutral.R")
+source("../../code/functions/functions_metrics_networks.R")
+source("../../code/functions/functions_phylosignal.R")
 
 
 ```
@@ -81,7 +81,7 @@ https://digitalcommons.rockefeller.edu/cohen_joel_laboratory/1/
 
 ```{r}
 
-net_metr_empirical <- readRDS("../data/net_metrics_empirical.rds")
+net_metr_empirical <- readRDS("../../data/net_metrics_empirical.rds")
 
 net_metr_empirical$id <- NULL
 
@@ -107,17 +107,17 @@ df_metrics_emp <- reshape_df_net.metrics(df_metrics = net_metr_empirical,
 ```{r}
 
 pars = list()
-pars$u_max = 0.075 # mutation probability
+pars$u_max = 0.1 # mutation probability
 pars$u_0 = 1  # 1 for predation & mutualism, 0 for competition
 pars$u_1 = -1 # -1 for predation & mutualism, 1 for competition
-pars$e_0neg = 0.15 # asymptotic extinction probability with infinite negative interactions
+pars$e_0neg = 0.1 # asymptotic extinction probability with infinite negative interactions
 pars$e_1neg = -pars$e_0neg  # Extinction probability with absence of interactions
 pars$e_0pos = 0.01 # asymptotic extinction probability with infinite positive interactions
 pars$e_1pos = 1 - pars$e_0pos # 1 - e0
 pars$a_u = 0.5 # shape of the exponential decay of the colonization - interaction relationship	
 pars$a_eneg = 0.025 # shape of the exponential decay of the negative extinction - interaction relationship 
 pars$a_epos = 0.5  # shape of the exponential decay of the positive extinction - interaction relationship 
-pars$av_r = 0.27 # range of the niche -------------------------------------- 0.27
+pars$av_r = 0.24 # range of the niche -------------------------------------- 0.27
 pars$beta_n = 1 # parameter of the beta distribution 
 
 pars$Sbasal = 25 # number of basal species --------------------------------------
@@ -133,7 +133,7 @@ pars$I_max = 60 # Maximal number of interactioning species ---------------------
 # NEUTRAL
 
 p_est <- 0.5
-p_ext <- 0.0001
+p_ext <- 0.0003
 
 ```
 
@@ -142,7 +142,7 @@ p_ext <- 0.0001
 
 ```{r}
 nsteps =  250
-n_sims = 2
+n_sims = 3
 list_adj_matrix.f <- list()
 
 ```
@@ -154,25 +154,35 @@ list_adj_matrix.f <- list()
 
 
 list_results <- list()
+successful_sim <- 1
 
-for (i in 1:n_sims) {
+while(successful_sim != n_sims){
   
   
   seed <- sample.int(80000, 1)
   
-  results <- sim_model_bif_n(seed = seed, pars, nsteps = nsteps)
+  results <- sim_model_bif_n(seed = seed, pars, nsteps = nsteps, pestablishment = p_est, pextinction = p_ext)
+  
+  success <- sum(results$pres[150,])
+  		
+  		if(success >= 20){
   
   names(results)[1] <- "presence_matrix"
   names(results)[7] <- "network_list"
   names(results)[9] <- "list_anc_dist"
   
-  list_results[[i]] <- results
+  list_results[[successful_sim]] <- results
   
      
-  list_adj_matrix.f[[i]] <- get_adjancency_from_simulation.fw_single(list_networks = results$network_list,
+  list_adj_matrix.f[[successful_sim]] <- get_adjancency_from_simulation.fw_single(list_networks = results$network_list,
                                            nbasals = length(results$basal),
                                            pres_mat = results$presence_matrix)
   
+  	  print(paste("simulation ", successful_sim, "sur", n_sims))
+	  successful_sim <- successful_sim + 1
+	  
+	  rm(results)
+  		}
 }
 
 
@@ -227,7 +237,7 @@ plot_metrics_comparison_sim_emp <- ggarrange(
 
 plot_metrics_comparison_sim_emp
 
-
+#ggsave("../../figures/simulation_evaluation/neutral_metrics.png", height = 13, width = 9)
 
 ```
 
@@ -237,7 +247,7 @@ plot_metrics_comparison_sim_emp
 
 ```{r}
 
-plot_spp_richness(steps = nsteps, pres_mat = results$presence_matrix)
+plot_spp_richness(steps = nsteps, pres_mat = list_results[[2]]$presence_matrix)
 
 ```
 
@@ -259,6 +269,23 @@ for (i in 1:length(list_adj_matrix.f)) {
                           xlab="Degree", ylab="Cumulative Frequency")
   
 }
+
+
+
+#png(filename="../../figures/simulation_evaluation/degree_distrib_neutral.png", width = 700, height = 500, units = "px")
+
+
+  graph <- graph_from_adjacency_matrix(adjmatrix = list_adj_matrix.f[[1]],
+                                       mode = "directed")
+  
+  degree <- degree(graph, mode="all")
+  
+  deg.dist <- degree_distribution(graph, cumulative=T, mode="all")
+  
+ plot( x=0:max(degree), y=1-deg.dist, pch=19, cex=1.2,
+                          xlab="Degree", ylab="Cumulative Frequency", main = "foodweb neutral")
+ 
+ #dev.off()
 
 
 ```

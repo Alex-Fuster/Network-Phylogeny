@@ -9,12 +9,16 @@ Script to try parameters out and explore the output.
 I haven't found empirical network data for facilitation and competition so far. The evaluation I am doing consist mainly in exploring the species richness curve (expecting a progressive increase with time and then an estabilization), degree distribution (expecting diversity of values), and some model objects (trait evolution, speciation/extinction events).
 
 
+
+
+
+
 ```{r}
 library(EnvStats)
 library(foreach)
 library(ggplot2)
-
-source("../functions/functions_simulation_fac_comp.R")
+library(igraph)
+library(ggpubr)
 
 ```
 
@@ -36,12 +40,9 @@ my.theme<-theme(axis.text=element_text(size=12),
 # Species richness
 
 
-
-
-
 ```{r}
 
-plot_spp_richness <- function(steps, pres_mat) {
+plot_spp_richness <- function(steps, pres_mat, title) {
   
   timesteps <- 1:steps
   
@@ -61,7 +62,8 @@ plot_spp_richness <- function(steps, pres_mat) {
   theme_bw()+
   my.theme+
   xlab("timesteps")+
-  ylab("N species")
+  ylab("N species")+
+    ggtitle(title)
   
   return(p.spp)
 }
@@ -72,10 +74,27 @@ plot_spp_richness <- function(steps, pres_mat) {
 
 
 
+# VERSION 1
 
-# set general parameters
+as FOODWEB
+
+- range fixed
+- Niche is drawn from Beta distribution
+
 
 ```{r}
+source("../functions/functions_simulation_fac_comp_beta.R")
+```
+
+
+
+
+
+### set general parameters
+
+```{r}
+
+
 
 pars = list()
 
@@ -121,6 +140,67 @@ pars$beta_n = 1 # parameter of the beta distribution
 ```
 
 
+# VERSION 2
+
+```{r}
+source("../functions/functions_simulation_fac_comp.R")
+```
+
+
+
+```{r}
+
+
+
+pars = list()
+
+# General parameters
+#pars$int = 0 # 0 for competition, 1 for facilitation, 2 for predation
+pars$Smax = 1000 # Maximal number of species in the system
+
+# Related to interaction range trait
+pars$av_r = 0.1 # Half range of the niche of the first species
+pars$sd = 0.5*pars$av_r + 0.0001 # Standard deviation of the normal distribution used to calculate the niche optimum trait of a new species
+
+pars$u_max = 0.15 # Speciation probability
+
+# Extinction probability, negative interactions communities
+pars$a_eneg = 0.025 # Shape of the exponential decay of the negative extinction - interaction relationship
+pars$e_0neg = 0.5 # Asymptotic extinction probability with infinite negative interactions
+pars$e_1neg = 1  # Extinction probability with absence of interactions
+
+# Extinction probability, positive interactions communities
+pars$a_epos = 1.2  # Shape of the exponential decay of the positive extinction - interaction relationship
+pars$e_0pos = 0.075 # Asymptotic extinction probability with infinite positive interactions
+pars$e_1pos = 5.19 # 1 - pars$e_0pos
+
+# Establishment probability, negative interactions communities
+pars$a_uneg = 0.075 # Shape of the exponential decay of the colonization - interaction relationship
+pars$u_0neg = 0.075 # Asymptotic establishment probability with infinite competition interactions
+pars$u_1neg = 2 # Establishment probability with absence of competition interaction
+
+# Establishment probability, positive interactions communities
+pars$a_u = 0.45 # Shape of the exponential decay of the colonization - interaction relationship
+pars$u_0 = 1 # Asymptotic establishment probability with infinite facilitation interactions
+pars$u_1 = -1 # Establishment probability with absence of facilitation interactions
+pars$d = 0.5 # Decrease speed of the establishment probability
+
+# Extinction and establishment probabilitie for both, positive and negative interactions communities
+pars$Bspe = 4 # Constant minimal number of interaction per species (extablishment prob)
+pars$Bext = 4 # Constant minimal number of interaction per species (extinction prob)
+pars$I_max = 40 # Maximal number of interactioning species
+
+
+pars$beta_n = 1 # parameter of the beta distribution
+
+```
+
+
+as Mathilde
+
+- range evolves
+- Niche is drawn from a normal distribution
+
 # set parameters simulation
 
 ```{r}
@@ -134,13 +214,6 @@ needed_sim_neg <- c(rep(NA, nsim))
 
 
 # Simulation
-
-choose interaction
-
-```{r}
-int = 1
-```
-
 
 
 ```{r}
@@ -231,18 +304,222 @@ seed_list <- NULL
 ```
 
 
-
-
-
-
-# plot species richness over time
+Pick simulation to inspect
 
 ```{r}
+simulation1 <- list_results_fac[[2]]
+simulation2 <- list_results_comp[[2]]
+```
 
-plot_spp_richness(steps = nsteps, pres_mat = list_results_comp[[2]]$presence_matrix)
+
+
+
+### Traits evolution
+
+```{r, echo=FALSE}
+
+# FACILITATION
+
+pres = simulation1$presence_matrix
+traits = simulation1$traits
+nsteps = length(simulation1$network_list)
+Time = c(1:nrow(pres))
+
+
+# COMPETITION
+
+pres2 = simulation2$presence_matrix
+traits2 = simulation2$traits
+nsteps2 = length(simulation2$network_list)
+Time2 = c(1:nrow(pres))
+
+
+
+#png(filename="../../figures/simulation_evaluation/traits_evol_fac_comp.png", width = 1300, height = 500, units = "px")
+
+par(mfrow = c(1,2))
+
+plot(Time[pres[,1]==1],rep(traits[1,1],sum(pres[,1])),xlim = c(1,nsteps),
+ylim = c(0,1), pch = 19, cex = 0.3, xlab = "Time", ylab = "Niche position", main = "facilitation",
+cex.axis = 2.25, cex.lab = 2.5)
+for(i in 1:pars$Smax) points(Time[pres[,i]==1],rep(traits[i,1],sum(pres[,i])),cex = 0.3,pch = 19)
+
+
+plot(Time2[pres2[,1]==1],rep(traits2[1,1],sum(pres2[,1])),xlim = c(1,nsteps2),
+ylim = c(0,1), pch = 19, cex = 0.3, xlab = "Time", ylab = "Niche position", title = "competition",
+cex.axis = 2.25, cex.lab = 2.5)
+for(i in 1:pars$Smax) points(Time2[pres2[,i]==1],rep(traits2[i,1],sum(pres2[,i])),cex = 0.3,pch = 19)
+
+
+#dev.off()
 
 ```
 
 
+
 # Degree distribution - Simulation
+
+```{r}
+
+#FACILITATION
+
+net_f <- simulation1$network_list[[length(simulation1$network_list)]]
+colnames(net_f) <- seq(1:1000)
+rownames(net_f) <- seq(1:1000)
+
+pres_f <- simulation1$presence_matrix[length(simulation1$network_list),]
+names(pres_f) <- seq(1:1000)
+
+
+net_f <- net_f[names(which(pres_f == 1)), names(which(pres_f == 1))]
+
+graph <- graph_from_adjacency_matrix(adjmatrix = net_f,
+                                     mode = "directed")
+
+degree <- degree(graph, mode="all")
+
+deg.dist <- degree_distribution(graph, cumulative=T, mode="all")
+
+
+#COMPETITION
+
+net_f2 <- simulation2$network_list[[length(simulation2$network_list)]]
+colnames(net_f2) <- seq(1:1000)
+rownames(net_f2) <- seq(1:1000)
+
+pres_f2 <- simulation2$presence_matrix[length(simulation2$network_list),]
+names(pres_f2) <- seq(1:1000)
+
+
+net_f2 <- net_f2[names(which(pres_f2 == 1)), names(which(pres_f2 == 1))]
+
+graph2 <- graph_from_adjacency_matrix(adjmatrix = net_f2,
+                                     mode = "directed")
+
+degree2 <- degree(graph2, mode="all")
+
+deg.dist2 <- degree_distribution(graph2, cumulative=T, mode="all")
+
+
+
+#png(filename="../../figures/simulation_evaluation/degree_distrib_fac_comp.png", width = 1300, height = 500, units = "px")
+
+par(mfrow = c(1,2))
+
+
+plot( x=0:max(degree), y=1-deg.dist, pch=19, cex=1.2,
+      xlab="Degree", ylab="Cumulative Frequency",
+      main = "facilitation")
+
+
+plot( x=0:max(degree2), y=1-deg.dist2, pch=19, cex=1.2,
+      xlab="Degree", ylab="Cumulative Frequency",
+      main = "competition")
+
+#dev.off()
+
+
+
+```
+
+
+
+
+
+### Speciation and extinction events
+
+```{r, echo=FALSE}
+
+# FACILITATION
+
+# Number of speciation and extinction events
+t0 = pres[1:(nsteps-1),]
+t1 = pres[2:nsteps,] 
+spec_mat = pres[1:(nsteps-1),]*0
+ext_mat = pres[1:(nsteps-1),]*0
+spec_mat[t1-t0==1] = 1 
+ext_mat[t1-t0==-1] = 1
+spec = apply(spec_mat ,1,sum)
+ext = apply(ext_mat, 1, sum)
+
+S = apply(pres,1,sum)[2:nsteps]
+
+
+# COMPETITION
+
+t02 = pres2[1:(nsteps2-1),]
+t12 = pres2[2:nsteps2,] 
+spec_mat2 = pres2[1:(nsteps2-1),]*0
+ext_mat2 = pres2[1:(nsteps2-1),]*0
+spec_mat2[t12-t02==1] = 1 
+ext_mat2[t12-t02==-1] = 1
+spec2 = apply(spec_mat2 ,1,sum)
+ext2 = apply(ext_mat2, 1, sum)
+
+S2 = apply(pres2,1,sum)[2:nsteps2]
+
+
+#png(filename="../../figures/simulation_evaluation/spec_ext_fac_comp.png", width = 1300, height = 500, units = "px")
+
+par(mfrow = c(1,2))
+
+
+plot(Time[2:nsteps], spec/S, type = "l", ylim = range(spec/S,ext/S),xlab = "Time", ylab = "Rate", col = "darkblue", main = "facilitation")
+lines(Time[2:nsteps], ext/S, col = "darkred")
+legend("topleft",bty = "n", legend = c("Speciation", "Extinction"), lty = 1, col = c("darkblue","darkred"))
+
+
+plot(Time2[2:nsteps2], spec2/S2, type = "l", ylim = range(spec2/S2,ext2/S2),xlab = "Time", ylab = "Rate", col = "darkblue", main = "competition")
+lines(Time2[2:nsteps2], ext2/S2, col = "darkred")
+legend("topleft",bty = "n", legend = c("Speciation", "Extinction"), lty = 1, col = c("darkblue","darkred"))
+
+#dev.off()
+
+```
+
+### Diversification-richness dependence
+
+```{r, echo=FALSE}
+
+#png(filename="../../figures/simulation_evaluation/div_rich_fac_comp.png", width = 1300, height = 500, units = "px")
+
+par(mfrow = c(1,2))
+
+plot(S[2:nsteps],spec/S, xlab = "Species richness", ylab = "Rate per species", main = "facilitation", pch = 21, bg = "darkblue",cex = 0.8, cex.axis = 1.25, cex.lab = 1.5)
+points(S[2:nsteps],ext/S, pch = 21, bg = "darkred",cex = 0.8)
+legend("topright",bty = "n", legend = c("Speciation", "Extinction"), pch = 21, pt.bg = c("darkblue","darkred"))
+
+
+plot(S2[2:nsteps2],spec2/S2, xlab = "Species richness", ylab = "Rate per species", main = "facilitation", pch = 21, bg = "darkblue",cex = 0.8, cex.axis = 1.25, cex.lab = 1.5)
+points(S2[2:nsteps2],ext2/S2, pch = 21, bg = "darkred",cex = 0.8)
+legend("topright",bty = "n", legend = c("Speciation", "Extinction"), pch = 21, pt.bg = c("darkblue","darkred"))
+
+#dev.off()
+
+```
+
+### spp richness over times
+
+```{r, echo=FALSE}
+# Plot diversification dynamics
+
+#png(filename="../../figures/simulation_evaluation/richness_fac_comp.png", width = 1300, height = 500, units = "px")
+
+p_richness_fac <- plot_spp_richness(steps = nsteps, pres_mat = pres[1:nsteps,], title = "facilitation")
+p_richness_comp <- plot_spp_richness(steps = nsteps2, pres_mat = pres2[1:nsteps2,], title = "competition")
+
+ggarrange(p_richness_fac,
+          p_richness_comp,
+          nrow = 1, 
+          ncol = 2)
+
+#dev.off()
+
+```
+
+
+
+
+
+
 

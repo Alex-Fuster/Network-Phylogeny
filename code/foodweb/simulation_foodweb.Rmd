@@ -8,7 +8,7 @@ output: html_notebook
 library(EnvStats)
 library(foreach)
 
-source("../code/functions/functions_simulation_foodweb.R")
+source("../../code/functions/functions_simulation_foodweb.R")
 
 ```
 
@@ -46,7 +46,7 @@ pars$I_max = 60 # Maximal number of interactioning species
 
 ```{r}
 nsteps =  250
-n_sims = 2
+n_sims = 10
 
 ```
 
@@ -55,24 +55,35 @@ n_sims = 2
 # Simulation
 
 ```{r}
-for (i in 1:n_sims) {
-  
+
+successful_sim <- 1
+
+while(successful_sim < n_sims+1){
   
   seed <- sample.int(80000, 1)
   
   results <- sim_model_bif(seed = seed, pars, nsteps = nsteps)
   
+  # Test if we have enough species at the timestep 150 in the simulation
+  		success <- sum(results$pres[150,])
+  		
+  		if(success >= 20){
+  
   names(results)[1] <- "presence_matrix"
   names(results)[7] <- "network_list"
   names(results)[9] <- "list_anc_dist"
   
-    path <- paste0("../../data/selection_evolution/foodweb/list_res_fw_", i, ".rds")
+    path <- paste0("../../data/selection_evolution/foodweb/list_res_fw_", successful_sim, ".rds")
 	  saveRDS(results, file = path) 
   
+	  print(paste("simulation ", successful_sim, "sur", n_sims))
+	  successful_sim <- successful_sim + 1
+	  
+	  rm(results)
+
 }
 
-
-
+}
 
 
 ```

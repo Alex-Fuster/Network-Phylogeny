@@ -43,7 +43,7 @@ my.theme<-theme(axis.text=element_text(size=12),
 
 ```{r}
 
-plot_spp_richness <- function(steps, pres_mat) {
+plot_spp_richness <- function(steps, pres_mat, title) {
   
   timesteps <- 1:steps
   
@@ -63,10 +63,12 @@ plot_spp_richness <- function(steps, pres_mat) {
   theme_bw()+
   my.theme+
   xlab("timesteps")+
-  ylab("N species")
+  ylab("N species")+
+    ggtitle(title)
   
   return(p.spp)
 }
+
 
 
 
@@ -135,7 +137,7 @@ pars$I_max = 60 # Maximal number of interactioning species
 
 ```{r}
 nsteps =  250
-n_sims = 10
+n_sims = 3
 list_adj_matrix.f <- list()
 
 ```
@@ -220,17 +222,42 @@ plot_metrics_comparison_sim_emp <- ggarrange(
 
 plot_metrics_comparison_sim_emp
 
-#ggsave("../../figures/example_plot_metrics_comparison_sim_emp.png", height = 13, width = 9)
+#ggsave("../../figures/simulation_evaluation/fw_metrics.png", height = 13, width = 9)
 
 ```
 
 
 
-# plot species richness over time
+
+Pick simulation to inspect
 
 ```{r}
+simulation1 <- list_results[[3]]
+```
 
-plot_spp_richness(steps = nsteps, pres_mat = results$presence_matrix)
+
+### Traits evolution
+
+```{r, echo=FALSE}
+
+
+pres = simulation1$presence_matrix
+traits = simulation1$traits
+nsteps = length(simulation1$network_list)
+Time = c(1:nrow(pres))
+
+
+
+#png(filename="../../figures/simulation_evaluation/traits_evol_fw.png", width = 700, height = 500, units = "px")
+
+
+plot(Time[pres[,1]==1],rep(traits[1,1],sum(pres[,1])),xlim = c(1,nsteps),
+ylim = c(0,1), pch = 19, cex = 0.3, xlab = "Time", ylab = "Niche position", main = "foodweb",
+cex.axis = 2.25, cex.lab = 2.5)
+for(i in 1:pars$Smax) points(Time[pres[,i]==1],rep(traits[i,1],sum(pres[,i])),cex = 0.3,pch = 19)
+
+
+#dev.off()
 
 ```
 
@@ -254,7 +281,93 @@ for (i in 1:length(list_adj_matrix.f)) {
 }
 
 
+#png(filename="../../figures/simulation_evaluation/degree_distrib_fw.png", width = 700, height = 500, units = "px")
+
+
+  graph <- graph_from_adjacency_matrix(adjmatrix = list_adj_matrix.f[[3]],
+                                       mode = "directed")
+  
+  degree <- degree(graph, mode="all")
+  
+  deg.dist <- degree_distribution(graph, cumulative=T, mode="all")
+  
+ plot( x=0:max(degree), y=1-deg.dist, pch=19, cex=1.2,
+                          xlab="Degree", ylab="Cumulative Frequency", main = "foodweb")
+ 
+# dev.off()
+
+
 ```
+
+
+
+
+### Speciation and extinction events
+
+```{r, echo=FALSE}
+
+
+# Number of speciation and extinction events
+t0 = pres[1:(nsteps-1),]
+t1 = pres[2:nsteps,] 
+spec_mat = pres[1:(nsteps-1),]*0
+ext_mat = pres[1:(nsteps-1),]*0
+spec_mat[t1-t0==1] = 1 
+ext_mat[t1-t0==-1] = 1
+spec = apply(spec_mat ,1,sum)
+ext = apply(ext_mat, 1, sum)
+
+S = apply(pres,1,sum)[2:nsteps]
+
+
+
+
+#png(filename="../../figures/simulation_evaluation/spec_ext_fw.png", width = 700, height = 500, units = "px")
+
+
+plot(Time[2:nsteps], spec/S, type = "l", ylim = range(spec/S,ext/S),xlab = "Time", ylab = "Rate", col = "darkblue", main = "foodweb")
+lines(Time[2:nsteps], ext/S, col = "darkred")
+legend("topleft",bty = "n", legend = c("Speciation", "Extinction"), lty = 1, col = c("darkblue","darkred"))
+
+
+#dev.off()
+
+```
+
+### Diversification-richness dependence
+
+```{r, echo=FALSE}
+
+#png(filename="../../figures/simulation_evaluation/div_rich_fw.png", width = 1300, height = 500, units = "px")
+
+
+
+plot(S[2:nsteps],spec/S, xlab = "Species richness", ylab = "Rate per species", main = "foodweb", pch = 21, bg = "darkblue",cex = 0.8, cex.axis = 1.25, cex.lab = 1.5)
+points(S[2:nsteps],ext/S, pch = 21, bg = "darkred",cex = 0.8)
+legend("topright",bty = "n", legend = c("Speciation", "Extinction"), pch = 21, pt.bg = c("darkblue","darkred"))
+
+
+#dev.off()
+
+```
+
+
+
+
+# plot species richness over time
+
+```{r}
+
+p_fw_rich <- plot_spp_richness(steps = nsteps, pres_mat = results$presence_matrix, title = "foodweb")
+
+p_fw_rich
+
+#ggsave("../../figures/simulation_evaluation/fw_richness.png", height = 6, width = 8)
+
+```
+
+
+
 
 
 # Degree distribution - Empirical networks
@@ -297,3 +410,6 @@ for (i in 1:length(adj_matrix_list_n)) {
 
     
 ```
+
+
+
