@@ -81,7 +81,7 @@ NEUTRAL
 
 ```{r}
 
-list_res <- readRDS("../data/neutral/list_res_n_1.rds")
+list_res <- readRDS("../data/neutral/list_res_n_3.rds")
 
 list_simulation1 <- list_res
 
@@ -472,7 +472,11 @@ for (i in 1:length(list_dist.phylo)) {
   
 }
 
+list_anc_dist[[1]]
 
+list_interact_distances_pred[[1]]
+
+list_dist.phylo[[1]]
 
 ```
 

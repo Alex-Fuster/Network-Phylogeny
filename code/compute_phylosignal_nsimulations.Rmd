@@ -104,7 +104,7 @@ cor_comp[[1]]$interaction <- rep("competition", times = nrow(cor_comp[[1]]))
 
 # Neutral
 
-file_paths_n <- file_paths_n[-2]
+file_paths_n <- file_paths_n[-c(2,3)]
 
 cor_n <- compute_cor_phylosig_time_fw(list_sim = file_paths_n)
 
