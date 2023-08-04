@@ -17,6 +17,7 @@ library(igraph)
 library(ggplot2)
 library("vegan")
 library(ggpubr)
+library(ade4)
 ```
 
 
@@ -81,7 +82,7 @@ NEUTRAL
 
 ```{r}
 
-list_res <- readRDS("../data/neutral/list_res_n_3.rds")
+list_res <- readRDS("../data/neutral/list_res_n_10.rds")
 
 list_simulation1 <- list_res
 
@@ -229,6 +230,7 @@ if(length(list_anc_dist_letters) == length(list_networks_sppnames_letters)){
 
 
 
+
 ## Loop for obtaining phylogenetic distances:
 
 
@@ -293,15 +295,8 @@ if (length(list_dist.phylo) == length(list_networks_sppnames_letters)){
 ```
 
 
+#### convert spp names to letters in presence matrix
 
-#### Retain only present species in network matrices
-
-For phylogenetic distance matrices, the spp for which distances are calculated are already only the ones present.
-
-But the interaction matrices are 1000 x 1000 (all spp possible), so I need to crop them to retain only present species at each timestep, and test that these correspond to the ones present in the phylogenetic distance matrices at the corresponding timestep.
-
-
-I use the presence_matrix to retain the species present at each timestep in each network from the network list. So first I need to convert the spp names of the presence_matrix to letters so that they can match with those of the network. Second, I will discard the timesteps already discarted in the phylogenetic distance matrices list and in the network list so that the presence_matrix match in the length of timesteps with them.
 
 
 ```{r}
@@ -354,6 +349,72 @@ if(nrow(presence_matrix) == length(list_networks_sppnames_letters) &
 
 ```
 
+
+
+
+
+#### Retain only present species in phylogenetic distance matrices
+
+Now use the presence matrix to retain only present species in phylogenetic distance matrices
+
+
+```{r}
+
+## crop the phylogenetic distance matrix with present spp
+
+list_dist.phylo_pres <- list()
+
+for (i in 1:length(list_dist.phylo)) {
+
+  
+ list_dist.phylo_pres[[i]] <- list_dist.phylo[[i]][names(which(presence_matrix[i,] == 1)), names(which(presence_matrix[i,] == 1))]
+  
+}
+
+```
+
+
+Check that phylogenetic distance matrices retain present species:
+
+```{r}
+
+vec_error <- c()
+
+for (i in 1:nrow(presence_matrix)) {
+  
+ vec_tf <-  names(presence_matrix[i, which(presence_matrix[i,] == 1)]) == colnames(list_dist.phylo_pres[[i]])
+ 
+ if(length(which(vec_tf == FALSE)) > 0){
+   
+   vec_error[i] <- "error"
+
+   
+ } else if (length(which(vec_tf == FALSE)) == 0 ){
+   
+   vec_error[i] <- "g"
+   
+ }
+  
+}
+
+
+if(length(which(vec_error == "error")) > 0){
+  
+     print("error")
+}else{
+  
+  print("All good. Phylo dist matrices retain present spp")
+}
+
+
+
+```
+
+#### Retain only present species in network matrices
+
+
+
+I use the presence_matrix to retain the species present at each timestep in each network from the network list.
 
 Now that the presence_matrix has the spp names with letters and retains the same timesteps than the network list, I will use it to retain only the species present at each timestep in each 1000 x 1000 network:
 
@@ -418,118 +479,9 @@ list_interact_distances_prey <- lapply(list_interact_distances_prey, FUN = diag_
 ```
 
 
-
-Now I have the phylogenetic distance matrices in list_dist.phylo, and the interaction distances in list_interact_distances_pred, list_interact_distances_prey, and list_interact_distances_mean.
-
-
-Check that both the list of distance matrices for interactions and for phylogeny have the same length:
-
-```{r}
-
-
-if(length(list_dist.phylo) == length(list_interact_distances_pred) &
-   length(list_dist.phylo) == length(list_interact_distances_prey)) {
-  
-  print("all good - list phylo dist and lists interact dist have the same length")
-  
-} else {
-  
-  print("PROBLEM")
-  
-}
-
-
-```
-
-
-
-
-
-#### For phylogenetic distance matrices, retain only those species present
-
-Phylogenetic distance matrices retain the extinct species together with the present ones. Therefore, I need to retain only present species in the phylogenetic distance matrices. 
-
-To do this,
-
-- 1st - order the names of columns and rows of both phylogenetic and interaction distance matrices so that they coincide
-- 2nd - Retain in the phylo-distance matrix only those species names that the interaction distance matrix has. This way, I will be retaining only the present species (remember the interaction distance matrices have already retained the present species only when we used the presence_matrix for it)
-
-
-
-**NOTE** sometimes one simulation may have a problem with the spp in the phylogeny and the spp present in maybe only 1 timestep. Not sure why. But it doesnt happen in the majority of simulations.
-
-
-```{r}
-
-
-list_dist.phylo_pres <- list()
-
-for (i in 1:length(list_dist.phylo)) {
-  
-  spp_present <- colnames(list_interact_distances_pred[[i]])
-  list_dist.phylo_pres[[i]] <- list_dist.phylo[[i]][spp_present ,spp_present] 
-  
-  
-}
-
-list_anc_dist[[1]]
-
-list_interact_distances_pred[[1]]
-
-list_dist.phylo[[1]]
-
-```
-
-
-
-```{r}
-
-
-## Check that now phylo and interaction distance matrices have the same number of spp, same names, and in the same order
-
-
-if (length(which(check_colnames_lists(list_dist.phylo_pres, list_interact_distances_pred) == FALSE)) == 0) {
-  
-  print("all good - names in phylo dist matrices and interaction matrices pred match")
-  
-} else {
-  
-  print("PROBLEM")
-  
-}
-
-
-if (length(which(check_colnames_lists(list_dist.phylo_pres, list_interact_distances_prey) == FALSE)) == 0) {
-  
-  print("all good - names in phylo dist matrices and interaction matrices prey match")
-  
-} else {
-  
-  print("PROBLEM")
-  
-}
-
-
-
-
-
-```
-
-
-NOW I'M READY TO COMPUTE CORRELATION.
-
-
-
-## Compute MDS
-
-
-First, I need to solve the following problem:
-
 Some species have all 0 in their interactions (either as prey (if all 0 in the row, top predators) or predators (if all 0 in the column, basal spp)). When two spp having all 0 compare with each other, they give NaN instead of 0 (the (1-NMI) should be 0 as they have the same vector of interactions).
 
-Therefore, I assign a 0 to all NaN found.
-
-[[ CHECK THIS ]]
+Therefore, I assign a 0 to all NaN found:
 
 
 ```{r}
@@ -600,28 +552,136 @@ if(length(list_interact_distances_mean_corrected) == length(list_dist.phylo_pres
   
 }
 
-
-list_interact_distances_pred_corrected[[15]]
 ```
-# make sure order of names are correct
+
+
+##### check for same length of phylogenetic and interaction distances' lists:
 
 ```{r}
-for (i in length(list_interact_distances_pred_corrected)) {
+
+
+if(length(list_dist.phylo) == length(list_interact_distances_pred) &
+   length(list_dist.phylo) == length(list_interact_distances_prey)) {
   
-  colnames(list_interact_distances_pred_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_pred_corrected[[i]])))]
-  colnames(list_interact_distances_prey_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_prey_corrected[[i]])))]
-  colnames(list_interact_distances_mean_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_mean_corrected[[i]])))]
+  print("all good - list phylo dist and lists interact dist have the same length")
   
+} else {
+  
+  print("PROBLEM")
+  
+}
+
+
+```
+
+
+
+
+### Check that interac and phylo distance matrices' match in their number of columns and in the composition of spp
+
+```{r}
+
+
+## Check that the order number of columns matches
+
+vec_problems_ncol <- c()
+
+for (i in 1:length(list_interact_distances_mean_corrected)) {
+  
+  if(ncol(list_interact_distances_mean_corrected[[i]]) != ncol(list_dist.phylo_pres[[i]])){
+    
+    vec_problems_ncol[i] <- "P"
+    
+  } else if(ncol(list_interact_distances_mean_corrected[[i]]) == ncol(list_dist.phylo_pres[[i]])){
+    
+    vec_problems_ncol[i] <- "g"
+  }
+  
+}
+
+
+
+if(length(which(vec_problems_ncol == "P") > 0)){
+  
+  print("PROBLEM")
+  
+}else{
+  
+  print("All good. Interact and phylo dist. matrices have the same ncols")
+}
+
+
+
+# check that the composition of species is the same
+
+vec_problems_sppcomp <- c()
+
+for (i in 1:length(list_dist.phylo_pres)) {
+  
+  vec_problems_sppcomp[i] <- identical(sort(colnames(list_interact_distances_mean_corrected[[i]])), sort(colnames(list_dist.phylo_pres[[i]])))
+  
+}
+
+if(length(which(vec_problems == "FALSE") > 0)){
+  
+  print("PROBLEM")
+  
+}else{
+  
+  print("All good. Interact and phylo dist. matrices have the order of colnames")
+}
+
+
+
+```
+
+
+
+### Check that the order of species matches between interaction and phylogenetic distance matrices
+
+
+```{r}
+
+## Check that the order of colnames matches
+
+
+vec_problems <- c()
+
+for (i in 1:length(list_interact_distances_mean_corrected)) {
+  
+ vec_truefalse <- colnames(list_interact_distances_mean_corrected[[i]]) == colnames(list_dist.phylo_pres[[i]])
+ 
+
+if(FALSE %in% vec_truefalse){
+  
+  vec_problems[i] <- "P"
+  
+}else{
+  
+  vec_problems[i] <- "_"
+}
+  
+  
+}
+
+
+if(length(which(vec_problems == "P") > 0)){
+  
+  print("PROBLEM")
+  
+}else{
+  
+  print("All good. Interact and phylo dist. matrices have the same order of colnames")
 }
 
 ```
 
 
 
+## compute Principal Coordinate Analyses
 
-Now I can compute the MDS:
 
-Problem - interaction distances are all the same at the beggining and I cant run an NMDS on those matrices. Phylogenetic distances, however, are different among species from the begging. How to compare interaction and phylogenetic distance matrices in these stages where interaction distances are all the same?
+Problem - interaction distances are all the same at the beggining and I cant run a pca on those matrices. Phylogenetic distances, however, are different among species from the begging. How to compare interaction and phylogenetic distance matrices in these stages where interaction distances are all the same?
 
 For now, I discard all timesteps where interaction distances are all the same (i.e. 0):
 
@@ -703,26 +763,6 @@ list_pco.int_mean[[i]]  <- pco_mean$li
 
 }
 
-
-
-#list_mds.phy <- list()
-#list_mds.int_pred <- list()
-#list_mds.int_prey <- list()
-#list_mds.int_mean <- list()
-
-
-#for (i in 1:length(list_dist.phylo_pres)) {
-
-#list_mds.phy[[i]] <- monoMDS(list_dist.phylo_pres[[i]], y = cmdscale(list_dist.phylo_pres[[i]])) 
-
-#list_mds.int_pred[[i]] <- monoMDS(list_interact_distances_pred_corrected[[i]], y = cmdscale(list_interact_distances_pred_corrected[[i]]))
-
-#list_mds.int_prey[[i]] <- monoMDS(list_interact_distances_prey_corrected[[i]], y = cmdscale(list_interact_distances_prey_corrected[[i]]))
-
-#list_mds.int_mean[[i]] <- monoMDS(list_interact_distances_mean_corrected[[i]], y = cmdscale(list_interact_distances_mean_corrected[[i]]))
-
-
-#}
 
 ```
 

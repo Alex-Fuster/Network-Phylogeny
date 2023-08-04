@@ -176,10 +176,7 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     
     
     
-    
-    
-    ## Retain only present species in network matrices
-    
+    ######### Crop phylogenetic and interaction distance 
     
     
     # Set the same spp names for the presence_matrix than for the interacion matrices
@@ -197,6 +194,24 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     
     
     
+    
+    ## crop the phylogenetic distance matrix with present spp
+    
+    list_dist.phylo_pres <- list()
+    
+    for (i in 1:length(list_dist.phylo)) {
+      
+      
+      list_dist.phylo_pres[[i]] <- list_dist.phylo[[i]][names(which(presence_matrix[i,] == 1)), names(which(presence_matrix[i,] == 1))]
+      
+    }
+    
+    
+    
+    ## Retain only present species in network matrices
+    
+    
+    
     ## crop the interaction matrix with present spp
     
     list_net_present_spp.letters <- list()
@@ -210,7 +225,7 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     
     
     
-  
+    
     
     
     
@@ -244,23 +259,6 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     
     
     
-    ## For phylogenetic distance matrices, retain only those species present
-    
-    
-    list_dist.phylo_pres <- list()
-    
-    for (i in 1:length(list_dist.phylo)) {
-      
-      spp_present <- colnames(list_net_present_spp.letters[[i]])
-      list_dist.phylo_pres[[i]] <- list_dist.phylo[[i]][spp_present ,spp_present] 
-      
-      
-    }
-    
-    
-    
-    
-    
     # set all Na to 0 (spp that compared vectors with all 0)
     
     
@@ -288,8 +286,6 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     
     
     
-    
-    
     # compute mean distances
     
     list_interact_distances_mean_corrected <- list()
@@ -307,17 +303,10 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     
     
     
-    # make sure order of names are correct
     
-    for (i in length(list_interact_distances_pred_corrected)) {
-      
-      colnames(list_interact_distances_pred_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_pred_corrected[[i]])))]
-      colnames(list_interact_distances_prey_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_prey_corrected[[i]])))]
-      colnames(list_interact_distances_mean_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_mean_corrected[[i]])))]
-     
-    }
     
-    # compute MDS
+    
+    # Principal Coordinate Analyses
     
     
     # identify what matrices have all interaction distances = 0 and discard them
@@ -724,10 +713,7 @@ compute_cor_phylosig_time_fw <- function(list_sim) {
     
     
     
-    
-    
-    ## Retain only present species in network matrices
-    
+    ######### Crop phylogenetic and interaction distance 
     
     
     # Set the same spp names for the presence_matrix than for the interacion matrices
@@ -742,6 +728,24 @@ compute_cor_phylosig_time_fw <- function(list_sim) {
     
     presence_matrix <- presence_matrix[(final.discarded_timestep+1):length(list_simulation1$list_anc_dist),]
     
+    
+    
+    
+    
+    ## crop the phylogenetic distance matrix with present spp
+    
+    list_dist.phylo_pres <- list()
+    
+    for (i in 1:length(list_dist.phylo)) {
+      
+      
+      list_dist.phylo_pres[[i]] <- list_dist.phylo[[i]][names(which(presence_matrix[i,] == 1)), names(which(presence_matrix[i,] == 1))]
+      
+    }
+    
+    
+    
+    ## Retain only present species in network matrices
     
     
     
@@ -789,25 +793,7 @@ compute_cor_phylosig_time_fw <- function(list_sim) {
     list_interact_distances_prey <- lapply(list_interact_distances_prey, FUN = diag_to0)
     
     
-    
-    
-    
-    ## For phylogenetic distance matrices, retain only those species present
-    
-    
-    
-    list_dist.phylo_pres <- list()
-    
-    for (i in 1:length(list_dist.phylo)) {
-      
-      spp_present <- colnames(list_interact_distances_pred[[i]])
-      list_dist.phylo_pres[[i]] <- list_dist.phylo[[i]][spp_present ,spp_present] 
-      
-      
-    }
-    
-    
-    
+
     
     
     # set all Na to 0 (spp that compared vectors with all 0)
@@ -837,8 +823,6 @@ compute_cor_phylosig_time_fw <- function(list_sim) {
     
     
     
-    
-    
     # compute mean distances
     
     list_interact_distances_mean_corrected <- list()
@@ -856,19 +840,11 @@ compute_cor_phylosig_time_fw <- function(list_sim) {
     
     
     
-    # make sure order of names are correct
-    
-    for (i in length(list_interact_distances_pred_corrected)) {
-      
-      colnames(list_interact_distances_pred_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_pred_corrected[[i]])))]
-      colnames(list_interact_distances_prey_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_prey_corrected[[i]])))]
-      colnames(list_interact_distances_mean_corrected[[i]])[order(match(colnames(list_dist.phylo_pres[[i]]),colnames(list_interact_distances_mean_corrected[[i]])))]
-      
-    }
     
     
     
-    # compute MDS
+    
+    # compute Principal Coordinate Analyses
     
     
     # identify what matrices have all interaction distances = 0 and discard them

@@ -66,6 +66,134 @@ file_paths_n <- list.files(path = path_sim_n, pattern = ".rds", full.names = TRU
 
 
 
+```{r}
+
+vec_check_sim_prob <- c()
+
+for (i in 1:length(file_paths_n)) {
+  
+  list_res <- readRDS(file_paths_n[i])
+  
+      # count number of timesteps where there were spp
+    
+    list_simulation1 <- list_res
+    
+    n_steps <- length(list_simulation1$network_list)
+    
+    
+    presence_matrix <- list_simulation1$presence_matrix
+    
+    presence_matrix <- presence_matrix[1:n_steps,]
+    
+    
+    
+    
+    #### Identify timesteps where phylogenetic distances cant be calculated (those with less than 3 spp)
+    
+    
+    non.valid_timesteps_phylo_distance <- c(which(rowSums(presence_matrix) < 3))
+    
+    # until what timestep need to discard:
+    
+    final.discarded_timestep <- non.valid_timesteps_phylo_distance[length(non.valid_timesteps_phylo_distance)]
+    
+    
+     #### homogenize elements to start from valid timesteps
+    
+    
+    # ancestry-distances table
+    
+    list_anc_dist <- list_simulation1$list_anc_dist[(final.discarded_timestep+1):length(list_simulation1$list_anc_dist)]
+    
+       ## Convert spp names from numbers to letters
+    
+    
+    ## ancestry-distances table
+    
+    list_anc_dist_letters <- lapply(list_anc_dist, change_sppnames_letters_ancdist.table)
+    
+    
+     ## Loop for obtaining phylogenetic distances:
+    
+    
+    list_newick <- list()
+    list_trees <- list()
+    list_newick_tails <- list()
+    list_dist.phylo <- list()
+    
+    
+    
+    
+    for (i in 1:length(list_anc_dist_letters)) {
+      
+      
+      list_newick[[i]] <- ToPhylo(list_anc_dist_letters[[i]])
+      
+      list_newick_tails[[i]] <- paste(list_newick[[i]], "root")
+      
+      list_trees[[i]] <- read.tree(text = sub("A root",";",list_newick_tails[[i]]))
+      
+      list_dist.phylo[[i]] <- cophenetic.phylo(list_trees[[i]])
+      
+      
+    }
+    
+    
+      # Set the same spp names for the presence_matrix than for the interacion matrices
+    
+    
+    colnames(presence_matrix) <- seq(1:1000)
+    
+    colnames(presence_matrix) <- chartr("0123456789", "ABCDEFGHIJ", colnames(presence_matrix))
+    
+    
+    # Discard same timesteps (rows) than the discarted phylogenetic distance matrices
+    
+    presence_matrix <- presence_matrix[(final.discarded_timestep+1):length(list_simulation1$list_anc_dist),]
+  
+  
+     
+    
+    
+    
+    ####### TEST PHYLO DIST MATRIX HAVE ALL PRESENT SPP ##########
+    
+    vec_problems <- c()
+    
+    for (j in 1:length(list_dist.phylo)) {
+      
+      if(length(which(names(which(presence_matrix[j,] == 1)) %in% colnames(list_dist.phylo[[j]]) == FALSE)) > 0){
+        
+        vec_problems[j] <- "problem"
+        
+        
+      }else if (length(which(names(which(presence_matrix[j,] == 1)) %in% colnames(list_dist.phylo[[j]]) == FALSE)) == 0){
+        
+        vec_problems[j] <- "g"
+        
+        
+      }
+      
+    }
+    
+if(length(which(vec_problems == "problem")) > 0){
+  
+  vec_check_sim_prob[i] <- "problem"
+  
+} else if(length(which(vec_problems == "problem")) == 0){
+  
+  vec_check_sim_prob[i] <- "g"
+}
+    
+    
+    
+    
+}
+```
+
+
+
+
 
 # Compute correlation phylogenetic signal - time for each simulation
 
@@ -101,16 +229,17 @@ cor_comp <- compute_cor_phylosig_time_comp.fac(list_sim = file_paths_comp)
 
 cor_comp[[1]]$interaction <- rep("competition", times = nrow(cor_comp[[1]]))
 
+#saveRDS(cor_comp, "../data/results_nsim_comp.RDS")
 
 # Neutral
 
-file_paths_n <- file_paths_n[-c(2,3)]
+
 
 cor_n <- compute_cor_phylosig_time_fw(list_sim = file_paths_n)
 
 cor_n[[1]]$interaction <- rep("neutral", times = nrow(cor_n[[1]]))
 
-
+#saveRDS(cor_n, "../data/results_nsim_neutral.RDS")
 
 
 ### Merge data
@@ -123,72 +252,164 @@ df_results_phylosignal <- rbind(cor_fac,cor_comp,cor_fw, cor_n)
 
 ```
 
+```{r}
+cor_fac <- readRDS("../data/results_nsim_fac.RDS")
+cor_comp <- readRDS("../data/results_nsim_comp.RDS")
+cor_n <- readRDS("../data/results_nsim_neutral.RDS")
+cor_fw <- readRDS("../data/results_nsim_fw.RDS")
+
+df_results_phylosignal <- rbind(cor_fac[[1]],
+                                cor_comp[[1]],
+                                cor_n[[1]],
+                                cor_fw[[1]])
+
+cor_fac[[2]]$interaction <- rep("facilitation", times = nrow(cor_fac[[2]]))
+cor_comp[[2]]$interaction <- rep("competition", times = nrow(cor_comp[[2]]))
+cor_n[[2]]$interaction <- rep("neutral", times = nrow(cor_n[[2]]))
+cor_fw[[2]]$interaction <- rep("foodweb", times = nrow(cor_fw[[2]]))
+
+df_results_richness <- rbind(cor_fac[[2]],
+                                cor_comp[[2]],
+                                cor_n[[2]],
+                                cor_fw[[2]])
+
+
+```
 
 
 # Plot the results
 
 
+## Phylogenetic signal
+
 ```{r}
 
-df_fac <- df_results_phylo_sims[df_results_phylo_sims$interaction == "facilitation",]
+df_fac <- df_results_phylosignal[df_results_phylosignal$interaction == "facilitation",]
 
-p_fac <- ggplot(cor_fac[[1]], aes(x = timesteps, y = phylo.cor.mean, group = sim, col = sim))+
-geom_line(color= cor_fac[[1]]$sim, linetype="solid",alpha = 0.7)+
+p_fac <- ggplot(df_fac, aes(x = timesteps, y = phylo.cor.mean, group = sim, col = sim))+
+geom_line(color= df_fac$sim, linetype="solid",alpha = 0.7)+
   #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
   theme_bw()+
     my.theme+
    # scale_colour_manual(values = c("black", "red"))+
     ggtitle("facilitation")+
 xlab("timesteps")+
-  ylab("Phylogenetic signal")
+  ylab("Phylogenetic signal")+
+  ylim(0,1)
 
-df_comp <- df_results_phylo_sims[df_results_phylo_sims$interaction == "competition",]
+df_richness_fac <- df_results_richness[df_results_richness$interaction == "facilitation",]
+
+r_fac <- ggplot(df_richness_fac, 
+                aes(x = timesteps, y = nspp, group = sim, col = sim))+
+geom_line(color= df_richness_fac$sim, linetype="solid",alpha = 0.7)+
+  #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
+  theme_bw()+
+    my.theme+
+   # scale_colour_manual(values = c("black", "red"))+
+    ggtitle("facilitation")+
+xlab("timesteps")+
+  ylab("Species richness")
 
 
-p_comp <- ggplot(cor_comp[[1]], aes(x = timesteps, y = phylo.cor.mean, group = sim, col = sim))+
-geom_line(color= cor_comp[[1]]$sim, linetype="solid",alpha = 0.7)+
+#---------------------------------------------------------
+
+df_comp <- df_results_phylosignal[df_results_phylosignal$interaction == "competition",]
+
+
+p_comp <- ggplot(df_comp, aes(x = timesteps, y = phylo.cor.mean, group = sim, col = sim))+
+geom_line(color= df_comp$sim, linetype="solid",alpha = 0.7)+
   #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
   theme_bw()+
     my.theme+
    # scale_colour_manual(values = c("black", "red"))+
     ggtitle("competition")+
 xlab("timesteps")+
-  ylab("Phylogenetic signal")
+  ylab("Phylogenetic signal")+
+  ylim(0,1)
 
-df_fw <- df_results_phylo_sims[df_results_phylo_sims$interaction == "foodweb",]
+
+df_richness_comp <- df_results_richness[df_results_richness$interaction == "competition",]
+
+r_comp <- ggplot(df_richness_comp, 
+                aes(x = timesteps, y = nspp, group = sim, col = sim))+
+geom_line(color= df_richness_comp$sim, linetype="solid",alpha = 0.7)+
+  #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
+  theme_bw()+
+    my.theme+
+   # scale_colour_manual(values = c("black", "red"))+
+    ggtitle("competition")+
+xlab("timesteps")+
+  ylab("Species richness")
+
+#----------------------------------------------------------
+
+df_fw <- df_results_phylosignal[df_results_phylosignal$interaction == "foodweb",]
 
 
-cor_fw1 <- cor_fw[cor_fw$sim != 3,]
 
-p_fw <- ggplot(cor_fw[[1]], aes(x = timesteps, y = phylo.cor.mean, group = sim, col = sim))+
-geom_line(color= cor_fw[[1]]$sim, linetype="solid",alpha = 0.7)+
+p_fw <- ggplot(df_fw, aes(x = timesteps, y = phylo.cor.mean, group = sim, col = sim))+
+geom_line(color= df_fw$sim, linetype="solid",alpha = 0.7)+
   #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
   theme_bw()+
     my.theme+
    # scale_colour_manual(values = c("black", "red"))+
     ggtitle("foodweb")+
 xlab("timesteps")+
-  ylab("Phylogenetic signal")
+  ylab("Phylogenetic signal")+
+  ylim(0,1)
 
-df_n <- df_results_phylo_sims[df_results_phylo_sims$interaction == "neutral",]
+
+df_richness_fw <- df_results_richness[df_results_richness$interaction == "foodweb",]
+
+r_fw <- ggplot(df_richness_fw, 
+                aes(x = timesteps, y = nspp, group = sim, col = sim))+
+geom_line(color= df_richness_fw$sim, linetype="solid",alpha = 0.7)+
+  #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
+  theme_bw()+
+    my.theme+
+   # scale_colour_manual(values = c("black", "red"))+
+    ggtitle("foodweb")+
+xlab("timesteps")+
+  ylab("Species richness")
+
+
+#--------------------------------------------------------
+
+df_n <- df_results_phylosignal[df_results_phylosignal$interaction == "neutral",]
 
 p_n <- ggplot(df_n, aes(x = timesteps, y = phylo.cor.mean, group = sim))+
-geom_line(color="black", linetype="twodash", alpha = 0.7)+
+geom_line(color=df_n$sim, linetype="solid",alpha = 0.7)+
+  #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
+  theme_bw()+
+    my.theme+
+   # scale_colour_manual(values = c("black", "red"))+
+    ggtitle("foodweb neutral")+
+xlab("timesteps")+
+  ylab("Phylogenetic signal")+
+  ylim(0,1)
+
+df_richness_n <- df_results_richness[df_results_richness$interaction == "neutral",]
+
+r_n <- ggplot(df_richness_n, 
+                aes(x = timesteps, y = nspp, group = sim, col = sim))+
+geom_line(color= df_richness_n$sim, linetype="solid",alpha = 0.7)+
   #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
   theme_bw()+
     my.theme+
    # scale_colour_manual(values = c("black", "red"))+
     ggtitle("neutral")+
 xlab("timesteps")+
-  ylab("Phylogenetic signal")
+  ylab("Species richness")
+
+#--------------------------------------------------------
 
 
-ggarrange(
+plot_phylosign_all <- ggarrange(
   
-  p_fac,
-  p_comp,
+  p_fac + xlab(""),
+  p_comp + xlab("") + ylab(""),
   p_fw,
-  p_n,
+  p_n + ylab(""),
   
   nrow = 2,
   ncol = 2
@@ -196,6 +417,23 @@ ggarrange(
   
   
 )
+
+#ggsave("plot_phylosign_all.png", height = 8, width = 12)
+
+
+plot_richness_all <- ggarrange(
+  
+  r_fac + xlab(""),
+  r_comp + xlab("") + ylab(""),
+  r_fw,
+  r_n + ylab(""),
+  
+  nrow = 2,
+  ncol = 2
+  
+)
+
+#ggsave("plot_richness_all.png", height = 8, width = 12)
 
 ```
 
