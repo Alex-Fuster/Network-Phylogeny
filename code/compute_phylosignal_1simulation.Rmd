@@ -25,6 +25,10 @@ library(ade4)
 
 ### Load simulation data
 
+```{r}
+Smax = 2000
+```
+
 
 
 COMPETITION
@@ -304,7 +308,7 @@ if (length(list_dist.phylo) == length(list_networks_sppnames_letters)){
 # Set the same spp names for the presence_matrix than for the interacion matrices
 
 
-colnames(presence_matrix) <- seq(1:1000)
+colnames(presence_matrix) <- seq(1:Smax)
 
 colnames(presence_matrix) <- chartr("0123456789", "ABCDEFGHIJ", colnames(presence_matrix))
 
@@ -622,7 +626,7 @@ for (i in 1:length(list_dist.phylo_pres)) {
   
 }
 
-if(length(which(vec_problems == "FALSE") > 0)){
+if(length(which(vec_problems_ncol == "FALSE") > 0)){
   
   print("PROBLEM")
   
@@ -675,6 +679,59 @@ if(length(which(vec_problems == "P") > 0)){
 }
 
 ```
+
+
+```{r}
+ list_interact_distances_mean_corrected_d4 <- list()
+    
+    for (i in 1:length(list_interact_distances_mean_corrected)) {
+      
+      if(ncol(list_interact_distances_mean_corrected[[i]]) < 7){
+        
+        list_interact_distances_mean_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_mean_corrected[[i]], ncol(list_interact_distances_mean_corrected[[i]]))[[2]]
+        
+      } else {
+        
+        list_interact_distances_mean_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_mean_corrected[[i]], 6)[[2]]
+        
+      } 
+      
+      
+    }
+
+
+ list_interact_distances_mean_corrected_d4 <- list()
+    
+    for (i in 1:length(list_interact_distances_mean_corrected)) {
+      
+      if(ncol(list_interact_distances_mean_corrected[[i]]) < 7){
+        
+        list_interact_distances_mean_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_mean_corrected[[i]], ncol(list_interact_distances_mean_corrected[[i]]))[[2]]
+        
+      } else {
+        
+        list_interact_distances_mean_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_mean_corrected[[i]], 6)[[2]]
+        
+      } 
+      
+      
+    }
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1001,8 +1058,8 @@ ggarrange(p_prey + rremove("xlab"),
              ncol = 1, nrow = 4)
 
 #ggsave("figures/foodweb_all_result_phylo.time_1sim.png", 
-       height = 14,
-       width = 7)
+    #   height = 14,
+     #  width = 7)
 
 ```
 

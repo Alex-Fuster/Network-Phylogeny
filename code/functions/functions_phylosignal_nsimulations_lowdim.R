@@ -332,41 +332,21 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     # interactions
     
     
-    list_interact_distances_mean_corrected_d4 <- list()
-    
-    for (i in 1:length(list_interact_distances_mean_corrected)) {
-      
-      
-      if(ncol(list_interact_distances_mean_corrected[[i]]) > 10){
-        
-        list_interact_distances_mean_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_mean_corrected[[i]], 6)[[2]]
-        
-      } else {
-        
-        
-        list_interact_distances_mean_corrected_d4[[i]] <- list_interact_distances_mean_corrected[[i]]
-        
-      }
-      
-      
-    }
     
     
     list_interact_distances_pred_corrected_d4 <- list()
     
     for (i in 1:length(list_interact_distances_pred_corrected)) {
       
-      
-      if(ncol(list_interact_distances_pred_corrected[[i]]) > 10){
+      if(ncol(list_interact_distances_pred_corrected[[i]]) < 7){
         
-        list_interact_distances_pred_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_pred_corrected[[i]], 6)[[2]]
+        list_interact_distances_pred_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_pred_corrected[[i]], ncol(list_interact_distances_pred_corrected[[i]]))[[2]]
         
       } else {
         
+        list_interact_distances_pred_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_pred_corrected[[i]], 6)[[2]]
         
-        list_interact_distances_pred_corrected_d4[[i]] <- list_interact_distances_pred_corrected[[i]]
-        
-      }
+      } 
       
       
     }
@@ -378,21 +358,18 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     
     for (i in 1:length(list_interact_distances_prey_corrected)) {
       
-      
-      if(ncol(list_interact_distances_prey_corrected[[i]]) > 10){
+      if(ncol(list_interact_distances_prey_corrected[[i]]) < 7){
         
-        list_interact_distances_prey_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_prey_corrected[[i]], 6)[[2]]
+        list_interact_distances_prey_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_prey_corrected[[i]], ncol(list_interact_distances_prey_corrected[[i]]))[[2]]
         
       } else {
         
+        list_interact_distances_prey_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_prey_corrected[[i]], 6)[[2]]
         
-        list_interact_distances_prey_corrected_d4[[i]] <- list_interact_distances_prey_corrected[[i]]
-        
-      }
+      } 
       
       
     }
-    
     
     
     
@@ -401,20 +378,20 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     
     for (i in 1:length(list_interact_distances_mean_corrected)) {
       
-      
-      if(ncol(list_interact_distances_mean_corrected[[i]]) > 10){
+      if(ncol(list_interact_distances_mean_corrected[[i]]) < 7){
         
-        list_interact_distances_mean_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_mean_corrected[[i]], 6)[[2]]
+        list_interact_distances_mean_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_mean_corrected[[i]], ncol(list_interact_distances_mean_corrected[[i]]))[[2]]
         
       } else {
         
+        list_interact_distances_mean_corrected_d4[[i]] <- get_rank_mat(list_interact_distances_mean_corrected[[i]], 6)[[2]]
         
-        list_interact_distances_mean_corrected_d4[[i]] <- list_interact_distances_mean_corrected[[i]]
-        
-      }
+      } 
       
       
     }
+    
+    
     
     
     # philogeny
@@ -428,14 +405,14 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     for (i in 1:length(list_dist.phylo_pres)) {
       
       
-      if(ncol(list_dist.phylo_pres[[i]]) > 10){
+      if(ncol(list_dist.phylo_pres[[i]]) < 7){
         
-        list_dist.phylo_pres_d4[[i]] <- get_rank_mat(list_dist.phylo_pres[[i]], 6)[[2]]
+        list_dist.phylo_pres_d4[[i]] <- get_rank_mat(list_dist.phylo_pres[[i]], ncol(list_dist.phylo_pres[[i]]))[[2]]
         
       } else {
         
         
-        list_dist.phylo_pres_d4[[i]] <- list_dist.phylo_pres[[i]]
+        list_dist.phylo_pres_d4[[i]] <- get_rank_mat(list_dist.phylo_pres[[i]], 6)[[2]]
         
       }
       

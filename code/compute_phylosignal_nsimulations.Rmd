@@ -11,8 +11,8 @@ description: this script runs all steps from the script compute_phylosignal_1sim
 
 
 ```{r}
-#source("functions/functions_phylosignal_nsimulations.R")
-source("functions/functions_phylosignal_nsimulations_lowdim.R")
+source("functions/functions_phylosignal_nsimulations.R")
+#source("functions/functions_phylosignal_nsimulations_lowdim.R")
 source("functions/functions_phylosignal.R")
 library(ape)
 library(apTreeshape)
@@ -45,7 +45,7 @@ Read the results of n simulations produced by simulation_fac_comp.Rmd, simulatio
 
 ```{r}
 #path_sim_fac <- "../data/selection_evolution/facilitation"
-path_sim_fac <-"C:/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/facilitation"
+path_sim_fac <-"C:/Users/alexf/Desktop/PhD_Fuster-Calvo/Chapter 2 - Network_phylogeny/Network-Phylogeny/data/selection_evolution/facilitation_highs"
 file_paths_fac <- list.files(path = path_sim_fac, pattern = ".rds", full.names = TRUE)
 
 
@@ -200,14 +200,14 @@ if(length(which(vec_problems == "problem")) > 0){
 
 
 ```{r}
-
+Smax = 1000
 # facilitation
 cor_fac <- compute_cor_phylosig_time_comp.fac(list_sim = file_paths_fac)
 
 cor_fac[[1]]$interaction <- rep("facilitation", times = nrow(cor_fac[[1]]))
 
 #saveRDS(cor_fac, "../data/results_nsim_fac.RDS")
-#saveRDS(cor_fac, "../data/results_nsim_fac_6d.RDS")
+#saveRDS(cor_fac, "../data/6d/results_nsim_fac_6d.RDS")
 
 
 
@@ -221,7 +221,7 @@ cor_fw <- compute_cor_phylosig_time_fw(list_sim = file_paths_fw)
 cor_fw[[1]]$interaction <- rep("foodweb", times = nrow(cor_fw[[1]]))
 
 #saveRDS(cor_fw, "../data/results_nsim_fw.RDS")
-#saveRDS(cor_fw, "../data/results_nsim_fw_6d.RDS")
+#saveRDS(cor_fw, "../data/6d/results_nsim_fw_6d.RDS")
 
 
 
@@ -232,7 +232,7 @@ cor_comp <- compute_cor_phylosig_time_comp.fac(list_sim = file_paths_comp)
 cor_comp[[1]]$interaction <- rep("competition", times = nrow(cor_comp[[1]]))
 
 #saveRDS(cor_comp, "../data/results_nsim_comp.RDS")
-#saveRDS(cor_comp, "../data/results_nsim_comp_6d.RDS")
+#saveRDS(cor_comp, "../data/6d/results_nsim_comp_6d.RDS")
 
 
 
@@ -244,7 +244,7 @@ cor_n <- compute_cor_phylosig_time_fw(list_sim = file_paths_n)
 cor_n[[1]]$interaction <- rep("neutral", times = nrow(cor_n[[1]]))
 
 #saveRDS(cor_n, "../data/results_nsim_neutral.RDS")
-#saveRDS(cor_n, "../data/results_nsim_neutral_6d.RDS")
+#saveRDS(cor_n, "../data/6d/results_nsim_neutral_6d.RDS")
 
 ### Merge data
 
@@ -256,16 +256,18 @@ df_results_phylosignal <- rbind(cor_fac,cor_comp,cor_fw, cor_n)
 
 ```
 
+
+
 ```{r}
 #cor_fac <- readRDS("../data/results_nsim_fac.RDS")
 #cor_comp <- readRDS("../data/results_nsim_comp.RDS")
 #cor_n <- readRDS("../data/results_nsim_neutral.RDS")
 #cor_fw <- readRDS("../data/results_nsim_fw.RDS")
 
-cor_fac <- readRDS("../data/results_nsim_fac_6d.RDS")
-cor_comp <- readRDS("../data/results_nsim_comp_6d.RDS")
-cor_n <- readRDS("../data/results_nsim_neutral_6d.RDS")
-cor_fw <- readRDS("../data/results_nsim_fw_6d.RDS")
+cor_fac <- readRDS("../data/6d/results_nsim_fac_6d.RDS")
+cor_comp <- readRDS("../data/6d/results_nsim_comp_6d.RDS")
+cor_n <- readRDS("../data/6d/results_nsim_neutral_6d.RDS")
+cor_fw <- readRDS("../data/6d/results_nsim_fw_6d.RDS")
 
 
 #cor_fw <- readRDS("../data/results_nsim_fw_6d.RDS")
@@ -298,8 +300,8 @@ df_results_richness <- rbind(cor_fac[[2]],
 
 df_fac <- df_results_phylosignal[df_results_phylosignal$interaction == "facilitation",]
 
-p_fac <- ggplot(df_fac, aes(x = timesteps, y = phylo.cor.mean, group = sim, col = sim))+
-geom_line(color= df_fac$sim, linetype="solid",alpha = 0.7)+
+p_fac <- ggplot(cor_fac[[1]], aes(x = timesteps, y = phylo.cor.mean, group = sim, col = sim))+
+geom_line(color= cor_fac[[1]]$sim, linetype="solid",alpha = 0.7)+
   #geom_point(aes(fill = sign_mean, color=sign_mean), size=2, alpha = 0.7) +
   theme_bw()+
     my.theme+
@@ -430,7 +432,7 @@ plot_phylosign_all <- ggarrange(
   
 )
 
-#ggsave("plot_phylosign_all_6d.png", height = 8, width = 12)
+ggsave("plot_phylosign_all_6d.png", height = 8, width = 12)
 
 
 plot_richness_all <- ggarrange(
@@ -445,7 +447,7 @@ plot_richness_all <- ggarrange(
   
 )
 
-#ggsave("plot_richness_all_6d.png", height = 8, width = 12)
+ggsave("plot_richness_all_6d.png", height = 8, width = 12)
 
 ```
 

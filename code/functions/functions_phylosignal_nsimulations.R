@@ -182,7 +182,7 @@ compute_cor_phylosig_time_comp.fac <- function(list_sim) {
     # Set the same spp names for the presence_matrix than for the interacion matrices
     
     
-    colnames(presence_matrix) <- seq(1:1000)
+    colnames(presence_matrix) <- seq(1:Smax)
     
     colnames(presence_matrix) <- chartr("0123456789", "ABCDEFGHIJ", colnames(presence_matrix))
     
@@ -719,7 +719,7 @@ compute_cor_phylosig_time_fw <- function(list_sim) {
     # Set the same spp names for the presence_matrix than for the interacion matrices
     
     
-    colnames(presence_matrix) <- seq(1:1000)
+    colnames(presence_matrix) <- seq(1:Smax)
     
     colnames(presence_matrix) <- chartr("0123456789", "ABCDEFGHIJ", colnames(presence_matrix))
     

@@ -30,6 +30,7 @@ pars = list()
 # General parameters
 #pars$int = 0 # 0 for competition, 1 for facilitation, 2 for predation
 pars$Smax = 1000 # Maximal number of species in the system
+#pars$Smax = 2000
 
 # Related to interaction range trait
 pars$av_r = 0.1 # Half range of the niche of the first species
@@ -62,7 +63,7 @@ pars$d = 0.5 # Decrease speed of the establishment probability
 pars$Bspe = 4 # Constant minimal number of interaction per species (extablishment prob)
 pars$Bext = 4 # Constant minimal number of interaction per species (extinction prob)
 pars$I_max = 40 # Maximal number of interactioning species
-
+#pars$I_max = 120 # Maximal number of interactioning species
 
 pars$beta_n = 1 # parameter of the beta distribution
 
@@ -73,7 +74,7 @@ pars$beta_n = 1 # parameter of the beta distribution
 
 ```{r}
 nsteps = 250 # Set the maximum timestep per simulation
-nsim = 10 # Set the number of simulations
+nsim = 3 # Set the number of simulations
 
 # Vector to record number of simulation needed to reach 100 valid simulations
 needed_sim_pos <- c(rep(NA, nsim))
@@ -162,10 +163,10 @@ seed_list <- NULL # Set an object to record seed that will be used to launch sim
     		
     				# Save simulations results data
 		if(pars$int == 1){
-			path <- paste0("../../data/selection_evolution/facilitation/list_res_pos_", successful_sim, ".rds")
+			path <- paste0("../../data/selection_evolution/facilitation_highs/list_res_pos_", successful_sim, ".rds")
 	  	saveRDS(res_sim, file = path) #Change if interaction tyep = 0 (competition)
 		} else if(pars$int == 0){
-			path <- paste0("../../data/selection_evolution/competition/list_res_neg_", successful_sim, ".rds")
+			path <- paste0("../../data/selection_evolution/competition_highs/list_res_neg_", successful_sim, ".rds")
 	  	saveRDS(res_sim, file = path) #Change if interaction tyep = 0 (competition)
 		}
     		
